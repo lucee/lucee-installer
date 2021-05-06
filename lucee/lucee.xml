@@ -41,7 +41,7 @@
                     <description>Windows All</description>
                     <destination>${installdir}</destination>
                     <name>windowsAll</name>
-                    <platforms>windows</platforms>
+                    <platforms>windows-x64</platforms>
                     <distributionFileList>
                         <distributionDirectory>
                             <origin>windows/AJP13</origin>

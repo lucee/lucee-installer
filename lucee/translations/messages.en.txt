@@ -1,4 +1,4 @@
-Installer.Welcome.Title=Setup - Lucee
+Installer.Welcome.Title=Setup - Lucee ${project.version}
 Installer.Welcome.Text=Welcome to the Lucee Installer.\n\n
 Installer.Ready.Title=Ready to Install
 Installer.Ready.Text1=Setup is now ready to begin installing Lucee on your computer.
