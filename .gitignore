@@ -2,3 +2,6 @@ tmp/*
 lucee/lucee.xml.backup
 lucee/license.xml
 .vscode/settings.json
+lucee/tomcat9/
+jre/jre64-win/jre/
+jre/jre64-lin/jre/

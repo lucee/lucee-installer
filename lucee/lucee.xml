@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.3.7.047-pl0</version>
+    <version>5.3.8.179-RC4</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -1067,7 +1067,7 @@
     <slideShowTiming>20</slideShowTiming>
     <startMenuGroupName>Lucee</startMenuGroupName>
     <uninstallationLogFile>${system_temp_directory}/${project.shortName}-uninstall.log</uninstallationLogFile>
-    <vendor>Vivio Technologies</vendor>
+    <vendor>Lucee Association Switzerland</vendor>
     <windows64bitMode>1</windows64bitMode>
     <windowsExecutableIcon>lucee.ico</windowsExecutableIcon>
     <customLanguageFileList>
