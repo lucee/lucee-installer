@@ -20,9 +20,9 @@ Delete the `lucee/tomcat9/tomcat/webapps/` folder (Lucee has it's own)
 
 Copy the customised `lucee/tomcat9/tomcat-lucee-conf` Lucee Tomcat configuration files over the extracted Tomcat distribution files  in `lucee/tomcat9/tomcat`.
 
-Download the Windows or Linux 64-bit JREs from (https://adoptopenjdk.net/releases.html) and extract them into the appropriate `/jre` folders (delete the manual directory from the linux JRE)
+Download the Windows or Linux 64-bit JREs from <https://adoptopenjdk.net/releases.html> and extract them into the appropriate `/jre` folders (delete the manual directory from the linux JRE)
 
-Download and install the InstallBuilder Enterprise Edition (https://installbuilder.com/) make sure it's x64 version
+Download and install the InstallBuilder Enterprise Edition <https://installbuilder.com/> make sure it's x64 version
 
 Update the Version Number under Product Details in InstallBuilder
 
