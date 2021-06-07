@@ -1,4 +1,12 @@
 <cfscript>
+        /* 
+                always force mod_cfml to trigger (1.10 still triggers on read path_info, rather than the resolved filename)
+                https://luceeserver.atlassian.net/browse/LDEV-3554
+                https://github.com/viviotech/mod_cfml/issues/37
+        */
+        if ( listLast( cgi.request_uri, "/" ) neq "index.cfm" )
+                location url="/index.cfm" addtoken="false"; 
+
         refURL="http://docs.lucee.org/reference.html";
         githubURL="https://github.com/lucee/Lucee";
         adminURL="#CGI.CONTEXT_PATH#/lucee/admin.cfm";
