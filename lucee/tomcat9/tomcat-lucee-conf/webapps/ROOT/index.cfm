@@ -43,8 +43,13 @@
                         </div>
                 </div>
         </section>
-
-
+        
+        <cfoutput>
+                <section id="wrong-mapping-warning" class="wrong-mapping-warning" style="text-align: center; font-weight: bolder; color: red; border: red 2px solid; margin:15px; padding: 5px;">
+                        <p>Warning, if you can see this message, your webserver webroot is not mapped to [#getDirectoryFromPath(getCurrentTemplatePath())#].</p>
+                        <p>This means Lucee is only configured to handle .cfm and .cfc and other files like css, js and images won't load properly</p>
+                </section>
+        </cfoutput>
 
         <section id="contents">
 
