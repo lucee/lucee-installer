@@ -13,3 +13,4 @@ html{-webkit-text-size-adjust:none}body{font-family:'Open Sans',Arial,sans-serif
 	display:inline-block;text-indent:-999em;
 	vertical-align:middle;margin-right:10px}
 .widget-text p.readmore{font-weight:700;font-size:12px;line-height:1.2}
+.wrong-mapping-warning { display:none }
