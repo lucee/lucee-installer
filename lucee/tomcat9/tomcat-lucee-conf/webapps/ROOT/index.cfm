@@ -4,7 +4,7 @@
                 https://luceeserver.atlassian.net/browse/LDEV-3554
                 https://github.com/viviotech/mod_cfml/issues/37
         */
-        if ( listLast( cgi.request_uri, "/" ) neq "index.cfm" )
+        if ( listLast( cgi.request_url, "/" ) neq "index.cfm" )
                 location url="/index.cfm" addtoken="false"; 
 
         refURL="http://docs.lucee.org/reference.html";
