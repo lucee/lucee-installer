@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.3.8.179-RC4</version>
+    <version>5.3.8.212-SNAPSHOT</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -50,6 +50,9 @@
                             <origin>../jre/jre64-win/jre</origin>
                         </distributionDirectory>
                     </distributionFileList>
+                    <ruleList>
+                        <isTrue value="${installjre}"/>
+                    </ruleList>
                 </folder>
                 <folder>
                     <description>Linux 64</description>
@@ -64,6 +67,9 @@
                             <origin>../jre/jre64-lin/jre</origin>
                         </distributionDirectory>
                     </distributionFileList>
+                    <ruleList>
+                        <isTrue value="${installjre}"/>
+                    </ruleList>
                 </folder>
             </folderList>
             <postInstallationActionList>
@@ -975,6 +981,32 @@
             <name>maxheap</name>
             <value>512</value>
         </setInstallerVariable>
+        <setInstallerVariable>
+            <name>installjre</name>
+            <value>true</value>
+        </setInstallerVariable>
+        <autodetectJava>
+            <abortOnError>0</abortOnError>
+            <promptUser>0</promptUser>
+            <selectionOrder>newest</selectionOrder>
+            <showMessageOnError>0</showMessageOnError>
+            <validVersionList>
+                <validVersion>
+                    <bitness></bitness>
+                    <maxVersion>14</maxVersion>
+                    <minVersion>1.8</minVersion>
+                    <requireJDK>0</requireJDK>
+                    <vendor></vendor>
+                </validVersion>
+            </validVersionList>
+        </autodetectJava>
+        <setInstallerVariable>
+            <name>installjre</name>
+            <value>false</value>
+            <ruleList>
+                <isTrue value="${java_autodetected}"/>
+            </ruleList>
+        </setInstallerVariable>
     </initializationActionList>
     <preUninstallationActionList>
         <runProgram>
@@ -1141,6 +1173,49 @@
         </launchBrowser>
     </finalPageActionList>
     <parameterList>
+        <choiceParameter>
+            <name>installjre</name>
+            <title>Protocol Selection</title>
+            <description>Select Java</description>
+            <explanation>Choose to Install the bundled JRE or use the existing Java installation
+
+Version: ${java_version}
+Path: ${java_executable}
+</explanation>
+            <value></value>
+            <default>{installjre}</default>
+            <allowEmptyValue>1</allowEmptyValue>
+            <displayType>combobox</displayType>
+            <ordering>default</ordering>
+            <width>40</width>
+            <optionList>
+                <option>
+                    <description>Don't install the bundled JRE</description>
+                    <image></image>
+                    <text>Use existing Java: ${java_version}</text>
+                    <value>false</value>
+                </option>
+                <option>
+                    <description>Install the bundled JRE</description>
+                    <image></image>
+                    <text>Install the bundled JRE for Lucee</text>
+                    <value>true</value>
+                </option>
+            </optionList>
+            <ruleList>
+                <isTrue value="${java_autodetected}"/>
+            </ruleList>
+        </choiceParameter>
+        <labelParameter>
+            <name>NoSystemJavadetected</name>
+            <title>No System Java detected</title>
+            <description>Lucee requires a Java runtime (versions 1.8 to 14 are supported)</description>
+            <explanation>The bundled JRE will be automatically installed</explanation>
+            <image></image>
+            <ruleList>
+                <isFalse value="${java_autodetected}"/>
+            </ruleList>
+        </labelParameter>
         <directoryParameter>
             <name>installdir</name>
             <description>Installer.Parameter.installdir.description</description>
