@@ -7,16 +7,16 @@
         if ( listLast( cgi.request_url, "/" ) neq "index.cfm" )
                 location url="/index.cfm" addtoken="false"; 
 
-        refURL="http://docs.lucee.org/reference.html";
+        refURL="https://docs.lucee.org/reference.html";
         githubURL="https://github.com/lucee/Lucee";
         adminURL="#CGI.CONTEXT_PATH#/lucee/admin.cfm";
         webAdminURL="#CGI.CONTEXT_PATH#/lucee/admin/web.cfm";
         serverAdminURL="#CGI.CONTEXT_PATH#/lucee/admin/server.cfm";
-        mailinglistURL="https://groups.google.com/forum/##!forum/lucee";
-        profURL="http://lucee.org/support.html";
-        issueURL="https://bitbucket.org/lucee/lucee/issues";
-        newURL="http://docs.lucee.org/guides/lucee-5.html";
-        firststepsURL="http://docs.lucee.org/guides/getting-started/first-steps.html";
+        mailinglistURL="https://dev.lucee.org/";
+        profURL="https://lucee.org/support.html";
+        issueURL="https://luceeserver.atlassian.net/jira";
+        newURL="https://docs.lucee.org/guides/lucee-5.html";
+        firststepsURL="https://docs.lucee.org/guides/getting-started/first-steps.html";
 </cfscript><!DOCTYPE html>
 <html>
         <head>
@@ -171,7 +171,7 @@
 							<h3 class="widget-title">Related Websites</h3>
 
 							<!--- lucee.org --->
-							<p class="file-link"><a href="http://www.lucee.org">Lucee Association Switzerland</a></p>
+							<p class="file-link"><a href="https://www.lucee.org">Lucee Association Switzerland</a></p>
 							<p>Non-profit custodians and maintainers of the Lucee Project</p>
 							
 							<!--- Bitbucket 
@@ -185,7 +185,7 @@
 							- Engage with other Lucee community members via our <a href="#mailinglistURL#">mailing list</a><br />
 							- <a href="#issueURL#">Submitting</a> bugs and feature requests<br />
 							- <a href="#githubURL#">Contribute</a> to the code<br />
-							- Become a <a href="http://lucee.org/supporters/become-a-supporter.html">Lucee Supporter</a><br />
+							- Become a <a href="https://www.lucee.org/aboutlucee/community.html">Lucee Supporter</a><br />
 							</p>
 							
 
