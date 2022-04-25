@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.3.8.212-SNAPSHOT</version>
+    <version>5.3.9.129-RC</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -312,14 +312,26 @@
                     <progressText>${msg(postInstall.configuringLuceeTomcat)}</progressText>
                     <ruleEvaluationLogic>or</ruleEvaluationLogic>
                     <actionList>
+                        <dirName path="${java_executable}" variable="java_bin_dir"/>
+                        <dirName path="${java_bin_dir}" variable="java_home_dir"/>
                         <substitute>
                             <encoding>utf-8</encoding>
                             <files>${installdir}\tomcat\bin\service.bat</files>
                             <type>exact</type>
                             <substitutionList>
                                 <substitution>
-                                    <pattern>@@installdir@@</pattern>
-                                    <value>${installdir}</value>
+                                    <pattern>@@luceeJREhome@@</pattern>
+                                    <value>set "JRE_HOME=${installdir}\jre"</value>
+                                    <ruleList>
+                                        <isTrue value="${installjre}"/>
+                                    </ruleList>
+                                </substitution>
+                                <substitution>
+                                    <pattern>@@luceeJREhome@@</pattern>
+                                    <value>set "JRE_HOME=${java_home_dir}"</value>
+                                    <ruleList>
+                                        <isFalse value="${installjre}"/>
+                                    </ruleList>
                                 </substitution>
                                 <substitution>
                                     <pattern>@@startatboot@@</pattern>
@@ -368,10 +380,16 @@
                             <program>${installdir}\tomcat\bin\service.bat</program>
                             <programArguments>install Lucee</programArguments>
                             <runAs>Administrator</runAs>
-                            <showMessageOnError>0</showMessageOnError>
+                            <showMessageOnError>1</showMessageOnError>
                             <onErrorActionList>
                                 <showInfo>
-                                    <text>The Lucee-Tomcat service intall failed to complete successfully. Please review the install.log file for details.</text>
+                                    <text>The Lucee-Tomcat service intall failed to complete successfully.
+
+${program_stdout}
+${program_stderr}
+${program_exit_code}
+
+Please review the ${installer_installation_log} file for details.</text>
                                 </showInfo>
                             </onErrorActionList>
                         </runProgram>
@@ -381,10 +399,16 @@
                             <programArguments></programArguments>
                             <runAs>Administrator</runAs>
                             <show>0</show>
-                            <showMessageOnError>0</showMessageOnError>
+                            <showMessageOnError>1</showMessageOnError>
                             <onErrorActionList>
                                 <showInfo>
-                                    <text>Autostart service failed. Please review install.log.</text>
+                                    <text>Autostart Tomcat/Lucee service failed.
+
+${program_stdout}
+${program_stderr}
+${program_exit_code}
+
+Please review ${installer_installation_log}.</text>
                                 </showInfo>
                             </onErrorActionList>
                             <ruleList>
@@ -1175,7 +1199,7 @@
     <parameterList>
         <choiceParameter>
             <name>installjre</name>
-            <title>Protocol Selection</title>
+            <title>Java Runtime Selection</title>
             <description>Select Java</description>
             <explanation>Choose to Install the bundled JRE or use the existing Java installation
 
@@ -1198,7 +1222,7 @@ Path: ${java_executable}
                 <option>
                     <description>Install the bundled JRE</description>
                     <image></image>
-                    <text>Install the bundled JRE for Lucee</text>
+                    <text>Install the bundled JRE</text>
                     <value>true</value>
                 </option>
             </optionList>
