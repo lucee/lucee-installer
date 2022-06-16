@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.3.9.129-RC</version>
+    <version>5.3.9.141</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -380,7 +380,6 @@
                             <program>${installdir}\tomcat\bin\service.bat</program>
                             <programArguments>install Lucee</programArguments>
                             <runAs>Administrator</runAs>
-                            <showMessageOnError>1</showMessageOnError>
                             <onErrorActionList>
                                 <showInfo>
                                     <text>The Lucee-Tomcat service intall failed to complete successfully.
@@ -399,7 +398,6 @@ Please review the ${installer_installation_log} file for details.</text>
                             <programArguments></programArguments>
                             <runAs>Administrator</runAs>
                             <show>0</show>
-                            <showMessageOnError>1</showMessageOnError>
                             <onErrorActionList>
                                 <showInfo>
                                     <text>Autostart Tomcat/Lucee service failed.
