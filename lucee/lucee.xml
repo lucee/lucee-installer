@@ -38,37 +38,76 @@
                     </distributionFileList>
                 </folder>
                 <folder>
-                    <description>Windows All</description>
+                    <description>Windows IIS Connector</description>
                     <destination>${installdir}</destination>
-                    <name>windowsAll</name>
+                    <name>iisconnector</name>
                     <platforms>windows-x64</platforms>
                     <distributionFileList>
                         <distributionDirectory>
                             <origin>windows/AJP13</origin>
                         </distributionDirectory>
+                    </distributionFileList>
+                    <ruleList>
+                        <isTrue>
+                            <value>${installiis}</value>
+                        </isTrue>
+                        <platformTest>
+                            <type>windows-x64</type>
+                        </platformTest>
+                    </ruleList>
+                </folder>
+                <folder>
+                    <description>Windows Java Runtime</description>
+                    <destination>${installdir}</destination>
+                    <name>winjre</name>
+                    <platforms>windows-x64</platforms>
+                    <distributionFileList>
                         <distributionDirectory>
                             <origin>../jre/jre64-win/jre</origin>
                         </distributionDirectory>
                     </distributionFileList>
                     <ruleList>
-                        <isTrue value="${installjre}"/>
+                        <isTrue>
+                            <value>${installjre}</value>
+                        </isTrue>
+                        <platformTest>
+                            <type>windows-x64</type>
+                        </platformTest>
                     </ruleList>
                 </folder>
                 <folder>
-                    <description>Linux 64</description>
-                    <destination>${installdir}/</destination>
-                    <name>Linux64</name>
+                    <description>Linux 64 Files</description>
+                    <destination>${installdir}</destination>
+                    <name>linux64files</name>
                     <platforms>linux-x64</platforms>
                     <distributionFileList>
                         <distributionDirectory>
                             <origin>linux/sys</origin>
                         </distributionDirectory>
+                    </distributionFileList>
+                    <ruleList>
+                        <platformTest>
+                            <type>linux-x64</type>
+                        </platformTest>
+                    </ruleList>
+                </folder>
+                <folder>
+                    <description>Linux Java Runtime</description>
+                    <destination>${installdir}</destination>
+                    <name>linuxjavaruntime</name>
+                    <platforms>linux-x64</platforms>
+                    <distributionFileList>
                         <distributionDirectory>
                             <origin>../jre/jre64-lin/jre</origin>
                         </distributionDirectory>
                     </distributionFileList>
                     <ruleList>
-                        <isTrue value="${installjre}"/>
+                        <platformTest>
+                            <type>linux-x64</type>
+                        </platformTest>
+                        <isTrue>
+                            <value>${installjre}</value>
+                        </isTrue>
                     </ruleList>
                 </folder>
             </folderList>
@@ -1654,4 +1693,3 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </platformOptions>
     </platformOptionsList>
 </project>
-
