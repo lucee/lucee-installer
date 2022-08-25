@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.3.9.141</version>
+    <version>5.3.9.160</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -1693,3 +1693,4 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </platformOptions>
     </platformOptionsList>
 </project>
+
