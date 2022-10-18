@@ -1053,7 +1053,7 @@ Please review ${installer_installation_log}.</text>
             <showMessageOnError>0</showMessageOnError>
             <validVersionList>
                 <validVersion>
-                    <bitness></bitness>
+                    <bitness>64</bitness>
                     <maxVersion>14</maxVersion>
                     <minVersion>1.8</minVersion>
                     <requireJDK>0</requireJDK>
@@ -1693,4 +1693,3 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </platformOptions>
     </platformOptionsList>
 </project>
-
