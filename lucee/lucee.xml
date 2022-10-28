@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.3.9.160</version>
+    <version>5.3.9.166</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -129,6 +129,47 @@
                         </isFalse>
                     </ruleList>
                 </deleteFile>
+                <dirName path="${java_executable}" variable="java_bin_dir"/>
+                <dirName path="${java_bin_dir}" variable="java_home_dir"/>
+                <substitute>
+                    <files>${installdir}/sys/change_user.sh</files>
+                    <type>exact</type>
+                    <ruleList>
+                        <platformTest>
+                            <type>linux</type>
+                        </platformTest>
+                    </ruleList>
+                    <substitutionList>
+                        <substitution>
+                            <pattern>@@luceeJREhome@@</pattern>
+                            <value>TEMP=`echo "JRE_HOME=${myInstallDir}/jre; export JRE_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <ruleList>
+                                <isTrue value="${installjre}"/>
+                            </ruleList>
+                        </substitution>
+                        <substitution>
+                            <pattern>@@luceeJAVAhome@@</pattern>
+                            <value>TEMP=`echo "JAVA_HOME=${myInstallDir}/jre; export JAVA_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <ruleList>
+                                <isTrue value="${installjre}"/>
+                            </ruleList>
+                        </substitution>
+                        <substitution>
+                            <pattern>@@luceeJREhome@@</pattern>
+                            <value>TEMP=`echo "JRE_HOME=${java_home_dir}; export JRE_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <ruleList>
+                                <isFalse value="${installjre}"/>
+                            </ruleList>
+                        </substitution>
+                        <substitution>
+                            <pattern>@@luceeJAVAhome@@</pattern>
+                            <value>TEMP=`echo "JAVA_HOME=${java_home_dir}; export JAVA_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <ruleList>
+                                <isFalse value="${installjre}"/>
+                            </ruleList>
+                        </substitution>
+                    </substitutionList>
+                </substitute>
                 <runProgram>
                     <explanation>${msg(postInstall.updatingTomcatUser)}</explanation>
                     <program>${installdir}/sys/change_user.sh</program>
@@ -397,45 +438,6 @@
                                 <substitution>
                                     <pattern>@@maxheap@@</pattern>
                                     <value>${maxheap}</value>
-                                </substitution>
-                            </substitutionList>
-                        </substitute>
-                        <substitute>
-                            <files>${installdir}/sys/change_user.sh</files>
-                            <type>exact</type>
-                            <ruleList>
-                                <platformTest>
-                                    <type>linux</type>
-                                </platformTest>
-                            </ruleList>
-                            <substitutionList>
-                                <substitution>
-                                    <pattern>@@luceeJREhome@@</pattern>
-                                    <value>TEMP=`echo "JRE_HOME=${myInstallDir}/jre; export JRE_HOME" >> $TomcatControlScript`;</value>
-                                    <ruleList>
-                                        <isTrue value="${installjre}"/>
-                                    </ruleList>
-                                </substitution>
-                                <substitution>
-                                    <pattern>@@luceeJAVAhome@@</pattern>
-                                    <value>TEMP=`echo "JAVA_HOME=${myInstallDir}/jre; export JAVA_HOME" >> $TomcatControlScript`;</value>
-                                    <ruleList>
-                                        <isTrue value="${installjre}"/>
-                                    </ruleList>
-                                </substitution>
-                                <substitution>
-                                    <pattern>@@luceeJREhome@@</pattern>
-                                    <value>TEMP=`echo "JRE_HOME=${java_home_dir}; export JRE_HOME" >> $TomcatControlScript`;</value> 
-                                    <ruleList>
-                                        <isFalse value="${installjre}"/>
-                                    </ruleList>
-                                </substitution>
-                                <substitution>
-                                    <pattern>@@luceeJAVAhome@@</pattern>
-                                    <value>TEMP=`echo "JAVA_HOME=${java_home_dir}; export JAVA_HOME" >> $TomcatControlScript`;</value>
-                                    <ruleList>
-                                        <isFalse value="${installjre}"/>
-                                    </ruleList>
                                 </substitution>
                             </substitutionList>
                         </substitute>
@@ -1732,3 +1734,4 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </platformOptions>
     </platformOptionsList>
 </project>
+
