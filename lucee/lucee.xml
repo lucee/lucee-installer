@@ -400,6 +400,45 @@
                                 </substitution>
                             </substitutionList>
                         </substitute>
+                        <substitute>
+                            <files>${installdir}/sys/change_user.sh</files>
+                            <type>exact</type>
+                            <ruleList>
+                                <platformTest>
+                                    <type>linux</type>
+                                </platformTest>
+                            </ruleList>
+                            <substitutionList>
+                                <substitution>
+                                    <pattern>@@luceeJREhome@@</pattern>
+                                    <value>TEMP=`echo "JRE_HOME=${myInstallDir}/jre; export JRE_HOME" >> $TomcatControlScript`;</value>
+                                    <ruleList>
+                                        <isTrue value="${installjre}"/>
+                                    </ruleList>
+                                </substitution>
+                                <substitution>
+                                    <pattern>@@luceeJAVAhome@@</pattern>
+                                    <value>TEMP=`echo "JAVA_HOME=${myInstallDir}/jre; export JAVA_HOME" >> $TomcatControlScript`;</value>
+                                    <ruleList>
+                                        <isTrue value="${installjre}"/>
+                                    </ruleList>
+                                </substitution>
+                                <substitution>
+                                    <pattern>@@luceeJREhome@@</pattern>
+                                    <value>TEMP=`echo "JRE_HOME=${java_home_dir}; export JRE_HOME" >> $TomcatControlScript`;</value> 
+                                    <ruleList>
+                                        <isFalse value="${installjre}"/>
+                                    </ruleList>
+                                </substitution>
+                                <substitution>
+                                    <pattern>@@luceeJAVAhome@@</pattern>
+                                    <value>TEMP=`echo "JAVA_HOME=${java_home_dir}; export JAVA_HOME" >> $TomcatControlScript`;</value>
+                                    <ruleList>
+                                        <isFalse value="${installjre}"/>
+                                    </ruleList>
+                                </substitution>
+                            </substitutionList>
+                        </substitute>
                         <actionGroup>
                             <actionList>
                                 <copyFile>
