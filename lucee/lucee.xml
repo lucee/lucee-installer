@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.3.9.166</version>
+    <version>5.3.10.120</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -142,14 +142,14 @@
                     <substitutionList>
                         <substitution>
                             <pattern>@@luceeJREhome@@</pattern>
-                            <value>TEMP=`echo "JRE_HOME=${myInstallDir}/jre; export JRE_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <value>TEMP=`echo "JRE_HOME=${installDir}/jre; export JRE_HOME" &gt;&gt; $TomcatControlScript`;</value>
                             <ruleList>
                                 <isTrue value="${installjre}"/>
                             </ruleList>
                         </substitution>
                         <substitution>
                             <pattern>@@luceeJAVAhome@@</pattern>
-                            <value>TEMP=`echo "JAVA_HOME=${myInstallDir}/jre; export JAVA_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <value>TEMP=`echo "JAVA_HOME=${installDir}/jre; export JAVA_HOME" &gt;&gt; $TomcatControlScript`;</value>
                             <ruleList>
                                 <isTrue value="${installjre}"/>
                             </ruleList>
@@ -1734,4 +1734,3 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </platformOptions>
     </platformOptionsList>
 </project>
-
