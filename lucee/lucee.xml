@@ -27,15 +27,28 @@
                             <origin>lucee.ico</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>lucee/lib</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
                             <origin>tomcat9/tomcat</origin>
                         </distributionDirectory>
                         <distributionDirectory>
                             <origin>mod_cfml</origin>
                         </distributionDirectory>
                     </distributionFileList>
+                </folder>
+                <folder>
+                    <description>Lucee Default bundled jar</description>
+                    <destination>${installdir}</destination>
+                    <name>luceejar</name>
+                    <platforms>all</platforms>
+                    <distributionFileList>
+                        <distributionDirectory>
+                            <origin>lucee/lib</origin>
+                        </distributionDirectory>
+                    </distributionFileList>
+                    <ruleList>
+                        <fileExists negate="1">
+                             <path>${customLuceejar}</path>
+                        </fileExists>
+                    </ruleList>
                 </folder>
                 <folder>
                     <description>Windows IIS Connector</description>
@@ -112,6 +125,18 @@
                 </folder>
             </folderList>
             <postInstallationActionList>
+                <createDirectory>
+                    <path>${installdir}/lib/</path>
+                </createDirectory>
+                <copyFile>
+                    <destination>${installdir}/lib</destination>
+                    <origin>${customLuceejar}</origin>
+                    <ruleList>
+                        <fileExists>
+                             <path>${customLuceejar}</path>
+                        </fileExists>
+                    </ruleList>
+                </copyFile>
                 <copyFile>
                     <destination>${installdir}/tomcat/lib/</destination>
                     <origin>${installdir}/mod_cfml/mod_cfml-valve_*</origin>
@@ -721,6 +746,12 @@ Please review ${installer_installation_log}.</text>
                             <element>/cfLuceeConfiguration</element>
                             <file>${installdir}/tomcat/lucee-server/context/lucee-server.xml</file>
                             <variable>hspw</variable>
+                            <ruleList>
+                                <!-- lucee 6 uses json rather than xml -->
+                                <fileExists>
+                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
+                                </fileExists>
+                            </ruleList>
                         </xmlFileGet>
                         <xmlFileSet>
                             <attribute>default-hspw</attribute>
@@ -728,6 +759,10 @@ Please review ${installer_installation_log}.</text>
                             <file>${installdir}/tomcat/lucee-server/context/lucee-server.xml</file>
                             <value>${hspw}</value>
                             <ruleList>
+                                <!-- lucee 6 uses json rather than xml -->
+                                <fileExists>
+                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
+                                </fileExists>
                                 <compareValues>
                                     <logic>does_not_equal</logic>
                                     <value1>${hspw}</value1>
@@ -739,6 +774,17 @@ Please review ${installer_installation_log}.</text>
                                 </portTest>
                             </ruleList>
                         </xmlFileSet>
+                        <!-- lucee 6 uses json rather than xml, install builder doesn't support json, so lets drop a password.txt -->
+                        <writeFile>
+                            <path>${installdir}/tomcat/lucee-server/context/password.txt</path>
+                            <text>${luceepass}</text>
+                            <ruleList>
+                                <fileExists negate="1">
+                                    <!-- other approach, check for .CFConfig.json -->
+                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
+                                </fileExists>
+                            </ruleList>
+                        </writeFile>
                     </actionList>
                 </actionGroup>
             </postInstallationActionList>
@@ -1012,6 +1058,10 @@ Please review ${installer_installation_log}.</text>
         <setInstallerVariable>
             <name>installmodcfml</name>
             <value>true</value>
+        </setInstallerVariable>
+        <setInstallerVariable>
+            <name>customLuceejar</name>
+            <value></value>
         </setInstallerVariable>
         <actionGroup>
             <explanation>Configure Tomcat Ports</explanation>
@@ -1598,7 +1648,19 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <value>${installiis}</value>
                 </isTrue>
             </ruleList>
-        </booleanParameter>
+         </booleanParameter>
+         <fileParameter>
+            <name>customLuceejar</name>
+            <title>${msg(params.customLuceeVersionTitle)}</title>
+            <description>${msg(params.customLuceeVersionDesc)}</description>
+            <explanation>${msg(params.customLuceeVersionExplanation)}</explanation>
+            <value></value>
+            <default></default>
+            <allowEmptyValue>1</allowEmptyValue>
+            <mustBeWritable>0</mustBeWritable>
+            <mustExist>1</mustExist>
+            <width>50</width>
+        </fileParameter>
         <fileParameter>
             <name>apachecontrolloc</name>
             <title>${msg(params.ApacheControlFileTitle)}</title>

@@ -73,4 +73,6 @@ params.ApacheLogDirExplanation=Please enter the directory that Apache stores it'
 params.installIISConnectorTitle=Install the IIS Connector?
 params.installIISConnectorDesc=Install the IIS Connector?
 params.installIISConnectorExplanation=Do you want to install the IIS Connector? If you're unsure, leave this box checked.
-
+params.customLuceeVersionTitle=Bundled or custom Lucee Version
+params.customLuceeVersionDesc=Select a Lucee jar
+params.customLuceeVersionExplanation=You can either install the bundled Lucee version ( ${project.version} ) or select an alternate Lucee jar to install
