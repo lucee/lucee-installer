@@ -74,11 +74,24 @@
 
                                                                 <div class="listing-content">
                                                                         <h2 class="title">
-                                                                                <a href="#newURL#">New in Lucee 5</a>
+                                                                                <a href="#newURL#">New in Lucee #ListFirst(server.lucee.version,'.')#</a>
                                                                         </h2>
 
                                                                         <p>
-                                                                                Lucee 5 is the first major release of Lucee after forking from the Railo project. Lucee 5 is not about dazzling new features but about improving the core language and providing a complete architectural overhaul of the engine which brings Lucee and CFML as a language to a whole new level of awesome! <a href="#newURL#">Read More</a>
+                                                                                <cfswitch expression="#ListFirst(server.lucee.version,'.')#">
+                                                                                        <cfcase value="6">
+                                                                                                Lucee 6 introduces a number of key changes
+                                                                                                <ul>
+                                                                                                        <li>Server Configuration now uses json rather than xml</li>
+                                                                                                        <li>A new single mode, rather than having a server and web contexts</li>
+                                                                                                        <li>and lots more, Zac just needs to felsh this out</li>
+                                                                                                </ul>
+                                                                                        </cfcase>
+                                                                                        <cfdefaultcase>
+                                                                                                Lucee 5 is the first major release of Lucee after forking from the Railo project. Lucee 5 is not about dazzling new features but about improving the core language and providing a complete architectural overhaul of the engine which brings Lucee and CFML as a language to a whole new level of awesome! <a href="#newURL#">Read More</a>
+                                                                                        </cfdefaultcase>
+                                                                                </cfswitch>
+                                                                                
                                                                         </p>
 
                                                                 </div>
