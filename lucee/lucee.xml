@@ -414,7 +414,7 @@
                 </substitute>
                 <actionGroup>
                     <explanation>${msg(postInstall.configuringLuceeTomcat)}</explanation>
-                    <progressText>${msg(postInstall.configuringLuceeTomcat)}</progressText>
+                    <progressText>${msg(postInstall.configuringLuceeTomcat)} as ${servicename}</progressText>
                     <ruleEvaluationLogic>or</ruleEvaluationLogic>
                     <actionList>
                         <dirName path="${java_executable}" variable="java_bin_dir"/>
@@ -483,7 +483,7 @@
                         <runProgram>
                             <abortOnError>0</abortOnError>
                             <program>${installdir}\tomcat\bin\service.bat</program>
-                            <programArguments>install Lucee</programArguments>
+                            <programArguments>install ${servicename}</programArguments>
                             <runAs>Administrator</runAs>
                             <onErrorActionList>
                                 <showInfo>
@@ -613,7 +613,7 @@ Please review ${installer_installation_log}.</text>
                     <displayName></displayName>
                     <explanation>${msg(postInstall.startingLucee)}</explanation>
                     <progressText>${msg(postInstall.startingLucee)}</progressText>
-                    <serviceName>Lucee</serviceName>
+                    <serviceName>${servicename}</serviceName>
                 </startWindowsService>
                 <setInstallerVariable>
                     <name>elapsedTime</name>
@@ -1055,6 +1055,15 @@ Please review ${installer_installation_log}.</text>
                 </platformTest>
             </ruleList>
         </setInstallerVariable>
+         <setInstallerVariable>
+            <name>servicename</name>
+            <value>lucee</value>
+            <ruleList>
+                <platformTest>
+                    <type>windows</type>
+                </platformTest>
+            </ruleList>
+        </setInstallerVariable>
         <setInstallerVariable>
             <name>installmodcfml</name>
             <value>true</value>
@@ -1184,8 +1193,8 @@ Please review ${installer_installation_log}.</text>
         <stopWindowsService>
             <delay>15000</delay>
             <displayName></displayName>
-            <progressText>${msg(uninstall.stopLuceeService)}</progressText>
-            <serviceName>Lucee</serviceName>
+            <progressText>${msg(uninstall.stopLuceeService)} - ${servicename} - ${installdir}</progressText>
+            <serviceName>${servicename}</serviceName>
         </stopWindowsService>
         <runProgram>
             <abortOnError>0</abortOnError>
@@ -1203,8 +1212,8 @@ Please review ${installer_installation_log}.</text>
         <runProgram>
             <abortOnError>0</abortOnError>
             <program>${installdir}\tomcat\bin\service.bat</program>
-            <programArguments>remove Lucee</programArguments>
-            <progressText>${msg(uninstall.removeLuceeService)}</progressText>
+            <programArguments>remove ${servicename}</programArguments>
+            <progressText>${msg(uninstall.removeLuceeService)} - ${servicename} - ${installdir}</progressText>
             <runAs>Administrator</runAs>
             <show>0</show>
             <ruleList>
@@ -1478,6 +1487,22 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                 </stringParameter>
             </parameterList>
         </parameterGroup>
+        <stringParameter>
+            <name>servicename</name>
+            <title>${msg(params.windowsServiceName)}</title>
+            <description></description>
+            <explanation>${msg(params.windowsServiceNameExplanation)}</explanation>
+            <value></value>
+            <default>Lucee</default>
+            <allowEmptyValue>0</allowEmptyValue>
+            <ruleEvaluationLogic>or</ruleEvaluationLogic>
+            <width>30</width>
+            <ruleList>
+                <platformTest>
+                    <type>windows</type>
+                </platformTest>
+            </ruleList>
+        </stringParameter>
         <stringParameter>
             <name>systemuser</name>
             <title>${msg(params.TomcatSystemUserTitle)}</title>
