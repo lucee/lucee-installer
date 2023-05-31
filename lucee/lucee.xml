@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.3.10.120</version>
+    <version>6.0.0.416-SNAPSHOT</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -46,7 +46,7 @@
                     </distributionFileList>
                     <ruleList>
                         <fileExists negate="1">
-                             <path>${customLuceejar}</path>
+                            <path>${customLuceejar}</path>
                         </fileExists>
                     </ruleList>
                 </folder>
@@ -133,7 +133,7 @@
                     <origin>${customLuceejar}</origin>
                     <ruleList>
                         <fileExists>
-                             <path>${customLuceejar}</path>
+                            <path>${customLuceejar}</path>
                         </fileExists>
                     </ruleList>
                 </copyFile>
@@ -748,6 +748,7 @@ Please review ${installer_installation_log}.</text>
                             <variable>hspw</variable>
                             <ruleList>
                                 <!-- lucee 6 uses json rather than xml -->
+
                                 <fileExists>
                                     <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
                                 </fileExists>
@@ -760,6 +761,7 @@ Please review ${installer_installation_log}.</text>
                             <value>${hspw}</value>
                             <ruleList>
                                 <!-- lucee 6 uses json rather than xml -->
+
                                 <fileExists>
                                     <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
                                 </fileExists>
@@ -774,13 +776,16 @@ Please review ${installer_installation_log}.</text>
                                 </portTest>
                             </ruleList>
                         </xmlFileSet>
+
                         <!-- lucee 6 uses json rather than xml, install builder doesn't support json, so lets drop a password.txt -->
+
                         <writeFile>
                             <path>${installdir}/tomcat/lucee-server/context/password.txt</path>
                             <text>${luceepass}</text>
                             <ruleList>
                                 <fileExists negate="1">
                                     <!-- other approach, check for .CFConfig.json -->
+
                                     <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
                                 </fileExists>
                             </ruleList>
@@ -795,7 +800,7 @@ Please review ${installer_installation_log}.</text>
                     <runAsAdmin>0</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
                     <windowsExec>${installdir}\tomcat\bin\luceew.exe</windowsExec>
-                    <windowsExecArgs></windowsExecArgs>
+                    <windowsExecArgs>//ES//${servicename}</windowsExecArgs>
                     <windowsIcon>${installdir}\lucee.ico</windowsIcon>
                     <windowsPath>${installdir}</windowsPath>
                 </startMenuShortcut>
@@ -823,7 +828,7 @@ Please review ${installer_installation_log}.</text>
                     <runAsAdmin>0</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
                     <windowsExec>${installdir}\tomcat\bin\luceew.exe</windowsExec>
-                    <windowsExecArgs>//MS//Lucee</windowsExecArgs>
+                    <windowsExecArgs>//MS//${servicename}</windowsExecArgs>
                     <windowsIcon>${installdir}\lucee.ico</windowsIcon>
                     <windowsPath>${installdir}</windowsPath>
                 </startMenuShortcut>
@@ -1055,7 +1060,7 @@ Please review ${installer_installation_log}.</text>
                 </platformTest>
             </ruleList>
         </setInstallerVariable>
-         <setInstallerVariable>
+        <setInstallerVariable>
             <name>servicename</name>
             <value>lucee</value>
             <ruleList>
@@ -1258,7 +1263,7 @@ Please review ${installer_installation_log}.</text>
     <saveRelativePaths>1</saveRelativePaths>
     <singleInstanceCheck>1</singleInstanceCheck>
     <slideShowTiming>20</slideShowTiming>
-    <startMenuGroupName>Lucee</startMenuGroupName>
+    <startMenuGroupName>Lucee - ${servicename}</startMenuGroupName>
     <uninstallationLogFile>${system_temp_directory}/${project.shortName}-uninstall.log</uninstallationLogFile>
     <vendor>Lucee Association Switzerland</vendor>
     <windows64bitMode>1</windows64bitMode>
@@ -1673,8 +1678,8 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <value>${installiis}</value>
                 </isTrue>
             </ruleList>
-         </booleanParameter>
-         <fileParameter>
+        </booleanParameter>
+        <fileParameter>
             <name>customLuceejar</name>
             <title>${msg(params.customLuceeVersionTitle)}</title>
             <description>${msg(params.customLuceeVersionDesc)}</description>

@@ -83,8 +83,7 @@
                                                                                                 Lucee 6 introduces a number of key changes
                                                                                                 <ul>
                                                                                                         <li>Server Configuration now uses json rather than xml</li>
-                                                                                                        <li>A new single mode, rather than having a server and web contexts</li>
-                                                                                                        <li>and lots more, Zac just needs to felsh this out</li>
+                                                                                                        <li>A new single mode, rather than having both a server and web context(s)</li>
                                                                                                 </ul>
                                                                                         </cfcase>
                                                                                         <cfdefaultcase>
