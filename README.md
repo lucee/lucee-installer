@@ -8,7 +8,11 @@ Forked from the great work by Vivotech, <https://github.com/viviotech/lucee-inst
 
 Note: You must build the Linux Installer on Linux, otherwise the file permissions like execute are missing.
 
-## Build Preparation ##
+## Autoamted build ##
+`LUCEE_VERSION=5.4.1.8 ./build.sh`
+
+## Manual Build ##
+### Preparation ###
 
 None of the main binaries are checked into source control, the following manual steps are required:
 
@@ -26,7 +30,7 @@ Download and install the InstallBuilder Enterprise Edition <https://installbuild
 
 Update the Version Number under Product Details in InstallBuilder
 
-## Building the Installer ##
+### Building the Installer ###
 
 Simply open the [lucee/lucee.xml](lucee/lucee.xml) file in InstallBuilder and click the Build icon.
 
