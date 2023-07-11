@@ -25,4 +25,4 @@ wget https://releases.installbuilder.com/installbuilder/installbuilder-enterpris
 chmod a+x ./installbuilder-enterprise-23.4.0-linux-installer.run
 ./installbuilder-enterprise-23.4.0-linux-installer.run --prefix /tmp/ib --mode unattended
 
-bin/builder quickbuild /path/to/project.xml
+/tmp/ib/bin/builder quickbuild project.xml
