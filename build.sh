@@ -4,7 +4,6 @@
 # To recover from failed builds
 # rm -rf lucee*jar apache-tomcat-9.0.78.tar.gz OpenJDK11U-jre_x64_linux_hotspot_11.0.19_7.tar.gz jdk-11.0.19+7-jre lucee/tomcat9/tomcat/apache-tomcat-9.0.78 installbuilder-* /tmp/ib
 
-
 wget https://cdn.lucee.org/lucee-${LUCEE_VERSION}.jar
 mv lucee-${LUCEE_VERSION}.jar lucee/lucee/lib/
 
@@ -38,8 +37,16 @@ echo -n Built
 ls -laht /tmp/ib/output/
 /tmp/ib/output/lucee-${LUCEE_VERSION}-linux-x64-installer.run --version
 
-# todo run it
+out=`/tmp/ib/output/lucee-${LUCEE_VERSION}-linux-x64-installer.run --version`
+tet="Lucee $LUCEE_VERSION
+if [[ $out != $tet* ]]
+then
+	echo Incorrect version banner
+	exit 1
+fi
 
-# todo check return code
+# Requires root :(
+# sudo /tmp/ib/output/lucee-${LUCEE_VERSION}-linux-x64-installer.run --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --systemuser $USER
 
+# Post install, make HTTP and check return code 
 # i.e. the You are now successfully running Lucee 5.4.1.2-SNAPSHOT on your system! banner
