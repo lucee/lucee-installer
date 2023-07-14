@@ -8,7 +8,7 @@
 wget https://cdn.lucee.org/lucee-${LUCEE_VERSION}.jar
 mv lucee-${LUCEE_VERSION}.jar lucee/lucee/lib/
 
-wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.78/bin/apache-tomcat-9.0.78.tar.gz
+wget ${TOMCAT_URL}
 cd lucee/tomcat9/
 tar zxf ../../apache-tomcat-9.0.78.tar.gz
 cd ../..
@@ -20,7 +20,7 @@ rm -rf lucee/tomcat9/tomcat/webapps
 
 cp -ar lucee/tomcat9/tomcat-lucee-conf/ lucee/tomcat9/tomcat/
 
-wget https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.19%2B7/OpenJDK11U-jre_x64_linux_hotspot_11.0.19_7.tar.gz
+wget ${JRE_URL}
 tar zxf OpenJDK11U-jre_x64_linux_hotspot_11.0.19_7.tar.gz 
 cp -r jdk-11.0.19+7-jre/* jre/jre64-lin/jre/
 rm -rf jdk-11.0.19+7-jre
@@ -37,3 +37,9 @@ cd lucee
 echo -n Built 
 ls -laht /tmp/ib/output/
 /tmp/ib/output/lucee-${LUCEE_VERSION}-linux-x64-installer.run --version
+
+# todo run it
+
+# todo check return code
+
+# i.e. the You are now successfully running Lucee 5.4.1.2-SNAPSHOT on your system! banner
