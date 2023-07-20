@@ -1,7 +1,7 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.4.0.65-RC</version>
+    <version>5.4.1.8</version>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -1693,8 +1693,8 @@ While upgrading previous installations of Lucee by reinstalling might work in so
             <validationActionList>
                 <throwError text="The selected file isn't a .jar file">
                     <ruleList>
-                        <compareText text="${customLuceejar}" logic="contains" value=".jar" negate="1"/>
-                        <compareText text="${customLuceejar}" logic="equals" value="" negate="1"/>
+                        <compareText logic="contains" negate="1" text="${customLuceejar}" value=".jar"/>
+                        <compareText logic="equals" negate="1" text="${customLuceejar}" value=""/>
                     </ruleList>
                 </throwError>
             </validationActionList>
@@ -1834,3 +1834,4 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </platformOptions>
     </platformOptionsList>
 </project>
+
