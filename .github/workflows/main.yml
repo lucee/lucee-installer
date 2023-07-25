@@ -54,7 +54,7 @@ jobs:
         cp -ar lucee/tomcat9/tomcat-lucee-conf/ lucee/tomcat9/tomcat/
     - name: Download JRE
       run: |
-        curl "${{ env.JRE_URL }}" -o ${{ env.JRE_NAME }}
+        curl "${{ env.JRE_URL }}" -o ${{ env.JRE_NAME }} -L
         ls -lR
         tar zxf ${{ env.JRE_NAME }}
         cp -r ${{ env.JRE_NAME }}/* jre/jre64-lin/jre/
