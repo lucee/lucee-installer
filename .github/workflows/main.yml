@@ -55,8 +55,8 @@ jobs:
     - name: Download JRE
       run: |
         curl "${{ env.JRE_URL }}" -o ${{ env.JRE_NAME }} -L
-        ls -lR
         tar zxf ${{ env.JRE_NAME }}
+        ls -l
         cp -r ${{ env.JRE_NAME }}/* jre/jre64-lin/jre/
         rm -rf ${{ env.JRE_NAME }}
     - name: Download and Install Install builder
