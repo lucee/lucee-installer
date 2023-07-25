@@ -52,7 +52,7 @@ jobs:
         # rm ${{ env.TOMCAT_NAME }}
         mv lucee/tomcat9/apache-tomcat-9.0.78  lucee/tomcat9/tomcat
         rm -rf lucee/tomcat9/tomcat/webapps
-        cp -ar lucee/tomcat9/tomcat-lucee-conf/ lucee/tomcat9/tomcat/
+        cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
     - name: Download JRE
       run: |
         curl "${{ env.JRE_URL }}" -o ${{ env.JRE_NAME }} -L
@@ -69,10 +69,16 @@ jobs:
     - name: Update Template with version
       run : |
         cat lucee/lucee.xml.template | sed -e "s,<version>LUCEE_VERSION</version>,<version>${{ env.LUCEE_VERSION }}</version>," > lucee/lucee.xml
+    - name: Write out license
+      env:
+        INSTALLBUILDER_LICENSE: ${{ secrets.INSTALLBUILDER_LICENSE }}
+      shell: bash
+      run: |
+          echo "$INSTALLBUILDER_LICENSE" >> lucee/license.xml
     - name: Build Linux Lucee Installer
       run: |
         cd lucee
-        /tmp/ib/bin/builder quickbuild lucee.xml
+        /tmp/ib/bin/builder build lucee.xml --verbose --license license.xml
     - name: check installer has correct version
       run: |
         ls -laht /tmp/ib/output/
@@ -87,11 +93,25 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-          name: lucee-installer-run
+          name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
           path: /tmp/ib/output/*.run
     - name: run installer
-      run : |
-        sudo /tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --systemuser $USER
-        # Post install, make HTTP and check return code 
-        # i.e. the You are now successfully running Lucee 5.4.1.2-SNAPSHOT on your system! banner
-    
+      run: |
+        sudo /tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run \
+          --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false \
+          --luceepass ibtest --systemuser $USER --installjre true
+        sleep 5;
+        echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee 'server.lucee.version & ', using java ' & server.java.version);</cfscript>" > /tmp/lucee/tomcat/webapps/ROOT/check.cfm
+        curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
+        #sleep 5
+        #sudo /tmp/lucee/lucee_ctl stop
+    - name: debug failure
+      if: ${{ failure() }}
+      run: |
+          cat /tmp/lucee/tomcat/logs/catalina.out
+          #cat /tmp/lucee/install.log
+          cd /tmp/lucee
+          ls -lR
+          #cat /tmp/lucee/tomcat/lucee-server/context/logs/out.log
+          #cat /tmp/lucee/tomcat/lucee-server/context/logs/err.log          
+          #cat /tmp/lucee/tomcat/logs/catalina.out    
