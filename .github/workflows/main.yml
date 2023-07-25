@@ -7,6 +7,7 @@ on:
       LUCEE_VERSION:
         required: true
         type: string
+        default: 5.4.2.17
   # Triggers the workflow on push or pull request events but only for the master branch
   workflow_call:
     inputs:
@@ -22,6 +23,8 @@ env:
   JRE_NAME: OpenJDK11U-jre_x64_linux_hotspot_11.0.20_8
   TOMCAT_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.78/bin/apache-tomcat-9.0.78.tar.gz
   TOMCAT_NAME: apache-tomcat-9.0.78.tar.gz
+  IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-23.4.0-linux-installer.run
+  IB_NAME: installbuilder-enterprise-23.4.0-linux-installer.run
 
 jobs:
   build:
@@ -30,14 +33,15 @@ jobs:
     steps:
     - name: Download Lucee Jar
       run: |
-        curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar
+        curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o -s lucee-${{ env.LUCEE_VERSION }}.jar
         pwd
         ls -l
         mv lucee-${{ env.LUCEE_VERSION }}.jar lucee/lucee/lib/
     - name: Download and prepare Tomcat
       run: |
         pwd
-        wget {{ env.TOMCAT_URL }}
+        curl ${{ env.TOMCAT_URL }} -o -s ${{ env.TOMCAT_NAME }}
+        ls -l
         cd lucee/tomcat9/
         tar zxf ../../${{ env.TOMCAT_NAME }} # --directory ./tomcat9
         cd ../..
@@ -48,15 +52,15 @@ jobs:
         cp -ar lucee/tomcat9/tomcat-lucee-conf/ lucee/tomcat9/tomcat/
     - name: Download JRE
       run: |
-        wget ${{ env.JRE_URL }}
+        curl ${{ env.JRE_URL }} -o -s ${{ env.JRE_NAME }}
         tar zxf ${{ env.JRE_NAME }}
         cp -r ${{ env.JRE_NAME }}/* jre/jre64-lin/jre/
         rm -rf ${{ env.JRE_NAME }}
     - name: Download and Install Install builder
       run: |
-        wget https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-23.4.0-linux-installer.run
-        chmod a+x ./installbuilder-enterprise-23.4.0-linux-installer.run
-        ./installbuilder-enterprise-23.4.0-linux-installer.run --prefix /tmp/ib --mode unattended
+        curl ${{ env.IB_URL }} -o -s ${{ env.IB_NAME }}
+        chmod a+x ${{ env.IB_NAME }}
+        ./${{ env.IB_NAME }} --prefix /tmp/ib --mode unattended
     - name: Update Template with version
       run : |
         cat lucee/lucee.xml.template | sed -e "s,<version>LUCEE_VERSION</version>,<version>${{ env.LUCEE_VERSION }}</version>," > lucee/lucee.xml
