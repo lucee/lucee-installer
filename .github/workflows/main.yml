@@ -34,6 +34,7 @@ jobs:
     steps:
     - name: Download Lucee Jar
       run: |
+        ls -lr
         curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o lucee-${{ env.LUCEE_VERSION }}.jar -s
         pwd
         ls -l
