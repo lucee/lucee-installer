@@ -35,7 +35,6 @@ jobs:
     - uses: actions/checkout@v3.1.0
     - name: Download Lucee Jar
       run: |
-        ls
         curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o lucee-${{ env.LUCEE_VERSION }}.jar -s
         pwd
         ls -l
@@ -56,13 +55,14 @@ jobs:
     - name: Download JRE
       run: |
         curl ${{ env.JRE_URL }} -o ${{ env.JRE_NAME }}
-        ls
+        ls -lR
         tar zxf ${{ env.JRE_NAME }}
         cp -r ${{ env.JRE_NAME }}/* jre/jre64-lin/jre/
         rm -rf ${{ env.JRE_NAME }}
     - name: Download and Install Install builder
       run: |
         curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
+        ls -lR
         chmod a+x ${{ env.IB_NAME }}
         ./${{ env.IB_NAME }} --prefix /tmp/ib --mode unattended
     - name: Update Template with version
