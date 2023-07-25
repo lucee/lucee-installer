@@ -55,14 +55,14 @@ jobs:
         cp -ar lucee/tomcat9/tomcat-lucee-conf/ lucee/tomcat9/tomcat/
     - name: Download JRE
       run: |
-        curl ${{ env.JRE_URL }} -o ${{ env.JRE_NAME }} -s
+        curl ${{ env.JRE_URL }} -o ${{ env.JRE_NAME }}
         ls
         tar zxf ${{ env.JRE_NAME }}
         cp -r ${{ env.JRE_NAME }}/* jre/jre64-lin/jre/
         rm -rf ${{ env.JRE_NAME }}
     - name: Download and Install Install builder
       run: |
-        curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }} -s
+        curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
         chmod a+x ${{ env.IB_NAME }}
         ./${{ env.IB_NAME }} --prefix /tmp/ib --mode unattended
     - name: Update Template with version
