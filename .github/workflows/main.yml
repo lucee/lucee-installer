@@ -1,6 +1,7 @@
 name: Build Lucee Installer 
 
 on:
+  push:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
@@ -18,7 +19,7 @@ on:
      types: [build-installers]
 
 env:
-  LUCEE_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
+  LUCEE_VERSION: 5.4.2.17 #${{ github.event.inputs.LUCEE_VERSION }}
   JRE_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.20%2B8/OpenJDK11U-jre_x64_linux_hotspot_11.0.20_8.tar.gz
   JRE_NAME: OpenJDK11U-jre_x64_linux_hotspot_11.0.20_8
   TOMCAT_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.78/bin/apache-tomcat-9.0.78.tar.gz
@@ -33,14 +34,14 @@ jobs:
     steps:
     - name: Download Lucee Jar
       run: |
-        curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o -s lucee-${{ env.LUCEE_VERSION }}.jar
+        curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o lucee-${{ env.LUCEE_VERSION }}.jar -s
         pwd
         ls -l
         mv lucee-${{ env.LUCEE_VERSION }}.jar lucee/lucee/lib/
     - name: Download and prepare Tomcat
       run: |
         pwd
-        curl ${{ env.TOMCAT_URL }} -o -s ${{ env.TOMCAT_NAME }}
+        curl ${{ env.TOMCAT_URL }} -o ${{ env.TOMCAT_NAME }} -s
         ls -l
         cd lucee/tomcat9/
         tar zxf ../../${{ env.TOMCAT_NAME }} # --directory ./tomcat9
@@ -52,13 +53,13 @@ jobs:
         cp -ar lucee/tomcat9/tomcat-lucee-conf/ lucee/tomcat9/tomcat/
     - name: Download JRE
       run: |
-        curl ${{ env.JRE_URL }} -o -s ${{ env.JRE_NAME }}
+        curl ${{ env.JRE_URL }} -o ${{ env.JRE_NAME }} -s
         tar zxf ${{ env.JRE_NAME }}
         cp -r ${{ env.JRE_NAME }}/* jre/jre64-lin/jre/
         rm -rf ${{ env.JRE_NAME }}
     - name: Download and Install Install builder
       run: |
-        curl ${{ env.IB_URL }} -o -s ${{ env.IB_NAME }}
+        curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }} -s
         chmod a+x ${{ env.IB_NAME }}
         ./${{ env.IB_NAME }} --prefix /tmp/ib --mode unattended
     - name: Update Template with version
