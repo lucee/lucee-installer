@@ -56,14 +56,14 @@ jobs:
     - name: Download JRE
       run: |
         curl "${{ env.JRE_URL }}" -o ${{ env.JRE_NAME }} -L
-        tar zxfv ${{ env.JRE_NAME }}
+        tar zxf ${{ env.JRE_NAME }}
         ls -l
         cp -r ${{ env.JRE_DIR }}/* jre/jre64-lin/jre/
         rm -rf ${{ env.JRE_DIR }}
     - name: Download and Install Install builder
       run: |
         curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
-        ls -lR
+        ls -l
         chmod a+x ${{ env.IB_NAME }}
         ./${{ env.IB_NAME }} --prefix /tmp/ib --mode unattended
     - name: Update Template with version
@@ -84,13 +84,14 @@ jobs:
           echo Incorrect version banner
           exit 1
         fi
-    - name: run installer
-      run : |
-        sudo /tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --systemuser $USER
-        # Post install, make HTTP and check return code 
-        # i.e. the You are now successfully running Lucee 5.4.1.2-SNAPSHOT on your system! banner
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
           name: lucee-installer-run
           path: /tmp/ib/output/*.run
+    - name: run installer
+      run : |
+        sudo /tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --systemuser $USER
+        # Post install, make HTTP and check return code 
+        # i.e. the You are now successfully running Lucee 5.4.1.2-SNAPSHOT on your system! banner
+    
