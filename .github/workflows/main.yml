@@ -30,7 +30,9 @@ jobs:
     steps:
     - name: Download Lucee Jar
       run: |
-        wget https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar
+        curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar
+        pwd
+        ls -l
         mv lucee-${{ env.LUCEE_VERSION }}.jar lucee/lucee/lib/
     - name: Download and prepare Tomcat
       run: |
