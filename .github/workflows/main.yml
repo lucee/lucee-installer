@@ -101,7 +101,7 @@ jobs:
           --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false \
           --luceepass ibtest --systemuser $USER --installjre true
         sleep 5;
-        echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee 'server.lucee.version & ', using java ' & server.java.version);</cfscript>" > /tmp/lucee/tomcat/webapps/ROOT/check.cfm
+        echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > /tmp/lucee/tomcat/webapps/ROOT/check.cfm
         curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
         #sleep 5
         #sudo /tmp/lucee/lucee_ctl stop
