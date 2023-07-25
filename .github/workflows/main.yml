@@ -32,9 +32,10 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3.1.0
     - name: Download Lucee Jar
       run: |
-        ls -lr
+        ls
         curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o lucee-${{ env.LUCEE_VERSION }}.jar -s
         pwd
         ls -l
