@@ -8,7 +8,11 @@ Forked from the great work by Vivotech, <https://github.com/viviotech/lucee-inst
 
 Note: You must build the Linux Installer on Linux, otherwise the file permissions like execute are missing.
 
-## Build Preparation ##
+## Autoamted build ##
+`JRE_URL=https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.19%2B7/OpenJDK11U-jre_x64_linux_hotspot_11.0.19_7.tar.gz TOMCAT_URL=https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.78/bin/apache-tomcat-9.0.78.tar.gz LUCEE_VERSION=5.4.1.8 ./build.sh`
+
+## Manual Build ##
+### Preparation ###
 
 None of the main binaries are checked into source control, the following manual steps are required:
 
@@ -26,7 +30,7 @@ Download and install the InstallBuilder Enterprise Edition <https://installbuild
 
 Update the Version Number under Product Details in InstallBuilder
 
-## Building the Installer ##
+### Building the Installer ###
 
 Simply open the [lucee/lucee.xml](lucee/lucee.xml) file in InstallBuilder and click the Build icon.
 
