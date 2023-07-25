@@ -22,6 +22,7 @@ env:
   LUCEE_VERSION: 5.4.2.17 #${{ github.event.inputs.LUCEE_VERSION }}
   JRE_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.20%2B8/OpenJDK11U-jre_x64_linux_hotspot_11.0.20_8.tar.gz
   JRE_NAME: OpenJDK11U-jre_x64_linux_hotspot_11.0.20_8.tar.gz
+  JRE_DIR: jdk-11.0.20+8-jre
   TOMCAT_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.78/bin/apache-tomcat-9.0.78.tar.gz
   TOMCAT_NAME: apache-tomcat-9.0.78.tar.gz
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-23.4.0-linux-installer.run
@@ -57,8 +58,8 @@ jobs:
         curl "${{ env.JRE_URL }}" -o ${{ env.JRE_NAME }} -L
         tar zxfv ${{ env.JRE_NAME }}
         ls -l
-        cp -r ${{ env.JRE_NAME }}/* jre/jre64-lin/jre/
-        rm -rf ${{ env.JRE_NAME }}
+        cp -r ${{ env.JRE_DIR }}/* jre/jre64-lin/jre/
+        rm -rf ${{ env.JRE_DIR }}
     - name: Download and Install Install builder
       run: |
         curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
