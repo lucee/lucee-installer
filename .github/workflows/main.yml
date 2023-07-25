@@ -78,7 +78,7 @@ jobs:
         ls -laht /tmp/ib/output/
         /tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --version
         out=`/tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --version`
-        tet="Lucee $LUCEE_VERSION
+        tet="Lucee ${{ env.LUCEE_VERSION }}
         if [[ $out != $tet* ]]
         then
           echo Incorrect version banner
