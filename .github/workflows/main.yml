@@ -1,0 +1,85 @@
+name: Build Lucee Installer 
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      LUCEE_VERSION:
+        required: true
+        type: string
+  # Triggers the workflow on push or pull request events but only for the master branch
+  workflow_call:
+    inputs:
+      LUCEE_VERSION:
+        required: true
+        type: string
+  repository_dispatch:
+     types: [build-installers]
+
+env:
+  LUCEE_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
+  JRE_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.20%2B8/OpenJDK11U-jre_x64_linux_hotspot_11.0.20_8.tar.gz
+  JRE_NAME: OpenJDK11U-jre_x64_linux_hotspot_11.0.20_8
+  TOMCAT_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.78/bin/apache-tomcat-9.0.78.tar.gz
+  TOMCAT_NAME: apache-tomcat-9.0.78.tar.gz
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Lucee Jar
+      run: |
+        wget https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar
+        mv lucee-${{ env.LUCEE_VERSION }}.jar lucee/lucee/lib/
+    - name: Download and prepare Tomcat
+      run: |
+        pwd
+        wget {{ env.TOMCAT_URL }}
+        cd lucee/tomcat9/
+        tar zxf ../../${{ env.TOMCAT_NAME }} # --directory ./tomcat9
+        cd ../..
+        pwd
+        # rm ${{ env.TOMCAT_NAME }}
+        mv lucee/tomcat9/apache-tomcat-9.0.78  lucee/tomcat9/tomcat
+        rm -rf lucee/tomcat9/tomcat/webapps
+        cp -ar lucee/tomcat9/tomcat-lucee-conf/ lucee/tomcat9/tomcat/
+    - name: Download JRE
+      run: |
+        wget ${{ env.JRE_URL }}
+        tar zxf ${{ env.JRE_NAME }}
+        cp -r ${{ env.JRE_NAME }}/* jre/jre64-lin/jre/
+        rm -rf ${{ env.JRE_NAME }}
+    - name: Download and Install Install builder
+      run: |
+        wget https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-23.4.0-linux-installer.run
+        chmod a+x ./installbuilder-enterprise-23.4.0-linux-installer.run
+        ./installbuilder-enterprise-23.4.0-linux-installer.run --prefix /tmp/ib --mode unattended
+    - name: Update Template with version
+      run : |
+        cat lucee/lucee.xml.template | sed -e "s,<version>LUCEE_VERSION</version>,<version>${{ env.LUCEE_VERSION }}</version>," > lucee/lucee.xml
+    - name: Build Linux Lucee Installer
+      run: |
+        cd lucee
+        /tmp/ib/bin/builder quickbuild lucee.xml
+    - name: check installer has correct version
+      run: |
+        ls -laht /tmp/ib/output/
+        /tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --version
+        out=`/tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --version`
+        tet="Lucee $LUCEE_VERSION
+        if [[ $out != $tet* ]]
+        then
+          echo Incorrect version banner
+          exit 1
+        fi
+    - name: run installer
+      run : |
+        sudo /tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --systemuser $USER
+        # Post install, make HTTP and check return code 
+        # i.e. the You are now successfully running Lucee 5.4.1.2-SNAPSHOT on your system! banner
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+          name: lucee-installer-run
+          path: /tmp/ib/output/*.run
