@@ -206,6 +206,7 @@ jobs:
       S3_ACCESS_ID_DOWNLOAD: ${{ secrets.S3_ACCESS_ID_DOWNLOAD }}
       S3_SECRET_KEY_DOWNLOAD: ${{ secrets.S3_SECRET_KEY_DOWNLOAD }}
     steps:
+    - uses: actions/checkout@v3.1.0
     - name: Download Windows Installer artifact
       uses: actions/download-artifact@v3
       with:
@@ -219,7 +220,6 @@ jobs:
       with:
         path: ~/.m2
         key: lucee-script-runner-maven-cache
-    - uses: actions/checkout@v3.1.0
     - name: Publish Installers to S3
       uses: lucee/script-runner@main
       with:

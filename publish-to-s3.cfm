@@ -6,15 +6,12 @@
 
 	currDir = getDirectoryFromPath( getCurrentTemplatePath() );
 
-	systemOutput(currDir, true);
-	systemOutput(getContextRoot(), true);
-	systemOutput(expandPath("/"), true);
-	
 	files = directoryList( path=currDir, listinfo="query" );
 	systemOutput( "", true );
 
 	loop query="files" {
-		systemOutput( files.name & " " & numberFormat( files.size / 1024 / 1024 ), true);
+		if ( files.name contains ".exe" or files.name contains ".run" )
+			systemOutput( files.name & " " & numberFormat( files.size / 1024 / 1024 ), true );
 	}
 
 	// do we have the s3 extension?
@@ -45,7 +42,9 @@
 	trg.windows = "lucee-#version#-windows-x64-installer.exe";
 
 	loop list="windows,linux" item="os" {
-		if ( fileExists( trg.dir & trg[ os ] ) ){
+		if ( !fileExists( currDir & trg[ os ] )){
+			systemOutput( trg[ os ] & " installer missing?", true );
+		} else if ( fileExists( trg.dir & trg[ os ] ) ){
 			systemOutput( trg[ os ] & " already on s3", true );
 		} else {
 			systemOutput( trg[ os ] & " to be uploaded on s3", true );
