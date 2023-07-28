@@ -203,6 +203,8 @@ jobs:
     needs: [ test-windows, test-linux, build-installers ]
     env:
       luceeVersion: 5.4.2.17
+      S3_ACCESS_ID_DOWNLOAD: ${{ secrets.S3_ACCESS_ID_DOWNLOAD }}
+      S3_SECRET_KEY_DOWNLOAD: ${{ secrets.S3_SECRET_KEY_DOWNLOAD }}
     steps:
     - name: Download Windows Installer artifact
       uses: actions/download-artifact@v3

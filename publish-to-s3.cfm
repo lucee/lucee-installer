@@ -5,6 +5,11 @@
 	version = server.system.environment.lucee_version;
 
 	currDir = getDirectoryFromPath( getCurrentTemplatePath() );
+
+	systemOutput(currDir, true);
+	systemOutput(getContextRoot(), true);
+	systemOutput(expandPath("/"), true);
+	
 	files = directoryList( path=currDir, listinfo="query" );
 	systemOutput( "", true );
 
