@@ -189,14 +189,14 @@ jobs:
         run: |
           ./lucee-${{ env.LUCEE_VERSION }}-windows-x64-installer.exe `
             --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false `
-            --luceepass ibtest --installjre true
-          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > /tmp/lucee/tomcat/webapps/ROOT/check.cfm
+            --luceepass ibtest --installjre true --prefix d:\lucee
+          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > d:\lucee\tomcat\webapps\ROOT\check.cfm
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
       - name: debug failure
         if: ${{ failure() }}
         run: |
-          type c:\lucee\tomcat\logs\catalina.out
-          # type c:\lucee\install.log
+          type d:\lucee\tomcat\logs\catalina.out
+          type d:\lucee\install.log
 
   publish-to-s3:
     runs-on: windows-latest
@@ -204,6 +204,14 @@ jobs:
     env:
       luceeVersion: 5.4.2.17
     steps:
+    - name: Download Windows Installer artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: lucee-installer-${{ env.LUCEE_VERSION }}-windows
+    - name: Download Linux Installer artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
     - name: Cache Maven packages
       uses: actions/cache@v3
       with:

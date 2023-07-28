@@ -1,5 +1,15 @@
 <cfscript>
-    systemOutput("Publish Installers to s3, using #server.lucee.version#");
+    systemOutput( "Publish Installers to s3, using #server.lucee.version#" );
+    systemOutput( " - for installers for Lucee #server.system.environment.lucee_version# ", true);
+
+    currDir = getDirectoryFromPath( getCurrentTemplatePath() );
+    files = directoryList( path=currDir, listinfo=query );
+    systemOutput( "", true );
+
+    loop query="files" {
+        systemOutput( files.names & " " & numberFormat(files.size), true);
+    }
+
     // do we have the s3 extension?
     s3ExtVersion = extensionList().filter( function(row){ return row.name contains "s3"; }).version;
     if ( s3Extversion eq "" ){
