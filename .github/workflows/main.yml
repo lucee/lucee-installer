@@ -190,11 +190,7 @@ jobs:
         run: |
           cd
           lucee-${{ env.LUCEE_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
-          # if %errorlevel% neq 0 exit /b %errorlevel% 
-          # cd
-          # dir /s
-          # echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > $home\lucee\tomcat\webapps\ROOT\check.cfm
-          curl http://127.0.0.1:8888/index.cfm?version=${{ env.LUCEE_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
+          curl http://127.0.0.1:8888/index.cfm --fail-with-body -o $GITHUB_STEP_SUMMARY
       - name: debug failure
         if: ${{ failure() }}
         run: |
@@ -203,7 +199,7 @@ jobs:
           type $home\lucee\install.log
 
   publish-to-s3:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: [ test-windows, test-linux, build-installers ]
     env:
       luceeVersion: 5.4.2.17
@@ -221,7 +217,8 @@ jobs:
       with:
         path: ~/.m2
         key: lucee-script-runner-maven-cache
-    - name: Trigger Lucee Update Providers
+    - uses: actions/checkout@v3.1.0
+    - name: Publish Installers to S3
       uses: lucee/script-runner@main
       with:
         webroot: ${{ github.workspace }}/
