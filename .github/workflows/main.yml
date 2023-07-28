@@ -186,17 +186,15 @@ jobs:
         run: |
           dir
       - name: Run Windows Installer
+        shell: cmd
         run: |
-          pwd
-          ./lucee-${{ env.LUCEE_VERSION }}-windows-x64-installer.exe `
-            --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false `
-            --luceepass ibtest --installjre true --prefix $home\lucee
-          pwd
-          dir -s
-          cd $home
-          dir -s
-          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > $home\lucee\tomcat\webapps\ROOT\check.cfm
-          curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
+          cd
+          lucee-${{ env.LUCEE_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
+          # if %errorlevel% neq 0 exit /b %errorlevel% 
+          # cd
+          # dir /s
+          # echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > $home\lucee\tomcat\webapps\ROOT\check.cfm
+          curl http://127.0.0.1:8888/index.cfm?version=${{ env.LUCEE_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
       - name: debug failure
         if: ${{ failure() }}
         run: |
