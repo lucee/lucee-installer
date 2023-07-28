@@ -190,19 +190,19 @@ jobs:
           pwd
           ./lucee-${{ env.LUCEE_VERSION }}-windows-x64-installer.exe `
             --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false `
-            --luceepass ibtest --installjre true --prefix d:\lucee
+            --luceepass ibtest --installjre true --prefix d:\a\temp\lucee
           pwd
           dir -s
-          cd d:\lucee
+          cd d:\a\temp\lucee
           dir -s
-          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > d:\lucee5\tomcat\webapps\ROOT\check.cfm
+          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > d:\a\temp\lucee\tomcat\webapps\ROOT\check.cfm
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
       - name: debug failure
         if: ${{ failure() }}
         run: |
-          dir -s d:\lucee
-          type d:\lucee\tomcat\logs\catalina.out
-          type d:\lucee\install.log
+          dir -s d:\a\temp\lucee
+          type d:\a\temp\lucee\tomcat\logs\catalina.out
+          type d:\a\temp\lucee\install.log
 
   publish-to-s3:
     runs-on: windows-latest
