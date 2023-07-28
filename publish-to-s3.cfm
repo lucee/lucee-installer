@@ -41,9 +41,9 @@
 
 	loop list="windows,linux" item="os" {
 		if ( fileExists( trg.dir & trg[ os ] ) ){
-			systemOutput( trg.[ os ] & " already on s3", true );
+			systemOutput( trg[ os ] & " already on s3", true );
 		} else {
-			systemOutput( trg.[ os ] & " to be uploaded on s3", true );
+			systemOutput( trg[ os ] & " to be uploaded on s3", true );
 			// fileCopy( currDir & trg[os], trg.dir & trg[ os ] );
 			systemOutput ("-- uploaded", true );
 		}
