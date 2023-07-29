@@ -1,14 +1,12 @@
 name: Build Lucee Installer 
 
 on:
-  push:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       LUCEE_VERSION:
         required: true
         type: string
-        default: 5.4.2.17
   # Triggers the workflow on push or pull request events but only for the master branch
   workflow_call:
     inputs:
@@ -191,6 +189,7 @@ jobs:
           cd
           lucee-${{ env.LUCEE_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
           curl http://127.0.0.1:8888/index.cfm --fail-with-body -o $GITHUB_STEP_SUMMARY
+          echo "Lucee Windows installer ${{ env.LUCEE_VERSION }}" >> $GITHUB_STEP_SUMMARY
       - name: debug failure
         if: ${{ failure() }}
         run: |
