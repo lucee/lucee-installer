@@ -74,7 +74,6 @@
 				logger ("https://cdn.lucee.org/#trg[os]#");
 				logger ("-- was uploaded" );
 			}
-			logger ("-- was uploaded" );
 			logger ("" );
 		}
 		logger( "Publishing step complete!" );
