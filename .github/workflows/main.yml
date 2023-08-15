@@ -55,7 +55,7 @@ jobs:
           echo "$INSTALLBUILDER_LICENSE" >> lucee/license.xml
     - name: Download Lucee Jar
       run: |
-        curl https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o lucee-${{ env.LUCEE_VERSION }}.jar -s
+        curl --fail https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o lucee-${{ env.LUCEE_VERSION }}.jar -s
         pwd
         ls -l
         mv lucee-${{ env.LUCEE_VERSION }}.jar lucee/lucee/lib/
