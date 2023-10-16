@@ -24,11 +24,11 @@ env:
   JRE_WIN_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.20.1%2B1/OpenJDK11U-jre_x64_windows_hotspot_11.0.20.1_1.zip
   JRE_WIN_NAME: OpenJDK11U-jre_x64_windows_hotspot_11.0.20.1_1.zip
   JRE_WIN_DIR: jdk-11.0.20.1+1-jre
-  TOMCAT_LINUX_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.80.tar.gz
-  TOMCAT_LINUX_NAME: apache-tomcat-9.0.80.tar.gz
-  TOMCAT_WIN_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.80-windows-x64.zip
-  TOMCAT_WIN_NAME: apache-tomcat-9.0.80.zip
-  TOMCAT_DIR: apache-tomcat-9.0.80
+  TOMCAT_LINUX_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.81.tar.gz
+  TOMCAT_LINUX_NAME: apache-tomcat-9.0.81.tar.gz
+  TOMCAT_WIN_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.81-windows-x64.zip
+  TOMCAT_WIN_NAME: apache-tomcat-9.0.81.zip
+  TOMCAT_DIR: apache-tomcat-9.0.81
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-23.4.0-linux-installer.run
   IB_NAME: installbuilder-enterprise-23.4.0-linux-installer.run
 
