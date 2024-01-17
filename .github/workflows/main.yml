@@ -75,7 +75,7 @@ jobs:
         curl "${{ env.JRE_WIN_URL }}" -o ${{ env.JRE_WIN_NAME }} -L
         unzip ${{ env.JRE_WIN_NAME }}
         ls -l
-        cp -r ${{ env.JRE_WIN_DIR }}/* ../jre/jre64-win/jre/
+        cp -r ${{ env.JRE_WIN_DIR }}/* ../jre/jre64-win/
         rm -rf ${{ env.JRE_WIN_DIR }}
     - name: Download and prepare Tomcat Linux
       run: |
