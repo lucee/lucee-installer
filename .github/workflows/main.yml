@@ -126,24 +126,25 @@ jobs:
           exit 1
         fi
     - name: Upload Artifact - Linux Installer
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
           path: /tmp/ib/output/*.run
           retention-days: 1
+          compression-level: 0
     - name: Upload Artifact - Windows Installer
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           name: lucee-installer-${{ env.LUCEE_VERSION }}-windows
           path: /tmp/ib/output/*.exe
           retention-days: 1
-
+          compression-level: 0
   test-linux:
     runs-on: ubuntu-latest
     needs: build-installers
     steps:
       - name: Download Linux Installer artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
       - name: list dir
@@ -177,7 +178,7 @@ jobs:
     needs: build-installers
     steps:
       - name: Download Windows Installer artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: lucee-installer-${{ env.LUCEE_VERSION }}-windows
       - name: list dir
@@ -207,11 +208,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3.1.0
     - name: Download Windows Installer artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: lucee-installer-${{ env.LUCEE_VERSION }}-windows
     - name: Download Linux Installer artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
     - name: Cache Maven packages
