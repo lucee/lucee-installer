@@ -18,17 +18,17 @@ on:
 
 env:
   LUCEE_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
-  JRE_LINUX_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.21%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.21_9.tar.gz
-  JRE_LINUX_NAME: OpenJDK11U-jre_x64_linux_hotspot_11.0.21_9.tar.gz
-  JRE_LINUX_DIR: jdk-11.0.21+9
-  JRE_WIN_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.21%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.21_9.zip
-  JRE_WIN_NAME: OpenJDK11U-jre_x64_windows_hotspot_11.0.21_9.zip
-  JRE_WIN_DIR: jdk-11.0.21+9
-  TOMCAT_LINUX_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85.tar.gz
-  TOMCAT_LINUX_NAME: apache-tomcat-9.0.85.tar.gz
-  TOMCAT_WIN_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85-windows-x64.zip
-  TOMCAT_WIN_NAME: apache-tomcat-9.0.85.zip
-  TOMCAT_DIR: apache-tomcat-9.0.85
+  JRE_LINUX_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%2B7/OpenJDK11U-jre_x64_linux_hotspot_11.0.22_7.tar.gz
+  JRE_LINUX_NAME: OpenJDK11U-jre_x64_linux_hotspot_11.0.22_7.tar.gz
+  JRE_LINUX_DIR: jdk-11.0.22+7
+  JRE_WIN_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%2B7/OpenJDK11U-jre_x64_windows_hotspot_11.0.22_7.zip
+  JRE_WIN_NAME: OpenJDK11U-jre_x64_windows_hotspot_11.0.22_7.zip
+  JRE_WIN_DIR: jdk-11.0.22+7
+  TOMCAT_LINUX_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.86/bin/apache-tomcat-9.0.86.tar.gz
+  TOMCAT_LINUX_NAME: apache-tomcat-9.0.86.tar.gz
+  TOMCAT_WIN_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.86/bin/apache-tomcat-9.0.86-windows-x64.zip
+  TOMCAT_WIN_NAME: apache-tomcat-9.0.86.zip
+  TOMCAT_DIR: apache-tomcat-9.0.86
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-23.4.0-linux-installer.run
   IB_NAME: installbuilder-enterprise-23.4.0-linux-installer.run
 
