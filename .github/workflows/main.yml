@@ -36,7 +36,7 @@ jobs:
   build-installers:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@4.1.1
+    - uses: actions/checkout@4
     - name: Download and Install InstallBuilder
       run: |
         curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
