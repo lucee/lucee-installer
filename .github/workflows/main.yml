@@ -20,7 +20,7 @@ env:
   LUCEE_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
   JRE_LINUX_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%2B7/OpenJDK11U-jre_x64_linux_hotspot_11.0.22_7.tar.gz
   JRE_LINUX_NAME: OpenJDK11U-jre_x64_linux_hotspot_11.0.22_7.tar.gz
-  JRE_LINUX_DIR: jdk-11.0.22+7
+  JRE_LINUX_DIR: jdk-11.0.22+7-jre
   JRE_WIN_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%2B7/OpenJDK11U-jre_x64_windows_hotspot_11.0.22_7.zip
   JRE_WIN_NAME: OpenJDK11U-jre_x64_windows_hotspot_11.0.22_7.zip
   JRE_WIN_DIR: jdk-11.0.22+7
