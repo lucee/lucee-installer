@@ -23,7 +23,7 @@ env:
   JRE_LINUX_DIR: jdk-11.0.22+7-jre
   JRE_WIN_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%2B7/OpenJDK11U-jre_x64_windows_hotspot_11.0.22_7.zip
   JRE_WIN_NAME: OpenJDK11U-jre_x64_windows_hotspot_11.0.22_7.zip
-  JRE_WIN_DIR: jdk-11.0.22+7
+  JRE_WIN_DIR: jdk-11.0.22+7-jre
   TOMCAT_LINUX_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.86/bin/apache-tomcat-9.0.86.tar.gz
   TOMCAT_LINUX_NAME: apache-tomcat-9.0.86.tar.gz
   TOMCAT_WIN_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.86/bin/apache-tomcat-9.0.86-windows-x64.zip
