@@ -216,7 +216,7 @@ jobs:
       with:
         name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
     - name: Cache Maven packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2
         key: lucee-script-runner-maven-cache
