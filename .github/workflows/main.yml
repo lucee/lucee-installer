@@ -29,8 +29,8 @@ env:
   TOMCAT_WIN_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.88/bin/apache-tomcat-9.0.88-windows-x64.zip
   TOMCAT_WIN_NAME: apache-tomcat-9.0.88.zip
   TOMCAT_DIR: apache-tomcat-9.0.88
-  IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-23.4.0-linux-installer.run
-  IB_NAME: installbuilder-enterprise-23.4.0-linux-installer.run
+  IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
+  IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
 
 jobs:
   build-installers:
