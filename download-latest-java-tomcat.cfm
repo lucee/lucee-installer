@@ -2,22 +2,20 @@
 
 	tmpDir = getDirectoryFromPath(getCurrentTemplatePath()) & "tmp-installer/";
 	log = [];
-	srcVersion =  listToArray( server.system.environment.lucee_version, "." );
+	srcVersion = server.system.environment.lucee_version;	
 	version = listToArray( srcVersion,"." );
-	dump(version);
-	flush;
-
+	
 	tomcat_version = "9.0";
 	java_version = 11;
 
 	if ( version[ 1 ] gt 6  ||
 		(version[ 1 ] gte 6 && version[ 2 ] gte 1 )){
-		java_version = 21;
+		java_version = 21; // 6.1 onwards
 	}
 
 	if ( version[ 1 ] gt 6  ||
 		(version[ 1 ] gte 6 && version[ 2 ] gte 2 )){
-		tomcat_version = "10.1";
+		tomcat_version = "10.1"; // 6.2 onwards
 	}
 
 	logger("Using Java version #java_version# for Lucee #srcVersion#");
