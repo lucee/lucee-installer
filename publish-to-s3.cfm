@@ -56,6 +56,9 @@
 		throw fail; 
 	}
 	logger ("" );
+
+	throw "disabled for testing"!
+	
 	if ( listLen( version, "-" ) gt 1 ){
 		logger( "Not publishing to S3, only stable releases are published" );
 	} else {

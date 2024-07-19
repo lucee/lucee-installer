@@ -13,24 +13,18 @@ on:
       LUCEE_VERSION:
         required: true
         type: string
+      DRY_RUN:
+        required: false
+        default: false
+        type: boolean
   repository_dispatch:
      types: [build-installers]
 
 env:
-  LUCEE_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
-  JRE_LINUX_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.24%2B8/OpenJDK11U-jre_x64_linux_hotspot_11.0.24_8.tar.gz
-  JRE_LINUX_NAME: OpenJDK11U-jre_x64_linux_hotspot_11.0.24_8.tar.gz
-  JRE_LINUX_DIR: jdk-11.0.24+8-jre
-  JRE_WIN_URL: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.24%2B8/OpenJDK11U-jre_x64_windows_hotspot_11.0.24_8.zip
-  JRE_WIN_NAME: OpenJDK11U-jre_x64_windows_hotspot_11.0.24_8.zip
-  JRE_WIN_DIR: jdk-11.0.24+8-jre
-  TOMCAT_LINUX_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.91/bin/apache-tomcat-9.0.91.tar.gz
-  TOMCAT_LINUX_NAME: apache-tomcat-9.0.91.tar.gz
-  TOMCAT_WIN_URL: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.91/bin/apache-tomcat-9.0.91-windows-x64.zip
-  TOMCAT_WIN_NAME: apache-tomcat-9.0.91.zip
-  TOMCAT_DIR: apache-tomcat-9.0.91
+  LUCEE_INSTALLER_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
   IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
+  lucee_build_version: 6.2.0.109-SNAPSHOT
 
 jobs:
   build-installers:
@@ -46,7 +40,7 @@ jobs:
         ./${{ env.IB_NAME }} --prefix /tmp/ib --mode unattended
     - name: Update Template with version
       run : |
-        cat lucee/lucee.xml.template | sed -e "s,<version>LUCEE_VERSION</version>,<version>${{ env.LUCEE_VERSION }}</version>," > lucee/lucee.xml
+        cat lucee/lucee.xml.template | sed -e "s,<version>LUCEE_VERSION</version>,<version>${{ env.LUCEE_INSTALLER_VERSION }}</version>," > lucee/lucee.xml
     - name: Write out license
       env:
         INSTALLBUILDER_LICENSE: ${{ secrets.INSTALLBUILDER_LICENSE }}
@@ -55,71 +49,61 @@ jobs:
           echo "$INSTALLBUILDER_LICENSE" >> lucee/license.xml
     - name: Download Lucee Jar
       run: |
-        curl --fail https://cdn.lucee.org/lucee-${{ env.LUCEE_VERSION }}.jar -o lucee-${{ env.LUCEE_VERSION }}.jar -s
+        curl --fail https://cdn.lucee.org/lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar -s
         pwd
         ls -l
-        mv lucee-${{ env.LUCEE_VERSION }}.jar lucee/lucee/lib/
-    - name: Download JRE Linux
-      run: |
-        mkdir linux_jre
-        cd linux_jre
-        curl "${{ env.JRE_LINUX_URL }}" -o ${{ env.JRE_LINUX_NAME }} -L
-        tar zxf ${{ env.JRE_LINUX_NAME }}
-        ls -l
-        cp -r ${{ env.JRE_LINUX_DIR }}/* ../jre/jre64-lin/jre/
-        rm -rf ${{ env.JRE_LINUX_DIR }}
-    - name: Download JRE Windows
-      run: |
-        mkdir win_jre
-        cd win_jre
-        curl "${{ env.JRE_WIN_URL }}" -o ${{ env.JRE_WIN_NAME }} -L
-        unzip ${{ env.JRE_WIN_NAME }}
-        ls -l
-        cp -r ${{ env.JRE_WIN_DIR }}/* ../jre/jre64-win/jre/
-        rm -rf ${{ env.JRE_WIN_DIR }}
-    - name: Download and prepare Tomcat Linux
+        mv lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar lucee/lucee/lib/
+
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: lucee-script-runner-maven-cache
+
+    - name: Download latest Tomcat and Java
+      uses: lucee/script-runner@main
+      with:
+        webroot: ${{ github.workspace }}/
+        execute: /download-latest-java-tomcat.cfm
+        luceeVersion: ${{ env.lucee_build_version }}
+
+    - name: Prepare Tomcat Linux
       run: |
         pwd
-        curl ${{ env.TOMCAT_LINUX_URL }} -o ${{ env.TOMCAT_LINUX_NAME }} -s
-        ls -l
         cd lucee/tomcat9/
         rm -rf tomcat
-        rm -rfv ${{ env.TOMCAT_DIR }}
-        ls -l
-        tar zxf ../../${{ env.TOMCAT_LINUX_NAME }}
         cd ../..
         pwd
-        mv lucee/tomcat9/${{ env.TOMCAT_DIR }} lucee/tomcat9/tomcat
-        rm -rf lucee/tomcat9/tomcat/webapps
+        ls -l
+        mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
+        ls -lRh
     - name: Build Lucee Installer - Linux x64
       run: |
         cd lucee
         /tmp/ib/bin/builder build lucee.xml linux-x64 --verbose --license license.xml
-    - name: Download and prepare Tomcat Windows
+
+    - name: Prepare Tomcat Windows
       run: |
-        pwd
-        curl ${{ env.TOMCAT_WIN_URL }} -o ${{ env.TOMCAT_WIN_NAME }} -s
-        ls -l
         cd lucee/tomcat9/
         rm -rfv tomcat
-        rm -rfv ${{ env.TOMCAT_DIR }}
-        unzip ../../${{ env.TOMCAT_WIN_NAME }}
         cd ../..
         pwd
-        mv lucee/tomcat9/${{ env.TOMCAT_DIR }} lucee/tomcat9/tomcat
-        rm -rf lucee/tomcat9/tomcat/webapps
+        ls -l
+        mv src-tomcat/windows lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
+        ls -lRh
     - name: Build Lucee Installer - Windows x64
       run: |
         cd lucee
         /tmp/ib/bin/builder build lucee.xml windows-x64 --verbose --license license.xml
+
     - name: check linux installer has correct version
       run: |
         ls -laht /tmp/ib/output/
-        /tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --version
-        out=`/tmp/ib/output/lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run --version`
-        tet="Lucee ${{ env.LUCEE_VERSION }}"
+        /tmp/ib/output/lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run --version
+        out=`/tmp/ib/output/lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run --version`
+        tet="Lucee ${{ env.LUCEE_INSTALLER_VERSION }}"
         if [[ $out != $tet* ]]
         then
           echo Incorrect version banner
@@ -128,17 +112,18 @@ jobs:
     - name: Upload Artifact - Linux Installer
       uses: actions/upload-artifact@v4
       with:
-          name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-run
           path: /tmp/ib/output/*.run
           retention-days: 1
           compression-level: 0
     - name: Upload Artifact - Windows Installer
       uses: actions/upload-artifact@v4
       with:
-          name: lucee-installer-${{ env.LUCEE_VERSION }}-windows
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-windows
           path: /tmp/ib/output/*.exe
           retention-days: 1
           compression-level: 0
+
   test-linux:
     runs-on: ubuntu-latest
     needs: build-installers
@@ -146,29 +131,37 @@ jobs:
       - name: Download Linux Installer artifact
         uses: actions/download-artifact@v4
         with:
-          name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-run
       - name: list dir
         run: |
           ls -l
       - name: Run Linux installer
         run: |
           ls -l
-          chmod +x lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run
-          sudo ./lucee-${{ env.LUCEE_VERSION }}-linux-x64-installer.run \
+          chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
+          sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
             --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false \
             --luceepass ibtest --systemuser $USER --installjre true
           sleep 5;
           echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > /tmp/lucee/tomcat/webapps/ROOT/check.cfm
-          curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
+          curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
           #sleep 5
           #sudo /tmp/lucee/lucee_ctl stop
       - name: debug failure
         if: ${{ failure() }}
         run: |
-            cat /tmp/lucee/tomcat/logs/catalina.out
-            #cat /tmp/lucee/install.log
+            ls -l /tmp
+            cd /tmp
+            echo "----- installbuilder_installer.log"
+            sudo -s cat installbuilder_installer.log
             cd /tmp/lucee
             ls -lR
+            echo "----- install.log"
+            [ -r install.log ] && sudo -s cat install.log
+            ls -l /tmp/lucee/tomcat/logs/
+            echo "----- catalina.out"
+            [ -r /tmp/lucee/tomcat/logs/catalina.out ] && cat /tmp/lucee/tomcat/logs/catalina.out
+            
             #cat /tmp/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /tmp/lucee/tomcat/lucee-server/context/logs/err.log
             #cat /tmp/lucee/tomcat/logs/catalina.out
@@ -180,7 +173,7 @@ jobs:
       - name: Download Windows Installer artifact
         uses: actions/download-artifact@v4
         with:
-          name: lucee-installer-${{ env.LUCEE_VERSION }}-windows
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-windows
       - name: list dir
         run: |
           dir
@@ -188,21 +181,27 @@ jobs:
         shell: cmd
         run: |
           cd
-          lucee-${{ env.LUCEE_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
+          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
           curl http://127.0.0.1:8888/index.cfm --fail-with-body -o $GITHUB_STEP_SUMMARY
-          echo "Lucee Windows installer ${{ env.LUCEE_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> $GITHUB_STEP_SUMMARY
       - name: debug failure
         if: ${{ failure() }}
+        shell: cmd
         run: |
-          dir -s $home\
-          type $home\lucee\tomcat\logs\catalina.out
-          type $home\lucee\install.log
+          ECHO installbuilder_installer.log
+          dir C:/Users/RUNNER~1/AppData/Local/Temp/
+          IF EXIST "C:/Users/RUNNER~1/AppData/Local/Temp/installbuilder_installer.log" type "C:/Users/RUNNER~1/AppData/Local/Temp/installbuilder_installer.log"
+          ECHO catalina.out
+          IF EXIST "c:\lucee\tomcat\logs\catalina.out" type "c:\lucee\tomcat\logs\catalina.out"
+          ECHO install.log
+          IF EXIST "c:\lucee\install.log" type "c:\lucee\install.log"
+          dir /S c:\lucee\
 
   publish-to-s3:
     runs-on: ubuntu-latest
     needs: [ test-windows, test-linux, build-installers ]
+    if: ${{ github.event.inputs.DRY_RUN  != true }}
     env:
-      luceeVersion: 6.0.0.585
       S3_ACCESS_ID_DOWNLOAD: ${{ secrets.S3_ACCESS_ID_DOWNLOAD }}
       S3_SECRET_KEY_DOWNLOAD: ${{ secrets.S3_SECRET_KEY_DOWNLOAD }}
     steps:
@@ -210,21 +209,20 @@ jobs:
     - name: Download Windows Installer artifact
       uses: actions/download-artifact@v4
       with:
-        name: lucee-installer-${{ env.LUCEE_VERSION }}-windows
+        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-windows
     - name: Download Linux Installer artifact
       uses: actions/download-artifact@v4
       with:
-        name: lucee-installer-${{ env.LUCEE_VERSION }}-linux-run
+        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-run
     - name: Cache Maven packages
       uses: actions/cache@v4
       with:
         path: ~/.m2
         key: lucee-script-runner-maven-cache
+
     - name: Publish Installers to S3
       uses: lucee/script-runner@main
       with:
         webroot: ${{ github.workspace }}/
         execute: /publish-to-s3.cfm
-        luceeVersion: ${{ env.luceeVersion }}
-        extensions:
-        extensionDir:
+        luceeVersion: ${{ env.lucee_build_version }}
