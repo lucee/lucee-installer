@@ -10,12 +10,10 @@ Note: You must build the Linux Installer on Linux, otherwise the file permission
 
 ## Github Actions ##
 
-We now have an automated GitHub action to build, test and publish the Windows and Linux installers
-
-## Automated build script ##
-`JRE_URL=https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.23%2B9/OpenJDK11U-jre_x64_linux_hotspot_11.0.23_9.tar.gz TOMCAT_URL=https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.tar.gz LUCEE_VERSION=6.0.1.83 ./build.sh`
+We now use an automated GitHub action to build, test and publish the Windows and Linux installers
 
 ## Manual Build ##
+
 ### Preparation ###
 
 None of the main binaries are checked into source control, the following manual steps are required:
