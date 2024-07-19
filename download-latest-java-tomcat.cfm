@@ -24,8 +24,8 @@
 	tomcat = getTomcatVersion( tomcat_version );
 	java = getJavaVersion( java_version );
 
-	dump(java);
-	dump(tomcat);
+	//dump(java);
+	//dump(tomcat);
 
 	extractArchive( "zip", java.windows.archive , "jre/jre64-win/jre/" );
 	extractArchive( "tgz", java.linux.archive , "jre/jre64-lin/jre/" );
@@ -35,7 +35,8 @@
 	directoryDelete( "src-tomcat/linux/webapps", true );
 	directoryDelete( "src-tomcat/windows/webapps", true );
 
-	dump( log );
+	//dump( log );
+	writeoutMarkdown(log);
 
 	function extractArchive( format, src, dest ){
 
@@ -148,6 +149,6 @@
 		fileWrite( server.system.environment.GITHUB_STEP_SUMMARY, ArrayToList( arguments.log, chr( 10 ) ) );
 	}
 
-	// dump(log);
+	
 
 </cfscript>
