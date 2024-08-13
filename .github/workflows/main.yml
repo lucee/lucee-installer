@@ -24,7 +24,7 @@ env:
   LUCEE_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
   IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
-  lucee_build_version: 6.1.0.243
+  lucee_build_version: 6.1.1.59
 
 jobs:
   build-installers:
