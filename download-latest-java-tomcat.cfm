@@ -2,7 +2,7 @@
 
 	tmpDir = getDirectoryFromPath(getCurrentTemplatePath()) & "tmp-installer/";
 	log = [];
-	srcVersion = server.system.environment.lucee_version;	
+	srcVersion = server.system.environment.lucee_installer_version;	
 	version = listToArray( srcVersion,"." );
 	
 	tomcat_version = "9.0";
@@ -40,13 +40,17 @@
 
 	function extractArchive( format, src, dest ){
 
-		arguments.dest = getDirectoryFromPath(getCurrentTemplatePath()) & "tmp-installer/" & arguments.dest;
+		arguments.dest = getDirectoryFromPath( getCurrentTemplatePath() ) & arguments.dest;
 		var tmpDest = getTempDirectory() & "tmp-installer-" & createUUID() & "/";
 		if ( directoryExists( tmpDest ) )
 			directoryDelete( tmpDest );
 		directoryCreate( tmpdest );
-		logger(" extracting [#arguments.src# ] into [#arguments.dest#]" );
+		logger(" extracting [#arguments.src# ] into [#tmpDest#]" );
 		extract( arguments.format, arguments.src, tmpDest );
+
+		if ( arguments.format != "zip" ){
+			applyPermissions( arguments.src, tmpDest );
+		}
 
 		var files = directoryList(tmpDest, true);
 
@@ -57,6 +61,34 @@
 
 		directoryDelete( tmpDest, true );
 	}
+
+	// lucee ignores permissions when extracting files
+	function applyPermissions( src, dest ){
+		var files = directoryList( path="tgz://" & src, recurse=true, listinfo="query");
+		var dir ="";
+		var file = "";
+
+		systemOutput( dest, true );
+		var destFiles = directoryList( path=dest, recurse=false, listinfo="query");
+		for ( var d in destFiles ) {
+			systemOutput( d, true );
+		}
+		
+		loop query="files"{
+			dir = mid(files.directory, find( "!", files.directory) + 2 );
+			systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
+			if ( files.type == "file" ){
+				file = arguments.dest & mid( dir, 2 ) & files.name;
+				systemOutput( file, true );
+				systemOutput( fileExists( file ), true );
+				fileSetAccessMode(file , files.mode );
+				systemOutput( fileInfo( file ).mode, true );
+			}
+		}
+		
+		throw "stop!";
+	}
+
 
 	function getTomcatVersion( required string version ){
 		var tomcat_metadata = "https://repo1.maven.org/maven2/org/apache/tomcat/embed/tomcat-embed-core/maven-metadata.xml"
@@ -83,7 +115,7 @@
 
 		var tomcat = {
 			"windows": {
-				"url": baseUrl & "apache-tomcat-" & latest_version & ".zip",
+				"url": baseUrl & "apache-tomcat-" & latest_version & "-windows-x64.zip",
 			},
 			"linux": {
 				"url": baseUrl & "apache-tomcat-" & latest_version & ".tar.gz",
@@ -94,7 +126,7 @@
 			var download_url = tomcat[os].url;
 			var filename = listLast( download_url, "/" );
 
-			http method="get" url=download_url path=getTempDirectory() file=filename;
+			http method="get" url=download_url path=getTempDirectory() file=filename throwOnError=true;
 			var info = fileInfo(getTempDirectory() & filename);
 
 			logger("downloaded [#info.path#], #numberformat(int(info.size/1024/1024))# Mb");
@@ -119,7 +151,7 @@
 			var download_url = java[os].url;
 			var filename = listLast( download_url, "/" );
 
-			http method="get" url=download_url path=getTempDirectory() file=filename;
+			http method="get" url=download_url path=getTempDirectory() file=filename throwOnError=true;
 			var info = fileInfo(getTempDirectory() & filename);
 
 			logger("downloaded [#info.path#], #numberformat(int(info.size/1024/1024))# Mb");
@@ -146,7 +178,9 @@
 	}
 
 	function writeoutMarkdown( log ){
-		fileWrite( server.system.environment.GITHUB_STEP_SUMMARY, ArrayToList( arguments.log, chr( 10 ) ) );
+		if ( len( server.system.environment.GITHUB_STEP_SUMMARY ?: "" ) ){
+			fileWrite( server.system.environment.GITHUB_STEP_SUMMARY, ArrayToList( arguments.log, chr( 10 ) ) );
+		}
 	}
 
 	

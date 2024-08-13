@@ -24,7 +24,7 @@ env:
   LUCEE_INSTALLER_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
   IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
-  lucee_build_version: 6.1.1.59-SNAPSHOT
+  lucee_build_version: 6.1.1.60-SNAPSHOT
 
 jobs:
   build-installers:
@@ -72,9 +72,12 @@ jobs:
         pwd
         cd lucee/tomcat9/
         rm -rf tomcat
+        cd ../..
         pwd
+        ls -l
         mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
+        ls -lRh
     - name: Build Lucee Installer - Linux x64
       run: |
         cd lucee
@@ -84,9 +87,12 @@ jobs:
       run: |
         cd lucee/tomcat9/
         rm -rfv tomcat
+        cd ../..
         pwd
+        ls -l
         mv src-tomcat/windows lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
+        ls -lRh
     - name: Build Lucee Installer - Windows x64
       run: |
         cd lucee
@@ -144,6 +150,7 @@ jobs:
       - name: debug failure
         if: ${{ failure() }}
         run: |
+            cat ${installer_installation_log}/installbuilder_installer.log
             cat /tmp/lucee/tomcat/logs/catalina.out
             #cat /tmp/lucee/install.log
             cd /tmp/lucee
