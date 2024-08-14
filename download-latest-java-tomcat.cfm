@@ -76,15 +76,18 @@
 		}
 		*/
 		
-		loop query="files"{
+		loop query="files" {
 			dir = mid(files.directory, find( "!", files.directory) + 2 );
-			// systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
+			if ( files.mode != "644" )
+				systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
 			if ( files.type == "file" ){
 				file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
-				systemOutput( file, true );
+				// ßsystemOutput( file, true );
 				//systemOutput( fileExists( file ), true );
 				fileSetAccessMode( file , files.mode );
-				systemOutput( fileInfo( file ).mode & " should be " & files.mode , true );
+				if ( fileInfo( file ).mode != files.mode) {
+					throw "#File# is #fileInfo( file ).mode# should be #files.mode#";
+				}
 			}
 		}
 	}
