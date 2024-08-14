@@ -82,7 +82,7 @@
 				systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
 			if ( files.type == "file" ){
 				file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
-				// ßsystemOutput( file, true );
+				// systemOutput( file, true );
 				//systemOutput( fileExists( file ), true );
 				fileSetAccessMode( file , files.mode );
 				if ( fileInfo( file ).mode != files.mode) {
