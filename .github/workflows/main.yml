@@ -153,8 +153,12 @@ jobs:
             ls -l /tmp
             cd /tmp/lucee
             ls -lR
+            echo "installbuilder_installer.log"
+            cat /tmp/installbuilder_installer.log
+            echo "install.log"
             cat /tmp/lucee/install.log
-            cat /tmp/lucee/tomcat/logs/catalina.out
+            ls -l /tmp/lucee/tomcat/logs/
+            #cat /tmp/lucee/tomcat/logs/catalina.out
             
             #cat /tmp/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /tmp/lucee/tomcat/lucee-server/context/logs/err.log
