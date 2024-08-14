@@ -78,9 +78,9 @@
 		
 		loop query="files" {
 			dir = mid(files.directory, find( "!", files.directory) + 2 );
-			if ( files.mode != "644" )
-				systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
-			if ( files.type == "file" ){
+			//if ( files.mode != "644" )
+			//	systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
+			//if ( files.type == "file" ){
 				file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
 				// systemOutput( file, true );
 				//systemOutput( fileExists( file ), true );
@@ -88,7 +88,7 @@
 				if ( fileInfo( file ).mode != files.mode) {
 					throw "#File# is #fileInfo( file ).mode# should be #files.mode#";
 				}
-			}
+			//}
 		}
 	}
 
