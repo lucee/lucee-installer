@@ -64,6 +64,7 @@
 
 	// lucee ignores permissions when extracting files
 	function applyPermissions( src, dest ){
+		systemOutput( "Manually applying file system permissions", true );
 		var files = directoryList( path="tgz://" & src, recurse=true, listinfo="query");
 		var dir ="";
 		var file = "";
