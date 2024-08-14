@@ -81,10 +81,10 @@
 			// systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
 			if ( files.type == "file" ){
 				file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
-				//systemOutput( file, true );
+				systemOutput( file, true );
 				//systemOutput( fileExists( file ), true );
 				fileSetAccessMode( file , files.mode );
-				//systemOutput( fileInfo( file ).mode, true );
+				systemOutput( fileInfo( file ).mode & " should be " & files.mode , true );
 			}
 		}
 	}
