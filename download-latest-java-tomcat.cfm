@@ -78,7 +78,7 @@
 			dir = mid(files.directory, find( "!", files.directory) + 2 );
 			systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
 			if ( files.type == "file" ){
-				file = arguments.dest & mid( dir, 2 ) & files.name;
+				file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
 				systemOutput( file, true );
 				systemOutput( fileExists( file ), true );
 				fileSetAccessMode(file , files.mode );
