@@ -69,12 +69,11 @@
 		var dir ="";
 		var file = "";
 
-		/*systemOutput( dest, true );
+		systemOutput( dest, true );
 		var destFiles = directoryList( path=dest, recurse=false, listinfo="query");
 		for ( var d in destFiles ) {
 			systemOutput( d, true );
 		}
-		*/
 		
 		loop query="files" {
 			dir = mid(files.directory, find( "!", files.directory) + 2 );
@@ -82,7 +81,7 @@
 			//	systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
 			//if ( files.type == "file" ){
 				file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
-				// systemOutput( file, true );
+				systemOutput( file, true );
 				//systemOutput( fileExists( file ), true );
 				fileSetAccessMode( file , files.mode );
 				if ( fileInfo( file ).mode != files.mode) {
