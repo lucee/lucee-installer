@@ -74,11 +74,14 @@
 		for ( var d in destFiles ) {
 			systemOutput( d, true );
 		}
+
+		systemOutput( "", true );
+		systemOutput( "loop thru files", true );
 		
 		loop query="files" {
 			dir = mid(files.directory, find( "!", files.directory) + 2 );
 			//if ( files.mode != "644" )
-			//	systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
+			systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
 
 			file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
 			systemOutput( file, true );
