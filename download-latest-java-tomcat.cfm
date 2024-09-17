@@ -79,15 +79,20 @@
 			dir = mid(files.directory, find( "!", files.directory) + 2 );
 			//if ( files.mode != "644" )
 			//	systemOutput( "#dir# #files.name# #files.size# #files.type# #files.mode#", true );
-			//if ( files.type == "file" ){
-				file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
-				systemOutput( file, true );
-				//systemOutput( fileExists( file ), true );
-				fileSetAccessMode( file , files.mode );
-				if ( fileInfo( file ).mode != files.mode) {
-					throw "#File# is #fileInfo( file ).mode# should be #files.mode#";
-				}
-			//}
+
+			file = arguments.dest & mid( dir, 2 ) & "/" & files.name;
+			systemOutput( file, true );
+			//systemOutput( fileExists( file ), true );
+			fileSetAccessMode( file , files.mode );
+			if ( files.type == "file" ){
+				var mode = fileInfo( file ).mode;
+			} else {
+				var mode = directoryInfo( file ).mode;
+			}
+			if ( mode != files.mode) {
+				throw "Permissions error [#File#] is [#mode#] should be [#files.mode#]";
+			}
+			
 		}
 	}
 
