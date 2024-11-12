@@ -241,7 +241,7 @@
 		                    
 
 		                    <div class="col-md-5 col-sm-4">
-		                        <p class="copyright-text">Copyright &copy; 2015 by the Lucee Association Switzerland</p>
+		                        <p class="copyright-text">Copyright &copy; <cfoutput>#year(now())#</cfoutput> by the Lucee Association Switzerland</p>
 		                    </div>
 		                    
 
