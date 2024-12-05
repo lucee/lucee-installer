@@ -1164,8 +1164,8 @@ Please review ${installer_installation_log}.</text>
             <validVersionList>
                 <validVersion>
                     <bitness>64</bitness>
-                    <maxVersion>14</maxVersion>
-                    <minVersion>1.8</minVersion>
+                    <maxVersion>21</maxVersion>
+                    <minVersion>11</minVersion>
                     <requireJDK>0</requireJDK>
                     <vendor></vendor>
                 </validVersion>
@@ -1380,7 +1380,7 @@ Path: ${java_executable}
         <labelParameter>
             <name>NoSystemJavadetected</name>
             <title>No System Java detected</title>
-            <description>Lucee requires a Java runtime (versions 1.8 to 14 are supported)</description>
+            <description>Lucee requires a Java runtime (Version 11 supported, Lucee 6.1+ supports Java 21 )</description>
             <explanation>The bundled JRE will be automatically installed</explanation>
             <image></image>
             <ruleList>

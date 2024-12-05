@@ -20,6 +20,12 @@
 		tomcat_win_exe = "tomcat10w.exe";
 	}
 
+	logger("Using Java version #java_version# for Lucee #srcVersion#");
+	logger("Using Tomcat version #tomcat_version# for Lucee #srcVersion#");
+
+	tomcat = getTomcatVersion( tomcat_version );
+	java = getJavaVersion( java_version );
+
 	installbuilder_template = getDirectoryFromPath( getCurrentTemplatePath() ) & "lucee/lucee.xml";
 	template = fileRead(installbuilder_template);
 	template = Replace( template, "<origin>${installdir}/tomcat/bin/TOMCAT_WIN_EXE</origin>", "<origin>${installdir}/tomcat/bin/#tomcat_win_exe#</origin>" );
@@ -28,14 +34,41 @@
 	windows_service_bat = getDirectoryFromPath( getCurrentTemplatePath() ) & "lucee/tomcat9/tomcat-lucee-conf/bin/service.bat";
 	template = fileRead(windows_service_bat);
 	template = Replace( template, "set DEFAULT_SERVICE_NAME=Tomcat9", "set DEFAULT_SERVICE_NAME=#mid(tomcat_win_exe, 1, len(tomcat_win_exe)-5)#" );
+	template = Replace( template, "Lucee Apache Tomcat 9.0 ", "Lucee #srcVersion# Apache Tomcat #tomcat._version# ", "all" );
 	fileWrite( windows_service_bat, template );
 
-	logger("Using Java version #java_version# for Lucee #srcVersion#");
-	logger("Using Tomcat version #tomcat_version# for Lucee #srcVersion#");
+	tomcat_web_xml_header = "";
+	switch ( tomcat_version ){
+		case "9.0":
+			break;
+		case "10.1":
+			tomcat_web_xml_header='<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+  version="6.0">';
+  			FileCopy("lucee/tomcat10/conf/catalina.properties", "lucee/tomcat9/tomcat-lucee-conf/conf/catalina.properties");
+			break;
+		default:
+			throw "Unsupported Tomcat version [#tomcat_version#]";
+	}
 
-	tomcat = getTomcatVersion( tomcat_version );
-	java = getJavaVersion( java_version );
+	tomcat_9_web_xml_header ='<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+  version="4.0">';
 
+	if ( len( tomcat_web_xml_header ) ){
+		web_xml = "lucee/tomcat9/tomcat-lucee-conf/conf/web.xml";
+		template = fileRead(web_xml);
+		template = Replace( template, tomcat_9_web_xml_header, tomcat_web_xml_header );
+		template = Replace( template, ">lucee.loader.servlet.", ">lucee.loader.servlet.jakarta." );
+		
+		fileWrite( web_xml, template );
+	}
+
+	
 	//dump(java);
 	//dump(tomcat);
 
@@ -168,10 +201,12 @@
 			},
 			"linux": {
 				"url": baseUrl & "apache-tomcat-" & latest_version & ".tar.gz",
-			}
+			},
+			"_version": latest_version
 		};
 
 		for ( var os in tomcat ){
+			if ( left( os, 1 ) eq "_" ) continue; // ignore _version
 			var download_url = tomcat[os].url;
 			var filename = listLast( download_url, "/" );
 
