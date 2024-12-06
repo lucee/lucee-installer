@@ -664,6 +664,10 @@ Please review ${installer_installation_log}.</text>
                         </portTest>
                     </ruleList>
                 </showWarning>
+                <!-- this is needed for linux with 5.4, otherwise the server doesn't finish deploying properly and setting a password fails -->
+                <httpGet>
+                    <url>http://127.0.0.1:${tomcatport}/lucee/admin/server.cfm</url>
+                </httpGet>
                 <!--
                 <httpPost>
                     <filename>${installdir}/tomcat/logs/server_post_result.txt</filename>
