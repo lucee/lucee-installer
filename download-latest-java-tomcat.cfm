@@ -48,6 +48,7 @@
                       https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
   version="6.0">';
   			FileCopy("lucee/tomcat10/conf/catalina.properties", "lucee/tomcat9/tomcat-lucee-conf/conf/catalina.properties");
+			addJavaxJars(getDirectoryFromPath( getCurrentTemplatePath() ) & "lucee/lucee/lib/");
 			break;
 		default:
 			throw "Unsupported Tomcat version [#tomcat_version#]";
@@ -131,6 +132,21 @@
 		}
 		return true;
 	};
+
+	function addJavaxJars(jarPath){
+		// tomcat 10+ uses jarkarta but needs the javax servlet jars too
+		logger( "Adding javax jars to [#jarPath#]" );
+		var jars = [
+			"https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/4.0.1/javax.servlet-api-4.0.1.jar",
+			"https://repo1.maven.org/maven2/javax/servlet/jsp/javax.servlet.jsp-api/2.3.3/javax.servlet.jsp-api-2.3.3.jar",
+			"https://repo1.maven.org/maven2/javax/el/javax.el-api/3.0.0/javax.el-api-3.0.0.jar"
+		];
+
+		for (var jar in jars){
+			logger(chr(9) & jar);
+			http method="get" url=jar path=arguments.jarPath file=listlast(jar,"/") throwOnError=true;
+		}
+	}
 
 	/*
 	// lucee ignores permissions when extracting files
