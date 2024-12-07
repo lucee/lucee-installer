@@ -471,7 +471,7 @@
                                 <copyFile>
                                     <destination>${installdir}/tomcat/bin/Luceew.exe</destination>
                                     <matchHiddenFiles>1</matchHiddenFiles>
-                                    <origin>${installdir}/tomcat/bin/tomcat9w.exe</origin>
+                                    <origin>${installdir}/tomcat/bin/TOMCAT_WIN_EXE</origin>
                                 </copyFile>
                             </actionList>
                             <ruleList>
@@ -487,7 +487,7 @@
                             <runAs>Administrator</runAs>
                             <onErrorActionList>
                                 <showInfo>
-                                    <text>The Lucee-Tomcat service intall failed to complete successfully.
+                                    <text>The Lucee-Tomcat service install failed to complete successfully.
 
 ${program_stdout}
 ${program_stderr}
@@ -664,56 +664,16 @@ Please review ${installer_installation_log}.</text>
                         </portTest>
                     </ruleList>
                 </showWarning>
-                <httpPost>
-                    <filename>${installdir}/tomcat/logs/server_post_result.txt</filename>
+                <!-- this is needed for linux with 5.4, otherwise the server doesn't finish deploying properly and setting a password fails -->
+                <httpGet>
                     <url>http://127.0.0.1:${tomcatport}/lucee/admin/server.cfm</url>
-                    <onErrorActionList>
-                        <logMessage>
-                            <text>${msg(warnings.setLuceeServerPass)}</text>
-                        </logMessage>
-                    </onErrorActionList>
-                    <queryParameterList>
-                        <queryParameter>
-                            <name>new_password</name>
-                            <value>${luceepass}</value>
-                        </queryParameter>
-                        <queryParameter>
-                            <name>new_password_re</name>
-                            <value>${luceepass}</value>
-                        </queryParameter>
-                    </queryParameterList>
                     <ruleList>
                         <portTest>
                             <condition>cannot_bind</condition>
                             <port>${tomcatport}</port>
                         </portTest>
                     </ruleList>
-                </httpPost>
-                <httpPost>
-                    <filename>${installdir}/tomcat/logs/web_post_result.txt</filename>
-                    <url>http://127.0.0.1:${tomcatport}/lucee/admin/web.cfm</url>
-                    <onErrorActionList>
-                        <logMessage>
-                            <text>${msg(warnings.setLuceeWebPass)}</text>
-                        </logMessage>
-                    </onErrorActionList>
-                    <queryParameterList>
-                        <queryParameter>
-                            <name>new_password</name>
-                            <value>${luceepass}</value>
-                        </queryParameter>
-                        <queryParameter>
-                            <name>new_password_re</name>
-                            <value>${luceepass}</value>
-                        </queryParameter>
-                    </queryParameterList>
-                    <ruleList>
-                        <portTest>
-                            <condition>cannot_bind</condition>
-                            <port>${tomcatport}</port>
-                        </portTest>
-                    </ruleList>
-                </httpPost>
+                </httpGet>
                 <actionGroup>
                     <progressText>${msg(postInstall.configuringApache)}</progressText>
                     <actionList>
@@ -738,57 +698,17 @@ Please review ${installer_installation_log}.</text>
                     </ruleList>
                 </actionGroup>
                 <actionGroup>
-                    <customErrorMessage>${msg(warnings.LuceePostError)}</customErrorMessage>
+                    <customErrorMessage>${msg(warnings.LuceePostError)}: ${installer_error_message_original}</customErrorMessage>
                     <progressText>Securing Lucee Web Admins</progressText>
                     <actionList>
-                        <xmlFileGet>
-                            <attribute>hspw</attribute>
-                            <element>/cfLuceeConfiguration</element>
-                            <file>${installdir}/tomcat/lucee-server/context/lucee-server.xml</file>
-                            <variable>hspw</variable>
-                            <ruleList>
-                                <!-- lucee 6 uses json rather than xml -->
-
-                                <fileExists>
-                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
-                                </fileExists>
-                            </ruleList>
-                        </xmlFileGet>
-                        <xmlFileSet>
-                            <attribute>default-hspw</attribute>
-                            <element>/cfLuceeConfiguration</element>
-                            <file>${installdir}/tomcat/lucee-server/context/lucee-server.xml</file>
-                            <value>${hspw}</value>
-                            <ruleList>
-                                <!-- lucee 6 uses json rather than xml -->
-
-                                <fileExists>
-                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
-                                </fileExists>
-                                <compareValues>
-                                    <logic>does_not_equal</logic>
-                                    <value1>${hspw}</value1>
-                                    <value2></value2>
-                                </compareValues>
-                                <portTest>
-                                    <condition>can_bind</condition>
-                                    <port>${tomcatport}</port>
-                                </portTest>
-                            </ruleList>
-                        </xmlFileSet>
-
-                        <!-- lucee 6 uses json rather than xml, install builder doesn't support json, so lets drop a password.txt -->
-
+                        <!-- write out a password.txt -->
+                        <createDirectory>
+                            <path>${installdir}/tomcat/lucee-server/context/</path>
+                        </createDirectory>
+                    
                         <writeFile>
                             <path>${installdir}/tomcat/lucee-server/context/password.txt</path>
                             <text>${luceepass}</text>
-                            <ruleList>
-                                <fileExists negate="1">
-                                    <!-- other approach, check for .CFConfig.json -->
-
-                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
-                                </fileExists>
-                            </ruleList>
                         </writeFile>
                     </actionList>
                 </actionGroup>
@@ -1159,8 +1079,8 @@ Please review ${installer_installation_log}.</text>
             <validVersionList>
                 <validVersion>
                     <bitness>64</bitness>
-                    <maxVersion>14</maxVersion>
-                    <minVersion>1.8</minVersion>
+                    <maxVersion>21</maxVersion>
+                    <minVersion>11</minVersion>
                     <requireJDK>0</requireJDK>
                     <vendor></vendor>
                 </validVersion>
@@ -1375,7 +1295,7 @@ Path: ${java_executable}
         <labelParameter>
             <name>NoSystemJavadetected</name>
             <title>No System Java detected</title>
-            <description>Lucee requires a Java runtime (versions 1.8 to 14 are supported)</description>
+            <description>Lucee requires a Java runtime (Version 11 supported, Lucee 6.1+ supports Java 21 )</description>
             <explanation>The bundled JRE will be automatically installed</explanation>
             <image></image>
             <ruleList>

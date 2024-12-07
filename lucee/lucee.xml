@@ -487,7 +487,7 @@
                             <runAs>Administrator</runAs>
                             <onErrorActionList>
                                 <showInfo>
-                                    <text>The Lucee-Tomcat service intall failed to complete successfully.
+                                    <text>The Lucee-Tomcat service install failed to complete successfully.
 
 ${program_stdout}
 ${program_stderr}
@@ -664,6 +664,7 @@ Please review ${installer_installation_log}.</text>
                         </portTest>
                     </ruleList>
                 </showWarning>
+                <!--
                 <httpPost>
                     <filename>${installdir}/tomcat/logs/server_post_result.txt</filename>
                     <url>http://127.0.0.1:${tomcatport}/lucee/admin/server.cfm</url>
@@ -714,6 +715,7 @@ Please review ${installer_installation_log}.</text>
                         </portTest>
                     </ruleList>
                 </httpPost>
+                -->
                 <actionGroup>
                     <progressText>${msg(postInstall.configuringApache)}</progressText>
                     <actionList>
@@ -1834,4 +1836,3 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </platformOptions>
     </platformOptionsList>
 </project>
-
