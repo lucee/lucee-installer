@@ -12,9 +12,9 @@
 	}
 
 	logger( "Publish Installers to s3, using #server.lucee.version#" );
-	logger( " - for installers for Lucee #server.system.environment.lucee_version# " );
+	logger( " - for installers for Lucee #server.system.environment.LUCEE_INSTALLER_VERSION# " );
 
-	version = server.system.environment.lucee_version;
+	version = server.system.environment.LUCEE_INSTALLER_VERSION;
 
 	currDir = getDirectoryFromPath( getCurrentTemplatePath() );
 
