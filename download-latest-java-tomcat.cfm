@@ -64,7 +64,7 @@
 		web_xml = "lucee/tomcat9/tomcat-lucee-conf/conf/web.xml";
 		template = fileRead(web_xml);
 		template = Replace( template, tomcat_9_web_xml_header, tomcat_web_xml_header );
-		template = Replace( template, ">lucee.loader.servlet.", ">lucee.loader.servlet.jakarta." );
+		template = Replace( template, ">lucee.loader.servlet.", ">lucee.loader.servlet.jakarta.", "all" );
 		
 		fileWrite( web_xml, template );
 	}
