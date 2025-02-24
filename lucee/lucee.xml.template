@@ -1367,6 +1367,7 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <default>${minheap}</default>
                     <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
+                    <!--
                     <validationActionList>
                         <throwError>
                             <text>Minimum value must empty, or numeric and greater than 16</text>
@@ -1390,6 +1391,7 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                             </ruleList>
                         </throwError>
                     </validationActionList>
+                    -->
                 </stringParameter>
                 <stringParameter>
                     <name>maxheap</name>
@@ -1400,27 +1402,43 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
                     <validationActionList>
-                        <throwError>
-                            <text>Maximum value must be empty, or numeric and greater than 32</text>
+                         <actionGroup>
+                            <actionList>
+                                <throwError>
+                                    <text>Maximum value must be numeric and greater than 32</text>
+                                </throwError>
+                            </actionList>
                             <ruleList>
                                 <compareText>
                                     <text>${maxheap}</text>
                                     <logic>does_not_equal</logic>
                                     <value></value>
                                 </compareText>
-                                <or>
-                                    <compareValues>
-                                        <logic>less</logic>
-                                        <value1>32</value1>
-                                        <value2>${maxheap}</value2>
-                                    </compareValues>
-                                    <stringTest>
-                                        <text>${maxheap}</text>
-                                        <type>not_digit</type>
-                                    </stringTest>
-                                </or>
+                                <stringTest>
+                                    <text>${maxheap}</text>
+                                    <type>not_digit</type>
+                                </stringTest>
                             </ruleList>
-                        </throwError>
+                        </actionGroup>
+                        <actionGroup>
+                            <actionList>
+                                <throwError>
+                                    <text>Maximum value must be greater than 32</text>
+                                </throwError>
+                            </actionList>
+                            <ruleList>
+                                <compareText>
+                                    <text>${maxheap}</text>
+                                    <logic>does_not_equal</logic>
+                                    <value></value>
+                                </compareText>
+                                <compareValues>
+                                    <logic>less_or_equal</logic>
+                                    <value1>${maxheap}</value1>
+                                    <value2>32</value2>
+                                </compareValues>
+                            </ruleList>
+                        </actionGroup>
                     </validationActionList>
                 </stringParameter>
             </parameterList>
