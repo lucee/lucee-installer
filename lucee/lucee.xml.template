@@ -1079,7 +1079,6 @@ Please review ${installer_installation_log}.</text>
             <validVersionList>
                 <validVersion>
                     <bitness>64</bitness>
-                    <maxVersion>21</maxVersion>
                     <minVersion>11</minVersion>
                     <requireJDK>0</requireJDK>
                     <vendor></vendor>
