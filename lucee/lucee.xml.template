@@ -1369,18 +1369,23 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <width>30</width>
                     <validationActionList>
                         <throwError>
-                            <text>Minimum value must be numeric and greater than 16</text>
-                            <ruleList>
+                            <text>Minimum value must empty, or numeric and greater than 16</text>
+                             <compareText>
+                                <text>${maxheap}</text>
+                                <logic>does_not_equal</logic>
+                                <value></value>
+                            </compareText>
+                            <or>
                                 <compareValues>
                                     <logic>less</logic>
                                     <value1>16</value1>
-                                    <value2></value2>
+                                    <value2>${maxheap}</value2>
                                 </compareValues>
                                 <stringTest>
-                                    <text></text>
+                                    <text>${maxheap}</text>
                                     <type>not_digit</type>
                                 </stringTest>
-                            </ruleList>
+                            </or>
                         </throwError>
                     </validationActionList>
                 </stringParameter>
@@ -1388,24 +1393,30 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <name>maxheap</name>
                     <description>${msg(params.MemorySettingsMaximum)}</description>
                     <explanation></explanation>
-                    <value>${maxheap}</value>
-                    <default>${maxheap}</default>
+                    <value></value>
+                    <default></default>
                     <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
                     <validationActionList>
                         <throwError>
-                            <text>Maximum value must be numeric and greater than 32</text>
+                            <text>Maximum value must be empty, or numeric and greater than 32</text>
                             <ruleList>
+                                <compareText>
+                                    <text>${maxheap}</text>
+                                    <logic>does_not_equal</logic>
+                                    <value></value>
+                                </compareText>
+                            <or>
                                 <compareValues>
                                     <logic>less</logic>
                                     <value1>32</value1>
-                                    <value2></value2>
+                                    <value2>${maxheap}</value2>
                                 </compareValues>
                                 <stringTest>
-                                    <text></text>
+                                    <text>${maxheap}</text>
                                     <type>not_digit</type>
                                 </stringTest>
-                            </ruleList>
+                            </or>
                         </throwError>
                     </validationActionList>
                 </stringParameter>
