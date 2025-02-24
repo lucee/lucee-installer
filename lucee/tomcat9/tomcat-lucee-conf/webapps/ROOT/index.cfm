@@ -112,7 +112,7 @@
                                                                         </h2>
 
                                                                         <p>
-                                                                                If you are new to Lucee or the CFML language in general,  check our <a href="#firststepsURL#">First Steps</a> page in our docs. There you'll find a quick primer of the amazing and easy-to-learn CFML language. If you come from a deisgn-based background, CFML's tag-based language should make it easy to learn and use right away. If you're coming from another development language, the CFML script-based syntax may be more to your liking. Either way, it's a great place to get started on your journey with Lucee and CFML!</p>
+                                                                                If you are new to Lucee or the CFML language in general,  check our <a href="#firststepsURL#">First Steps</a> page in our docs. There you'll find a quick primer of the amazing and easy-to-learn CFML language. If you come from a design-based background, CFML's tag-based language should make it easy to learn and use right away. If you're coming from another development language, the CFML script-based syntax may be more to your liking. Either way, it's a great place to get started on your journey with Lucee and CFML!</p>
 
 
                                                                 </div>
