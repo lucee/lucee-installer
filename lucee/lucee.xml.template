@@ -1363,8 +1363,8 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <name>minheap</name>
                     <description>${msg(params.MemorySettingsMinimum)}</description>
                     <explanation></explanation>
-                    <value>${minheap}</value>
-                    <default>${minheap}</default>
+                    <value></value>
+                    <default></default>
                     <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
                     <validationActionList>
