@@ -1367,31 +1367,45 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <default>${minheap}</default>
                     <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
-                    <!--
                     <validationActionList>
-                        <throwError>
-                            <text>Minimum value must empty, or numeric and greater than 16</text>
+                        <actionGroup>
+                            <actionList>
+                                <throwError>
+                                    <text>Minimum value must be empty, or numeric and greater than 16</text>
+                                </throwError>
+                            </actionList>
                             <ruleList>
                                 <compareText>
                                     <text>${minheap}</text>
                                     <logic>does_not_equal</logic>
                                     <value></value>
                                 </compareText>
-                                <or>
-                                    <compareValues>
-                                        <logic>less</logic>
-                                        <value1>16</value1>
-                                        <value2>${minheap}</value2>
-                                    </compareValues>
-                                    <stringTest>
-                                        <text>${minheap}</text>
-                                        <type>not_digit</type>
-                                    </stringTest>
-                                </or>
+                                <stringTest>
+                                    <text>${minheap}</text>
+                                    <type>not_digit</type>
+                                </stringTest>
                             </ruleList>
-                        </throwError>
+                        </actionGroup>
+                        <actionGroup>
+                            <actionList>
+                                <throwError>
+                                    <text>Minimum value must be empty, or greater than 16</text>
+                                </throwError>
+                            </actionList>
+                            <ruleList>
+                                <compareText>
+                                    <text>${minheap}</text>
+                                    <logic>does_not_equal</logic>
+                                    <value></value>
+                                </compareText>
+                                <compareValues>
+                                    <logic>less_or_equal</logic>
+                                    <value1>${minheap}</value1>
+                                    <value2>16</value2>
+                                </compareValues>
+                            </ruleList>
+                        </actionGroup>
                     </validationActionList>
-                    -->
                 </stringParameter>
                 <stringParameter>
                     <name>maxheap</name>
@@ -1405,7 +1419,7 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                          <actionGroup>
                             <actionList>
                                 <throwError>
-                                    <text>Maximum value must be numeric and greater than 32</text>
+                                    <text>Maximum value must be empty, or numeric and greater than 32</text>
                                 </throwError>
                             </actionList>
                             <ruleList>
@@ -1423,7 +1437,7 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                         <actionGroup>
                             <actionList>
                                 <throwError>
-                                    <text>Maximum value must be greater than 32</text>
+                                    <text>Maximum value must be empty, or numeric and greater than 32</text>
                                 </throwError>
                             </actionList>
                             <ruleList>

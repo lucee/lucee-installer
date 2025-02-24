@@ -125,7 +125,7 @@
 					errorVariable="local.error"
 					directory=arguments.tmpDest;
 				if ( len( local.error ) ) throw local.error;
-				logger( local.out );
+				// logger( local.out );
 				break;
 			default:
 				throw "_extract: unsupported format (#arguments.format#)";
