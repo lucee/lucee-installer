@@ -1365,7 +1365,7 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <explanation></explanation>
                     <value>${minheap}</value>
                     <default>${minheap}</default>
-                    <allowEmptyValue>0</allowEmptyValue>
+                    <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
                     <validationActionList>
                         <throwError>
@@ -1390,7 +1390,7 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <explanation></explanation>
                     <value>${maxheap}</value>
                     <default>${maxheap}</default>
-                    <allowEmptyValue>0</allowEmptyValue>
+                    <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
                     <validationActionList>
                         <throwError>
