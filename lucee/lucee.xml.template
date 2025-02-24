@@ -1061,11 +1061,11 @@ Please review ${installer_installation_log}.</text>
         </setInstallerVariable>
         <setInstallerVariable>
             <name>minheap</name>
-            <value>256</value>
+            <value></value>
         </setInstallerVariable>
         <setInstallerVariable>
             <name>maxheap</name>
-            <value>512</value>
+            <value></value>
         </setInstallerVariable>
         <setInstallerVariable>
             <name>installjre</name>
