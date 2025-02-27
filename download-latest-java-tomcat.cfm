@@ -29,6 +29,11 @@
 	installbuilder_template = getDirectoryFromPath( getCurrentTemplatePath() ) & "lucee/lucee.xml";
 	template = fileRead(installbuilder_template);
 	template = Replace( template, "<origin>${installdir}/tomcat/bin/TOMCAT_WIN_EXE</origin>", "<origin>${installdir}/tomcat/bin/#tomcat_win_exe#</origin>" );
+	if (tomcat_version eq 9){
+		template = Replace( template, "<origin>${installdir}/mod_cfml/mod_cfml-valve_*</origin>", "<origin>${installdir}/mod_cfml/mod_cfml-valve_v1*</origin>" );
+	} else {
+		template = Replace( template, "<origin>${installdir}/mod_cfml/mod_cfml-valve_*</origin>", "<origin>${installdir}/mod_cfml/mod_cfml-valve_v2*</origin>" );
+	}
 	fileWrite( installbuilder_template, template );
 
 	windows_service_bat = getDirectoryFromPath( getCurrentTemplatePath() ) & "lucee/tomcat9/tomcat-lucee-conf/bin/service.bat";
