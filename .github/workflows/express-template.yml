@@ -10,19 +10,28 @@ on:
             type: boolean
 env:
   lucee_build_version: 6.2.0.321
+  DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
 
 jobs:
   build-tomcat9-express-template:
     runs-on: ubuntu-latest
+    outputs:
+      tomcat_version: "${{ steps.save9.outputs.tomcat_version }}"
     steps:
     - uses: actions/checkout@v4
+    - name: Download Lucee Jar
+      run: |
+        curl --fail https://cdn.lucee.org/lucee-${{ env.lucee_build_version }}.jar -o lucee.jar -s
+        pwd
+        ls -lh *.jar
     - name: Cache Maven packages
       uses: actions/cache@v4
       with:
         path: ~/.m2
         key: lucee-script-runner-maven-cache
 
-    - name: Download and configure latest Tomcat 9 
+    - name: Download and configure latest Tomcat 9
+      id: prepare9
       uses: lucee/script-runner@main
       with:
         webroot: ${{ github.workspace }}/
@@ -31,7 +40,10 @@ jobs:
       env:
         express: true
         expressTomcatVersion: "9.0"
-
+    - name: save tomcat version
+      id: save9
+      run: cat tomcat_version.txt >> $GITHUB_OUTPUT
+    - run: echo '${{ steps.save9.outputs.tomcat_version }}'
     - name: Prepare Tomcat 9 Express Template
       run: |
         pwd
@@ -43,7 +55,12 @@ jobs:
         mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
         ls -lRh
-        zip -R lucee-tomcat9-template.zip lucee/tomcat9
+        zip -r lucee-tomcat9-template.zip lucee/tomcat9/tomcat/*
+        cd lucee/tomcat9/tomcat
+        zip -r ../../../lucee-tomcat9-template.zip *
+        cd ../../..
+        pwd
+        unzip -l lucee-tomcat9-template.zip
 
     - name: Upload Artifact - Tomcat 9 Express Template
       uses: actions/upload-artifact@v4
@@ -52,9 +69,18 @@ jobs:
           path: lucee-tomcat9-template.zip
           retention-days: 1
           compression-level: 0
+    - name: Upload Artifact - lucee fat jar
+      uses: actions/upload-artifact@v4
+      with:
+          name: lucee-fat-jar
+          path: lucee.jar
+          retention-days: 1
+          compression-level: 0
 
   build-tomcat10-express-template:
     runs-on: ubuntu-latest
+    outputs:
+      tomcat_version: "${{ steps.save10.outputs.tomcat_version }}"
     steps:
     - uses: actions/checkout@v4
     - name: Cache Maven packages
@@ -65,6 +91,7 @@ jobs:
 
     - name: Download and configure latest Tomcat 10.1
       uses: lucee/script-runner@main
+      id: prepare10
       with:
         webroot: ${{ github.workspace }}/
         execute: /download-latest-java-tomcat.cfm
@@ -72,7 +99,10 @@ jobs:
       env:
         express: true
         expressTomcatVersion: "10.1"
-
+    - name: save tomcat version
+      id: save10
+      run: cat tomcat_version.txt >> $GITHUB_OUTPUT
+    - run: echo '${{ steps.save10.outputs.tomcat_version }}'
     - name: Prepare Tomcat 10.1 Express Template
       run: |
         pwd
@@ -84,102 +114,142 @@ jobs:
         mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
         ls -lRh
-        zip -R lucee-tomcat10-template.zip lucee/tomcat9
+        cd lucee/tomcat9/tomcat
+        zip -r ../../../lucee-tomcat10_1-template.zip *
+        cd ../../..
+        pwd
+        unzip -l lucee-tomcat10_1-template.zip
 
-    - name: Upload Artifact - Tomcat 9 Express Template
+    - name: Upload Artifact - Tomcat 10.1 Express Template
       uses: actions/upload-artifact@v4
       with:
-          name: lucee-tomcat10.1-template
-          path: lucee-tomcat10.1-template.zip
+          name: lucee-tomcat10_1-template
+          path: lucee-tomcat10_1-template.zip
           retention-days: 1
           compression-level: 0
 
   test-linux:
     runs-on: ubuntu-latest
     needs: [build-tomcat9-express-template, build-tomcat10-express-template]
+    strategy:
+      matrix:
+        tomcat: [ tomcat10_1, tomcat9 ]
     steps:
-      - name: Download Linux Installer artifact
+      - name: Download Linux Express Template
         uses: actions/download-artifact@v4
         with:
-          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-run
+          name: lucee-${{matrix.tomcat}}-template
+      - name: Download test Lucee jar
+        uses: actions/download-artifact@v4
+        with:
+          name: lucee-fat-jar
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'adopt'
       - name: list dir
         run: |
           ls -l
-      - name: Run Linux installer
+      - name: Run Linux Express Template
         run: |
-          ls -l
-          chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
-          sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
-            --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false \
-            --luceepass ibtest --systemuser $USER --installjre true
+          mkdir tomcat
+          cd tomcat
+          unzip ../lucee-${{matrix.tomcat}}-template.zip
+          cd ..
+          mv lucee.jar tomcat/lib/ext
+          ls -lR
+          ./tomcat/bin/startup.sh
           sleep 5;
-          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > /tmp/lucee/tomcat/webapps/ROOT/check.cfm
-          curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
+          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version & ' running on ' & server.servlet.name);</cfscript>" > tomcat/webapps/ROOT/check.cfm
+          curl http://127.0.0.1:8888/check.cfm?version=${{ env.lucee_build_version }} --fail-with-body -o $GITHUB_STEP_SUMMARY
           #sleep 5
           #sudo /tmp/lucee/lucee_ctl stop
       - name: debug failure
         if: ${{ failure() }}
         run: |
-            ls -l /tmp
-            cd /tmp
-            echo "----- installbuilder_installer.log"
-            sudo -s cat installbuilder_installer.log
-            cd /tmp/lucee
-            ls -lR
-            echo "----- install.log"
-            [ -r install.log ] && sudo -s cat install.log
-            ls -l /tmp/lucee/tomcat/logs/
+            ls -l tomcat/logs/
             echo "----- catalina.out"
-            [ -r /tmp/lucee/tomcat/logs/catalina.out ] && cat /tmp/lucee/tomcat/logs/catalina.out
+            [ -r tomcat/logs/catalina.out ] && cat tomcat/logs/catalina.out
 
-            #cat /tmp/lucee/tomcat/lucee-server/context/logs/out.log
-            #cat /tmp/lucee/tomcat/lucee-server/context/logs/err.log
-            #cat /tmp/lucee/tomcat/logs/catalina.out
+
+            #cat tomcat/lucee-server/context/logs/out.log
+            #cat tomcat/lucee-server/context/logs/err.log
+            #cat tomcat/logs/catalina.out
 
   test-windows:
     runs-on: windows-latest
-    needs: build-installers
+    needs: [build-tomcat9-express-template, build-tomcat10-express-template]
+    strategy:
+      matrix:
+        tomcat: [ tomcat10_1, tomcat9 ]
     steps:
-      - name: Download Windows Installer artifact
+      - name: Download Windows Express Template
         uses: actions/download-artifact@v4
         with:
-          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-windows
+          name: lucee-${{matrix.tomcat}}-template
+      - name: Download test Lucee jar
+        uses: actions/download-artifact@v4
+        with:
+          name: lucee-fat-jar
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'adopt'
       - name: list dir
         run: |
           dir
-      - name: Run Windows Installer
+      - name: Run Windows Express Template
         shell: cmd
         run: |
-          cd
-          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
-          curl http://127.0.0.1:8888/index.cfm --fail-with-body -o $GITHUB_STEP_SUMMARY
-          echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          md tomcat
+          cd tomcat
+          unzip ../lucee-${{matrix.tomcat}}-template.zip
+          cd ..
+          copy lucee.jar tomcat\lib\ext\lucee.jar
+          dir tomcat\lib\ext\
+          dir /s
+          cd tomcat\bin
+          call startup.bat
+          echo force sleeping for 10s
+          powershell -command "Start-Sleep -s 10"
+          cd ..\..
+          pwd
+          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name);</cfscript>" > tomcat\webapps\ROOT\check.cfm
+          dir tomcat\webapps\ROOT
+          curl http://127.0.0.1:8888/check.cfm?version=${{ env.lucee_build_version }} --fail-with-body -o $GITHUB_STEP_SUMMARY
       - name: debug failure
         if: ${{ failure() }}
         shell: cmd
         run: |
-          ECHO installbuilder_installer.log
-          dir C:\Users\RUNNER~1\AppData\Local\Temp\
-          IF EXIST "C:\Users\RUNNER~1\AppData\Local\Temp\installbuilder_installer.log" type "C:\Users\RUNNER~1\AppData\Local\Temp\installbuilder_installer.log"
+          dir /s
+          type tomcat\lucee-server\context\logs\exception.log
           ECHO catalina.out
-          for /f "tokens=*" %f in ('dir /b /s "catalina*.log"') do type "%f"
-          ECHO install.log
-          IF EXIST "c:\lucee\install.log" type "c:\lucee\install.log"
-          dir /S c:\lucee\
+          cd tomcat/logs
+          dir /s
+          for /f "tokens=*" %f in ('dir /b "catalina*.log"') do type "%f"
 
   publish-to-s3:
     runs-on: ubuntu-latest
-    needs: [ test-windows, test-linux, build-installers ]
-    if: ${{ github.event.inputs.DRY_RUN  != true }}
+    needs: [ test-windows, test-linux, build-tomcat9-express-template, build-tomcat10-express-template ]
     env:
       S3_ACCESS_ID_DOWNLOAD: ${{ secrets.S3_ACCESS_ID_DOWNLOAD }}
       S3_SECRET_KEY_DOWNLOAD: ${{ secrets.S3_SECRET_KEY_DOWNLOAD }}
+      DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
     steps:
     - uses: actions/checkout@v4.1.1
-    - name: Download Windows Installer artifact
+    - name: Download Tomcat 10 express templates artifact
       uses: actions/download-artifact@v4
       with:
-        name: lucee-express
+        name: lucee-tomcat10_1-template
+    - name: Download Tomcat 9 express templates artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: lucee-tomcat9-template
+    - name: list dir
+      run: |
+        dir
     - name: Cache Maven packages
       uses: actions/cache@v4
       with:
@@ -190,5 +260,8 @@ jobs:
       uses: lucee/script-runner@main
       with:
         webroot: ${{ github.workspace }}/
-        execute: /publish-express-template-s3.cfm
+        execute: /publish-express-template-to-s3.cfm
         luceeVersion: ${{ env.lucee_build_version }}
+      env:
+        tomcat9_version: ${{ needs.build-tomcat9-express-template.outputs.tomcat_version }}
+        tomcat10_version: ${{ needs.build-tomcat10-express-template.outputs.tomcat_version }}
