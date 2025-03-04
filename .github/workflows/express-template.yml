@@ -217,7 +217,7 @@ jobs:
           pwd
           echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name);</cfscript>" > tomcat\webapps\ROOT\check.cfm
           dir tomcat\webapps\ROOT
-          curl http://127.0.0.1:8888/check.cfm?version=${{ env.lucee_build_version }} --fail-with-body -o $GITHUB_STEP_SUMMARY
+          curl http://127.0.0.1:8888/check.cfm?version=${{ env.lucee_build_version }} --fail-with-body -o %GITHUB_STEP_SUMMARY%
       - name: debug failure
         if: ${{ failure() }}
         shell: cmd
