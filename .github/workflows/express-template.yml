@@ -55,7 +55,6 @@ jobs:
         mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
         ls -lRh
-        zip -r lucee-tomcat9-template.zip lucee/tomcat9/tomcat/*
         cd lucee/tomcat9/tomcat
         zip -r ../../../lucee-tomcat9-template.zip *
         cd ../../..
