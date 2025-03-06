@@ -12,6 +12,9 @@
 			case "10.1":
 				tomcat_win_exe = "tomcat10w.exe";
 				break;
+			case "11":
+				tomcat_win_exe = "tomcat11w.exe";
+				break;
 			default:
 				throw "unsupported tomcat version [#tomcat_version#]";
 		}
@@ -29,8 +32,8 @@
 
 		if ( version[ 1 ] gt 6  ||
 			(version[ 1 ] gte 6 && version[ 2 ] gte 2 )){
-			tomcat_version = "10.1"; // 6.2 onwards
-			tomcat_win_exe = "tomcat10w.exe";
+			tomcat_version = "11.0"; // 6.2 onwards
+			tomcat_win_exe = "tomcat11w.exe";
 		}
 	}
 
@@ -80,12 +83,15 @@
 	switch ( tomcat_version ){
 		case "9.0":
 			break;
+		case "11.0":
+			xsd_version = "6.1";
 		case "10.1":
+			xsd_version = "6.0";
 			tomcat_web_xml_header='<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
-                      https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
-  version="6.0">';
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_#xsd_version#.xsd"
+  version="#xsd_version#">';
   			FileCopy("lucee/tomcat10/conf/catalina.properties", "lucee/tomcat9/tomcat-lucee-conf/conf/catalina.properties");
 			if (expressTemplate){
 				// express doesn't have the top level lucee/lib, place them under tomcat/lib/ext instead

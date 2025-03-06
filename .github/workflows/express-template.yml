@@ -97,7 +97,7 @@ jobs:
         luceeVersion: 6.2.0.321
       env:
         express: true
-        expressTomcatVersion: "10.1"
+        expressTomcatVersion: "11.0"
     - name: save tomcat version
       id: save10
       run: cat tomcat_version.txt >> $GITHUB_OUTPUT

@@ -15,6 +15,7 @@
 	logger( " - for installers for Lucee #server.system.environment.LUCEE_INSTALLER_VERSION# " );
 
 	version = server.system.environment.LUCEE_INSTALLER_VERSION;
+	dry_run = server.system.environment.DRY_RUN ?: "";
 
 	currDir = getDirectoryFromPath( getCurrentTemplatePath() );
 
@@ -45,6 +46,11 @@
 		return;
 	}
 
+	logger("Dry run was [#dry_run#]");
+	if ( dry_run ) {
+		writeOutMarkdown( log );
+	}
+
 	trg = {};
 	s3_bucket = "lucee-downloads";
 	trg.dir = "s3://#server.system.environment.S3_ACCESS_ID_DOWNLOAD#:#server.system.environment.S3_SECRET_KEY_DOWNLOAD#@/#s3_bucket#/";
@@ -71,9 +77,13 @@
 				logger ("https://cdn.lucee.org/#trg[os]#");
 			} else {
 				logger( trg[ os ] & " to be uploaded on s3" );
-				fileCopy( currDir & trg[os], trg.dir & trg[ os ] );
-				logger ("https://cdn.lucee.org/#trg[os]#");
-				logger ("-- was uploaded" );
+				if ( !dry_run )
+					fileCopy( currDir & trg[os], trg.dir & trg[ os ] );
+					logger ("https://cdn.lucee.org/#trg[os]#");
+				if ( dry_run )
+					logger( "-- would have been uploaded, DRY_RUN was true" );
+				else
+					logger( "-- was uploaded" );
 			}
 			logger ("" );
 		}
