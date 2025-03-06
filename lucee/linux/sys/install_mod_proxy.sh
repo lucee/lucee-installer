@@ -153,10 +153,6 @@ function getLinuxVersion {
 			local DIST='RedHat'
 			local PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
 			local REV=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
-		elif [ -f /etc/almalinux-release ] ; then
-			local DIST='Alma'
-			local PSUEDONAME=`cat /etc/almalinux-release | sed s/.*\(// | sed s/\)//`
-			local REV=`cat /etc/almalinux-release | sed s/.*release\ // | sed s/\ .*//`
 		elif [ -f /etc/SUSE-release ] ; then
 			local DIST=`cat /etc/SUSE-release | tr "\n" ' '| sed s/VERSION.*//`
 			local REV=`cat /etc/SUSE-release | tr "\n" ' ' | sed s/.*=\ //`
@@ -187,7 +183,7 @@ function autodetectApacheCTL {
 	# GetLinuxVersion will return myLinuxVersion
         getLinuxVersion;
 
-	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
 		# RedHat and Debian keep the apachectl file in the same place usually,
 		# and will also cover CentOS, Ubuntu, and Mint.
 		
@@ -246,7 +242,7 @@ function audodetectApacheConf {
         # GetLinuxVersion will return myLinuxVersion
         getLinuxVersion;
 
-        if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
+        if [[ $myLinuxVersion == *RedHat*  ]]; then
                 echo "Detected RedHat-based build.";
                 echo -n "Checking default location for Apache config...";
 		
@@ -299,7 +295,7 @@ function checkModProxy {
 	
 	# check the variations we know of. Additional functional variations can be
 	# added to this loop as we find them.
-	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
+	if [[ $myLinuxVersion == *RedHat*  ]]; then
 		# look for proxy_html_module in stdout (ubuntu)
 		echo -n "Checking for 'proxy_html_module' in stdout...";
 		searchFoundProxy=`$myApacheHttpd -M | grep -c proxy_html_module`;

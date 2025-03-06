@@ -170,10 +170,6 @@ function getLinuxVersion {
 			local DIST='RedHat'
 			local PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
 			local REV=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
-		elif [ -f /etc/almalinux-release ] ; then
-			local DIST='Alma'
-			local PSUEDONAME=`cat /etc/almalinux-release | sed s/.*\(// | sed s/\)//`
-			local REV=`cat /etc/almalinux-release | sed s/.*release\ // | sed s/\ .*//`
 		elif [ -f /etc/SUSE-release ] ; then
 			local DIST=`cat /etc/SUSE-release | tr "\n" ' '| sed s/VERSION.*//`
 			local REV=`cat /etc/SUSE-release | tr "\n" ' ' | sed s/.*=\ //`
@@ -202,7 +198,7 @@ function autodetectApacheCTL {
 	
 	# GetLinuxVersion will return myLinuxVersion
 
-	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
 		# RedHat and Debian keep the apachectl file in the same place usually,
 		# and will also cover CentOS, Ubuntu, and Mint.
 		
@@ -254,7 +250,7 @@ function autodetectApacheHttpd {
 	
 	# GetLinuxVersion will return myLinuxVersion
 
-	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
 		# RedHat and Debian keep the apache httpd file in the same place usually,
 		# and will also cover CentOS, Ubuntu, and Mint.
 		
@@ -310,7 +306,7 @@ function autodetectApacheMod {
 	
         # GetLinuxVersion will return myLinuxVersion
 
-        if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]] || [[ $myLinuxVersion == *alma*  ]]; then
+        if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
                 # if the server is supported, check the default directories
 		# should also cover CentOS, Ubuntu and Mint
 
@@ -394,7 +390,7 @@ function audodetectApacheConf {
 
         # GetLinuxVersion will return myLinuxVersion
 
-        if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
+        if [[ $myLinuxVersion == *RedHat*  ]]; then
 		# test the default location
 		local defaultLocation="/etc/httpd/conf/httpd.conf";
 		echo -n "* Looking for /etc/httpd/conf/httpd.conf...";
