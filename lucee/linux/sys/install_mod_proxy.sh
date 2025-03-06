@@ -43,6 +43,8 @@ OPTIONS:
 				  IE: /etc/httpd/conf/httpd.conf (rhel/centos)
    -c	/path/to/apachectl	: Full system path to Apache Control Script.
 				  IE: /usr/sbin/apachectl
+   -e	/path/to/htppd	: Full system path to Apache httpd.
+				  IE: /usr/sbin/httpd
    -h				: Displays this usage screen
 
 EOF
@@ -53,10 +55,11 @@ myMode=
 myHTTPPort=
 myApacheConf=
 myApacheCTL=
+myApacheHttpd=
 installModPerlHit=
 
 # parse command-line params
-while getopts “hm:l:p:t:f:c:” OPTION
+while getopts “hm:l:p:t:f:c:e:” OPTION
 do
      case $OPTION in
 	 h)
@@ -75,6 +78,10 @@ do
          c)
              myApacheCTL=$OPTARG
              ;;
+         e)
+             myApacheHttpd=$OPTARG
+             ;;
+
          ?)
              usage
 	     exit 1
@@ -146,6 +153,10 @@ function getLinuxVersion {
 			local DIST='RedHat'
 			local PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
 			local REV=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+		elif [ -f /etc/almalinux-release ] ; then
+			local DIST='Alma'
+			local PSUEDONAME=`cat /etc/almalinux-release | sed s/.*\(// | sed s/\)//`
+			local REV=`cat /etc/almalinux-release | sed s/.*release\ // | sed s/\ .*//`
 		elif [ -f /etc/SUSE-release ] ; then
 			local DIST=`cat /etc/SUSE-release | tr "\n" ' '| sed s/VERSION.*//`
 			local REV=`cat /etc/SUSE-release | tr "\n" ' ' | sed s/.*=\ //`
@@ -176,7 +187,7 @@ function autodetectApacheCTL {
 	# GetLinuxVersion will return myLinuxVersion
         getLinuxVersion;
 
-	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
 		# RedHat and Debian keep the apachectl file in the same place usually,
 		# and will also cover CentOS, Ubuntu, and Mint.
 		
@@ -235,7 +246,7 @@ function audodetectApacheConf {
         # GetLinuxVersion will return myLinuxVersion
         getLinuxVersion;
 
-        if [[ $myLinuxVersion == *RedHat*  ]]; then
+        if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
                 echo "Detected RedHat-based build.";
                 echo -n "Checking default location for Apache config...";
 		
@@ -288,16 +299,28 @@ function checkModProxy {
 	
 	# check the variations we know of. Additional functional variations can be
 	# added to this loop as we find them.
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
+		# look for proxy_html_module in stdout (ubuntu)
+		echo -n "Checking for 'proxy_html_module' in stdout...";
+		searchFoundProxy=`$myApacheHttpd -M | grep -c proxy_html_module`;
+		if [[ "$searchFoundProxy" -eq "0" ]]; then
+			echo "[NOT FOUND]";
+			else
+					echo "[FOUND]";
+			modProxyFound=1;
+			fi
 
-	# look for proxy_html_module in stdout (ubuntu)
-	echo -n "Checking for 'proxy_html_module' in stdout...";
-	searchFoundProxy=`$myApacheCTL -M | grep -c proxy_html_module`;
-	if [[ "$searchFoundProxy" -eq "0" ]]; then
-		echo "[NOT FOUND]";
-        else
-                echo "[FOUND]";
-		modProxyFound=1;
-        fi
+	else
+		# look for proxy_html_module in stdout (ubuntu)
+		echo -n "Checking for 'proxy_html_module' in stdout...";
+		searchFoundProxy=`$myApacheCTL -M | grep -c proxy_html_module`;
+		if [[ "$searchFoundProxy" -eq "0" ]]; then
+			echo "[NOT FOUND]";
+			else
+					echo "[FOUND]";
+			modProxyFound=1;
+			fi
+	fi
 	
 	# look for proxy_html_module in stderr (ubuntu)
 	if [[ "$modProxyFound" -eq "0" ]]; then

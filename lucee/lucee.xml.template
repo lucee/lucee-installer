@@ -679,11 +679,11 @@ Please review ${installer_installation_log}.</text>
                     <actionList>
                         <runProgram>
                             <program>${installdir}/sys/install_mod_proxy.sh</program>
-                            <programArguments>-m install -t ${tomcatport} -f ${apacheconfigloc} -c ${apachecontrolloc}</programArguments>
+                            <programArguments>-m install -t ${tomcatport} -f ${apacheconfigloc} -c ${apachecontrolloc} -e ${apachebinaryloc}</programArguments>
                         </runProgram>
                         <runProgram>
                             <program>${installdir}/sys/install_mod_cfml.sh</program>
-                            <programArguments>-m install -f ${apacheconfigloc} -d ${apachemodulesloc} -c ${apachecontrolloc} -k ${secretkey}</programArguments>
+                            <programArguments>-m install -f ${apacheconfigloc} -d ${apachemodulesloc} -c ${apachecontrolloc} -k ${secretkey} -e ${apachebinaryloc}</programArguments>
                             <ruleList>
                                 <isTrue>
                                     <value>${installmodcfml}</value>

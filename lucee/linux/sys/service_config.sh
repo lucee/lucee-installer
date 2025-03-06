@@ -205,6 +205,10 @@ function getLinuxVersion {
                         local DIST='RedHat'
                         local PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
                         local REV=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+		elif [ -f /etc/almalinux-release ] ; then
+			local DIST='Alma'
+			local PSUEDONAME=`cat /etc/almalinux-release | sed s/.*\(// | sed s/\)//`
+			local REV=`cat /etc/almalinux-release | sed s/.*release\ // | sed s/\ .*//`
                 elif [ -f /etc/SUSE-release ] ; then
                         local DIST=`cat /etc/SUSE-release | tr "\n" ' '| sed s/VERSION.*//`
                         local REV=`cat /etc/SUSE-release | tr "\n" ' ' | sed s/.*=\ //`
@@ -327,7 +331,7 @@ function install_luceeCTL {
 	getLinuxVersion;
 
 	# now see what commands we need to run based on the system type
-	if [[ $myLinuxVersion == *RedHat*  ]]; then
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
 		echo "* [INFO]: Detected RedHat-based build.";
 		test_chkconfig;
 		

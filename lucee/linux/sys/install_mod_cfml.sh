@@ -23,6 +23,9 @@
 #		-c /path/to/apachectl
 #			Full system path to Apache Control Script.
 #			IE: /usr/sbin/apachectl
+#		-e /path/to/httpd
+#			Full system path to Apache httpd file, as newer versions of RH etc don't support -M
+#			IE: /usr/sbin/httpd
 #		-k "secret key"
 #			The secret key that secures the communication between
 #			mod_cfml.so and the tomcat valve. We recommend a random
@@ -51,6 +54,8 @@ OPTIONS:
 				      /usr/lib64/httpd/modules (centos 64-bit)
    -c	/path/to/apachectl	: Full system path to Apache Control Script.
 				  IE: /usr/sbin/apachectl
+   -e	/path/to/httpd  	: Full system path to Apache httpd.
+				  IE: /usr/sbin/httpd
    -k   "secret key"		: The secret key that secures the communication
 				  between mod_cfml.so and the tomcat valve. We
 				  recommend a random alphanumeric string
@@ -65,11 +70,12 @@ INSTALL_DIR=$(dirname $0)
 myMode=
 myApacheConf=
 myApacheCTL=
+myApacheHttpd=
 myApacheMods=
 mySecretKey=
 
 # parse command-line params
-while getopts hm:f:c:d:k: OPTION
+while getopts hm:f:c:d:k:e: OPTION
 do
      case $OPTION in
 	 h)
@@ -91,6 +97,9 @@ do
 	 k)
 	     mySecretKey=$OPTARG
 	     ;;
+         e)
+             myApacheHttpd=$OPTARG
+             ;;
          ?)
              usage
 	     exit
@@ -123,6 +132,12 @@ function verifyInput {
                 autodetectApacheCTL;
         fi
 
+        # verify myApacheHttpd
+        if [[ -z $myApacheHttpd ]] || [[ ! -f $myApacheHttpd ]] || [[ ! -x $myApacheHttpd ]]; then
+                echo "* Provided Httpd verification failed.";
+                autodetectApacheHttpd;
+        fi
+
         # verify module directory
         if [[ -z $myApacheMods ]] || [[ ! -d $myApacheMods ]] || [[ ! -x $myApacheMods ]]; then
                 echo "* Provided Apache module directory verification failed.";
@@ -150,10 +165,15 @@ function getLinuxVersion {
 		local OSSTR="${OS} `oslevel` (`oslevel -r`)"
 	elif [ "${OS}" = "Linux" ] ; then
 		local KERNEL=`uname -r`
+
 		if [ -f /etc/redhat-release ] ; then
 			local DIST='RedHat'
 			local PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
 			local REV=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+		elif [ -f /etc/almalinux-release ] ; then
+			local DIST='Alma'
+			local PSUEDONAME=`cat /etc/almalinux-release | sed s/.*\(// | sed s/\)//`
+			local REV=`cat /etc/almalinux-release | sed s/.*release\ // | sed s/\ .*//`
 		elif [ -f /etc/SUSE-release ] ; then
 			local DIST=`cat /etc/SUSE-release | tr "\n" ' '| sed s/VERSION.*//`
 			local REV=`cat /etc/SUSE-release | tr "\n" ' ' | sed s/.*=\ //`
@@ -182,7 +202,7 @@ function autodetectApacheCTL {
 	
 	# GetLinuxVersion will return myLinuxVersion
 
-	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
 		# RedHat and Debian keep the apachectl file in the same place usually,
 		# and will also cover CentOS, Ubuntu, and Mint.
 		
@@ -226,6 +246,58 @@ function autodetectApacheCTL {
 	fi
 }
 
+function autodetectApacheHttpd {
+        # this function will be called if the $myApacheHttpd variable is blank
+        # and can be expanded upon as different OS's are tried and as OS's evolve.
+	
+	echo "* ApacheHttpd undefined, autodetecting...";
+	
+	# GetLinuxVersion will return myLinuxVersion
+
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
+		# RedHat and Debian keep the apache httpd file in the same place usually,
+		# and will also cover CentOS, Ubuntu, and Mint.
+		
+		echo "* Checking default location of ApacheCTL...";
+
+		local ctlFileFound=0;
+
+		# test the default location
+		local defaultLocation="/usr/sbin/httpd";
+		if [[ ! -f ${defaultLocation} ]] || [[ ! -x ${defaultLocation} ]]; then
+			echo "* NOT found in /usr/sbin/httpd...";
+		else
+			# looks good, set the variable
+			myApacheHttpd="/usr/sbin/httpd";
+			local ctlFileFound=1;
+                        echo "* Found /usr/sbin/httpd [SUCCESS]";
+                fi
+	
+		local defaultLocation="/usr/sbin/httpd";
+                if [[ ! -f ${defaultLocation} ]] || [[ ! -x ${defaultLocation} ]]; then
+                        echo "* NOT found in /usr/sbin/htppd...";
+                else
+                        # looks good, set the variable
+                        myApacheHttpd="/usr/sbin/httpd";
+			local ctlFileFound=1;
+                        echo "* Found /usr/sbin/httpd [SUCCESS]";
+                fi
+			
+		if [[ $ctlFileFound -eq 0 ]]; then
+                        echo "* [ERROR] Apache httpd not provided and not in default location. Unable to continue.";
+                        echo "* Use the -c switch to specify the location of the 'httpd' file manually.";
+                        echo "* Exiting...";
+                        exit 1;
+		fi
+
+	else
+                echo "* [ERROR] Apache control file not provided and no default exists for this OS.";
+                echo "* Use the -c switch to specify the location of the 'httpd' file manually.";
+                echo "* Exiting...";
+                exit 1;
+	fi
+}
+
 function autodetectApacheMod {
         # this function will be called if the $myApacheMods variable is blank
         # and will attempt to autodetect the apache modules directory based on
@@ -238,7 +310,7 @@ function autodetectApacheMod {
 	
         # GetLinuxVersion will return myLinuxVersion
 
-        if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
+        if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]] || [[ $myLinuxVersion == *alma*  ]]; then
                 # if the server is supported, check the default directories
 		# should also cover CentOS, Ubuntu and Mint
 
@@ -322,7 +394,7 @@ function audodetectApacheConf {
 
         # GetLinuxVersion will return myLinuxVersion
 
-        if [[ $myLinuxVersion == *RedHat*  ]]; then
+        if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Alma*  ]]; then
 		# test the default location
 		local defaultLocation="/etc/httpd/conf/httpd.conf";
 		echo -n "* Looking for /etc/httpd/conf/httpd.conf...";
