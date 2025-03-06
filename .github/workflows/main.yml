@@ -140,7 +140,7 @@ jobs:
           ls -l
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
-            --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml false --installiis false --startatboot false \
+            --mode unattended --prefix /tmp/lucee --installconn false --installmodcfml true --installiis false --startatboot false \
             --luceepass ibtest --systemuser $USER --installjre true
           sleep 5;
           echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > /tmp/lucee/tomcat/webapps/ROOT/check.cfm

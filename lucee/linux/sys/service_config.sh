@@ -201,7 +201,11 @@ function getLinuxVersion {
                 local OSSTR="${OS} `oslevel` (`oslevel -r`)"
         elif [ "${OS}" = "Linux" ] ; then
                 local KERNEL=`uname -r`
-                if [ -f /etc/redhat-release ] ; then
+                if [ -f /etc/almalinux-release ] ; then
+                        local DIST='Alma'
+                        local PSUEDONAME=`cat /etc/almalinux-release | sed s/.*\(// | sed s/\)//`
+                        local REV=`cat /etc/almalinux-release | sed s/.*release\ // | sed s/\ .*//`
+                elif [ -f /etc/redhat-release ] ; then
                         local DIST='RedHat'
                         local PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
                         local REV=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
@@ -239,6 +243,20 @@ function detectYumExists {
         fi
 }
 
+function detectDnfExists {
+        echo -n "* [INFO]: Checking for 'dnf' executable in the PATH...";
+        hash dnf &> /dev/null
+        if [[ $? -eq 1 ]]; then
+                echo "";
+                echo "* [FATAL]: 'dnf' executable doesn't exist in PATH.";
+		echo "* [FATAL]:  Automatic installation of required software impossible.";
+                echo "Exiting...";
+                exit 1;
+        else
+                echo "[FOUND]";
+        fi
+}
+
 function detectAPTExists {
         echo -n "* [INFO]: Checking for 'apt-get' executable in the PATH...";
         hash apt-get &> /dev/null
@@ -262,26 +280,49 @@ function test_chkconfig {
         if [[ $? -eq 1 ]]; then
 		echo
                 echo "* [ERROR]: 'chkconfig' executable doesn't exist in PATH.";
-		
-		# didn't find chkconfig, can we install it with yum?
-		if [[ -z $yumInstallAttempt ]] || [[ $yumInstallAttempt -eq 0 ]]; then
-			
-			# set the install attempted variable to "no"
-			yumInstallAttempt=0;
-			detectYumExists;
-			
-			# if the above function doesn't fatally error out,
-			# attempt to install chkconfig via YUM
-			yum -y install chkconfig
-		else
-			# if we hit this, it means that we attempted to install
-			# but it failed
-			echo "";
-			echo "* [FATAL]: 'chkconfig' executable doesn't exist in PATH."; 
-			echo "* [FATAL]:  Automatic installation was attempted but failed.";
-			echo "Exiting...";
-			exit 1;
-		fi
+
+                if [[ $myLinuxVersion == *Alma*  ]]; then
+                                                # didn't find chkconfig, can we install it with yum?
+                        if [[ -z $dnfInstallAttempt ]] || [[ $dnfInstallAttempt -eq 0 ]]; then
+                                
+                                # set the install attempted variable to "no"
+                                dnfInstallAttempt=0;
+                                detectDnfExists;
+                                
+                                # if the above function doesn't fatally error out,
+                                # attempt to install chkconfig via YUM
+                                dnf -y install chkconfig
+                        else
+                                # if we hit this, it means that we attempted to install
+                                # but it failed
+                                echo "";
+                                echo "* [FATAL]: 'chkconfig' executable doesn't exist in PATH."; 
+                                echo "* [FATAL]:  Automatic installation was attempted but failed.";
+                                echo "Exiting...";
+                                exit 1;
+                        fi
+
+                else
+                        # didn't find chkconfig, can we install it with yum?
+                        if [[ -z $yumInstallAttempt ]] || [[ $yumInstallAttempt -eq 0 ]]; then
+                                
+                                # set the install attempted variable to "no"
+                                yumInstallAttempt=0;
+                                detectYumExists;
+                                
+                                # if the above function doesn't fatally error out,
+                                # attempt to install chkconfig via YUM
+                                yum -y install chkconfig
+                        else
+                                # if we hit this, it means that we attempted to install
+                                # but it failed
+                                echo "";
+                                echo "* [FATAL]: 'chkconfig' executable doesn't exist in PATH."; 
+                                echo "* [FATAL]:  Automatic installation was attempted but failed.";
+                                echo "Exiting...";
+                                exit 1;
+                        fi
+                fi
 	else
 		echo "[FOUND]";
         fi
@@ -327,7 +368,7 @@ function install_luceeCTL {
 	getLinuxVersion;
 
 	# now see what commands we need to run based on the system type
-	if [[ $myLinuxVersion == *RedHat*  ]]; then
+	if [[ $myLinuxVersion == *RedHat* ]]; then
 		echo "* [INFO]: Detected RedHat-based build.";
 		test_chkconfig;
 		
