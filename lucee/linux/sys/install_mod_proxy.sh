@@ -114,6 +114,12 @@ fi
 if [[ -z $myApacheConf ]] || [[ ! -f $myApacheConf ]]; then
 	audodetectApacheConf;
 fi
+
+# verify myApacheHttpd
+if [[ -z $myApacheHttpd ]] || [[ ! -f $myApacheHttpd ]] || [[ ! -x $myApacheHttpd ]]; then
+		echo "* Provided Httpd verification failed.";
+		autodetectApacheHttpd;
+fi
 }
 
 ###################
@@ -289,15 +295,67 @@ function audodetectApacheConf {
         fi
 }
 
+function autodetectApacheHttpd {
+        # this function will be called if the $myApacheHttpd variable is blank
+        # and can be expanded upon as different OS's are tried and as OS's evolve.
+	
+	echo "* ApacheHttpd undefined, autodetecting...";
+	
+	# GetLinuxVersion will return myLinuxVersion
+
+	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
+		# RedHat and Debian keep the apache httpd file in the same place usually,
+		# and will also cover CentOS, Ubuntu, and Mint.
+		
+		echo "* Checking default location of Apache httpd...";
+
+		local ctlFileFound=0;
+
+		# test the default location
+		local defaultLocation="/usr/sbin/httpd";
+		if [[ ! -f ${defaultLocation} ]] || [[ ! -x ${defaultLocation} ]]; then
+			echo "* NOT found in /usr/sbin/httpd...";
+		else
+			# looks good, set the variable
+			myApacheHttpd="/usr/sbin/httpd";
+			local ctlFileFound=1;
+                        echo "* Found /usr/sbin/httpd [SUCCESS]";
+                fi
+	
+		local defaultLocation="/usr/sbin/httpd";
+                if [[ ! -f ${defaultLocation} ]] || [[ ! -x ${defaultLocation} ]]; then
+                        echo "* NOT found in /usr/sbin/htppd...";
+                else
+                        # looks good, set the variable
+                        myApacheHttpd="/usr/sbin/httpd";
+			local ctlFileFound=1;
+                        echo "* Found /usr/sbin/httpd [SUCCESS]";
+                fi
+			
+		if [[ $ctlFileFound -eq 0 ]]; then
+                        echo "* [ERROR] Apache httpd not provided and not in default location. Unable to continue.";
+                        echo "* Use the -c switch to specify the location of the 'httpd' file manually.";
+                        echo "* Exiting...";
+                        exit 1;
+		fi
+
+	else
+                echo "* [ERROR] Apache control file not provided and no default exists for this OS.";
+                echo "* Use the -c switch to specify the location of the 'httpd' file manually.";
+                echo "* Exiting...";
+                exit 1;
+	fi
+}
+
 function checkModProxy {
 	# configure found variable
 	modProxyFound=0;
 	
 	# check the variations we know of. Additional functional variations can be
 	# added to this loop as we find them.
-	if [[ $myLinuxVersion == *RedHat*  ]]; then
+	if [[ $myLinuxVersion == *RedHat* ]]; then
 		# look for proxy_html_module in stdout (ubuntu)
-		echo -n "Checking for 'proxy_html_module' in stdout...";
+		echo -n "Checking for 'proxy_html_module' in stdout (using httpd)...";
 		searchFoundProxy=`$myApacheHttpd -M | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
@@ -308,7 +366,7 @@ function checkModProxy {
 
 	else
 		# look for proxy_html_module in stdout (ubuntu)
-		echo -n "Checking for 'proxy_html_module' in stdout...";
+		echo -n "Checking for 'proxy_html_module' in stdout... (using apachectl)";
 		searchFoundProxy=`$myApacheCTL -M | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
@@ -344,15 +402,27 @@ function checkModProxy {
 
         # look for proxy_http_module in stderr (centos)
         if [[ "$modProxyFound" -eq "0" ]]; then
-                echo -n "Checking for 'proxy_http_module' in stderr...";
-                searchFoundProxy=`$myApacheCTL -M 2>&1 | grep -c proxy_http_module`;
-                if [[ "$searchFoundProxy" -eq "0" ]]; then
-                        echo "[NOT FOUND]";
-                else
-                        echo "[FOUND]";
-			modProxyFound=1;
-                fi
+			echo -n "Checking for 'proxy_http_module' in stderr...";
+			searchFoundProxy=`$myApacheCTL -M 2>&1 | grep -c proxy_http_module`;
+			if [[ "$searchFoundProxy" -eq "0" ]]; then
+					echo "[NOT FOUND]";
+			else
+				echo "[FOUND]";
+				modProxyFound=1;
+			fi
         fi
+
+        if [[ "$modProxyFound" -eq "0" ]]; then
+			# look for proxy_html_module in stdout (alma)
+			echo -n "Checking for 'proxy_html_module' in stdout (using httpd)...";
+			searchFoundProxy=`$myApacheHttpd -M | grep -c proxy_html_module`;
+			if [[ "$searchFoundProxy" -eq "0" ]]; then
+				echo "[NOT FOUND]";
+			else
+				echo "[FOUND]";
+			modProxyFound=1;
+			fi
+		fi
 	
 	if [[ "$modProxyFound" -eq "0" ]]; then
 		if [[ $myMode = "install" ]] && [[ -z "$installModProxyHit" ]]; then
