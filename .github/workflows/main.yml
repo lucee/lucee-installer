@@ -7,6 +7,10 @@ on:
       LUCEE_VERSION:
         required: true
         type: string
+      DRY_RUN:
+        required: false
+        default: true
+        type: boolean
   # Triggers the workflow on push or pull request events but only for the master branch
   workflow_call:
     inputs:
@@ -25,6 +29,7 @@ env:
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
   IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
   lucee_build_version: 6.2.0.109-SNAPSHOT
+  DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
 
 jobs:
   build-installers:
@@ -182,8 +187,16 @@ jobs:
         run: |
           cd
           lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
-          curl http://127.0.0.1:8888/index.cfm --fail-with-body -o $GITHUB_STEP_SUMMARY
-          echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> %GITHUB_STEP_SUMMARY%
+          cd tomcat\bin
+          call startup.bat
+          echo force sleeping for 10s
+          powershell -command "Start-Sleep -s 10"
+          cd ..\..
+          pwd
+          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name);</cfscript>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
+          dir c:\lucee\tomcat\webapps\ROOT
+          curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o %GITHUB_STEP_SUMMARY%
       - name: debug failure
         if: ${{ failure() }}
         shell: cmd
@@ -204,6 +217,7 @@ jobs:
     env:
       S3_ACCESS_ID_DOWNLOAD: ${{ secrets.S3_ACCESS_ID_DOWNLOAD }}
       S3_SECRET_KEY_DOWNLOAD: ${{ secrets.S3_SECRET_KEY_DOWNLOAD }}
+      DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
     steps:
     - uses: actions/checkout@v4.1.1
     - name: Download Windows Installer artifact

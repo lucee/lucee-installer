@@ -15,9 +15,11 @@
 	currDir = getDirectoryFromPath( getCurrentTemplatePath() );
 
 	if ( len(server.system.environment.tomcat9_version) eq 0 )
-		throw "env.tomcat9_version was empty"
+		throw "env.tomcat9_version was empty";
 	if ( len(server.system.environment.tomcat10_version) eq 0 )
-		throw "env.tomcat10_version was empty"
+		throw "env.tomcat10_version was empty";
+	if ( len(server.system.environment.tomcat11_version) eq 0 )
+		throw "env.tomcat11_version was empty";
 
 	files = directoryList( path=currDir, listInfo="query" );
 	logger( "" );
@@ -70,7 +72,7 @@
 		directoryCreate( s3_dest );
 	}
 
-	loop list="tomcat9,tomcat10_1" item="tomcat" {
+	loop list="tomcat9,tomcat10_1,tomcat11" item="tomcat" {
 		src = "lucee-#tomcat#-template.zip";
 		if  (tomcat contains 9 )
 			trg = "lucee-tomcat-#server.system.environment.tomcat9_version#-template.zip";
