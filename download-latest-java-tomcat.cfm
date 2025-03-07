@@ -30,9 +30,14 @@
 			java_version = 21; // 6.1 onwards
 		}
 
-		if ( version[ 1 ] gt 6  ||
-			(version[ 1 ] gte 6 && version[ 2 ] gte 2 )){
-			tomcat_version = "11.0"; // 6.2 onwards
+		if ( (version[ 1 ] eq 6 && version[ 2 ] eq 2 and version[ 3 ] eq 0 ) ){
+			// 6.2.0 has tomcat 10
+			tomcat_version = "10.1";
+			tomcat_win_exe = "tomcat10w.exe";
+		} else if ( version[ 1 ] gt 6
+				|| ( version[ 1 ] eq 6 && version[ 2 ] gte 2 ) ) {
+			// everything equal and above 6.2.1
+			tomcat_version = "11.0";
 			tomcat_win_exe = "tomcat11w.exe";
 		}
 	}
