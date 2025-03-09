@@ -134,7 +134,7 @@ jobs:
     needs: build-installers
     strategy:
       matrix:
-        user: [ root, lucee ]
+        user: [ $USER, root, lucee ]
     steps:
       - name: Download Linux Installer artifact
         uses: actions/download-artifact@v4

@@ -699,7 +699,7 @@ Please review ${installer_installation_log}.</text>
                 </actionGroup>
                 <actionGroup>
                     <customErrorMessage>${msg(warnings.LuceePostError)}: ${installer_error_message_original}</customErrorMessage>
-                    <progressText>Securing Lucee Web Admins</progressText>
+                    <progressText>Securing Lucee Server Admin</progressText>
                     <actionList>
                         <!-- write out a password.txt -->
                         <createDirectory>
