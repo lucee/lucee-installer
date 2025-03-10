@@ -152,6 +152,7 @@ jobs:
             --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
           sleep 5;
           sudo -u ${{matrix.user}} echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version);</cfscript>" > /tmp/lucee/tomcat/webapps/ROOT/check.cfm
+          sudo ls -lR /tmp/lucee/tomcat/webapps/ROOT/
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
           #sleep 5
           #sudo /tmp/lucee/lucee_ctl stop
@@ -163,12 +164,13 @@ jobs:
             echo "----- installbuilder_installer.log"
             sudo -s cat installbuilder_installer.log
             cd /tmp/lucee
-            ls -lR
+            echo "------ ls -lR /tmp/lucee"
+            sudo ls -lR
             echo "----- install.log"
-            [ -r install.log ] && sudo -s cat install.log
-            ls -l /tmp/lucee/tomcat/logs/
+            sudo [ -r install.log ] && sudo -s cat install.log
+            sudo ls -l /tmp/lucee/tomcat/logs/
             echo "----- catalina.out"
-            [ -r /tmp/lucee/tomcat/logs/catalina.out ] && cat /tmp/lucee/tomcat/logs/catalina.out
+            sudo [ -r /tmp/lucee/tomcat/logs/catalina.out ] && cat /tmp/lucee/tomcat/logs/catalina.out
             
             #cat /tmp/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /tmp/lucee/tomcat/lucee-server/context/logs/err.log
