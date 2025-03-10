@@ -1,7 +1,9 @@
 <project>
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
-    <version>5.4.1.8</version>
+    <version>LUCEE_VERSION</version>
+    <tomcatVersion>TOMCAT_VERSION</tomcatVersion>
+    <javaVersion>JAVA_VERSION</javaVersion>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -154,6 +156,22 @@
                         </isFalse>
                     </ruleList>
                 </deleteFile>
+                <actionGroup>
+                    <customErrorMessage>${msg(warnings.LuceePostError)}: ${installer_error_message_original}</customErrorMessage>
+                    <explanation>Set Lucee admin password</explanation>
+                    <progressText>Securing Lucee Server Admin</progressText>
+                    <actionList>
+                        <!-- write out a password.txt -->
+                        <createDirectory>
+                            <path>${installdir}/tomcat/lucee-server/context/</path>
+                        </createDirectory>
+                    
+                        <writeFile>
+                            <path>${installdir}/tomcat/lucee-server/context/password.txt</path>
+                            <text>${luceepass}</text>
+                        </writeFile>
+                    </actionList>
+                </actionGroup>
                 <dirName path="${java_executable}" variable="java_bin_dir"/>
                 <dirName path="${java_bin_dir}" variable="java_home_dir"/>
                 <substitute>
@@ -471,7 +489,7 @@
                                 <copyFile>
                                     <destination>${installdir}/tomcat/bin/Luceew.exe</destination>
                                     <matchHiddenFiles>1</matchHiddenFiles>
-                                    <origin>${installdir}/tomcat/bin/tomcat9w.exe</origin>
+                                    <origin>${installdir}/tomcat/bin/TOMCAT_WIN_EXE</origin>
                                 </copyFile>
                             </actionList>
                             <ruleList>
@@ -664,68 +682,26 @@ Please review ${installer_installation_log}.</text>
                         </portTest>
                     </ruleList>
                 </showWarning>
-                <!--
-                <httpPost>
-                    <filename>${installdir}/tomcat/logs/server_post_result.txt</filename>
+                <!-- this is needed for linux with 5.4, otherwise the server doesn't finish deploying properly and setting a password fails -->
+                <httpGet>
                     <url>http://127.0.0.1:${tomcatport}/lucee/admin/server.cfm</url>
-                    <onErrorActionList>
-                        <logMessage>
-                            <text>${msg(warnings.setLuceeServerPass)}</text>
-                        </logMessage>
-                    </onErrorActionList>
-                    <queryParameterList>
-                        <queryParameter>
-                            <name>new_password</name>
-                            <value>${luceepass}</value>
-                        </queryParameter>
-                        <queryParameter>
-                            <name>new_password_re</name>
-                            <value>${luceepass}</value>
-                        </queryParameter>
-                    </queryParameterList>
                     <ruleList>
                         <portTest>
                             <condition>cannot_bind</condition>
                             <port>${tomcatport}</port>
                         </portTest>
                     </ruleList>
-                </httpPost>
-                <httpPost>
-                    <filename>${installdir}/tomcat/logs/web_post_result.txt</filename>
-                    <url>http://127.0.0.1:${tomcatport}/lucee/admin/web.cfm</url>
-                    <onErrorActionList>
-                        <logMessage>
-                            <text>${msg(warnings.setLuceeWebPass)}</text>
-                        </logMessage>
-                    </onErrorActionList>
-                    <queryParameterList>
-                        <queryParameter>
-                            <name>new_password</name>
-                            <value>${luceepass}</value>
-                        </queryParameter>
-                        <queryParameter>
-                            <name>new_password_re</name>
-                            <value>${luceepass}</value>
-                        </queryParameter>
-                    </queryParameterList>
-                    <ruleList>
-                        <portTest>
-                            <condition>cannot_bind</condition>
-                            <port>${tomcatport}</port>
-                        </portTest>
-                    </ruleList>
-                </httpPost>
-                -->
+                </httpGet>
                 <actionGroup>
                     <progressText>${msg(postInstall.configuringApache)}</progressText>
                     <actionList>
                         <runProgram>
                             <program>${installdir}/sys/install_mod_proxy.sh</program>
-                            <programArguments>-m install -t ${tomcatport} -f ${apacheconfigloc} -c ${apachecontrolloc}</programArguments>
+                            <programArguments>-m install -t ${tomcatport} -f ${apacheconfigloc} -c ${apachecontrolloc} -e ${apachebinaryloc}</programArguments>
                         </runProgram>
                         <runProgram>
                             <program>${installdir}/sys/install_mod_cfml.sh</program>
-                            <programArguments>-m install -f ${apacheconfigloc} -d ${apachemodulesloc} -c ${apachecontrolloc} -k ${secretkey}</programArguments>
+                            <programArguments>-m install -f ${apacheconfigloc} -d ${apachemodulesloc} -c ${apachecontrolloc} -k ${secretkey} -e ${apachebinaryloc}</programArguments>
                             <ruleList>
                                 <isTrue>
                                     <value>${installmodcfml}</value>
@@ -738,61 +714,6 @@ Please review ${installer_installation_log}.</text>
                             <value>${installconn}</value>
                         </isTrue>
                     </ruleList>
-                </actionGroup>
-                <actionGroup>
-                    <customErrorMessage>${msg(warnings.LuceePostError)}</customErrorMessage>
-                    <progressText>Securing Lucee Web Admins</progressText>
-                    <actionList>
-                        <xmlFileGet>
-                            <attribute>hspw</attribute>
-                            <element>/cfLuceeConfiguration</element>
-                            <file>${installdir}/tomcat/lucee-server/context/lucee-server.xml</file>
-                            <variable>hspw</variable>
-                            <ruleList>
-                                <!-- lucee 6 uses json rather than xml -->
-
-                                <fileExists>
-                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
-                                </fileExists>
-                            </ruleList>
-                        </xmlFileGet>
-                        <xmlFileSet>
-                            <attribute>default-hspw</attribute>
-                            <element>/cfLuceeConfiguration</element>
-                            <file>${installdir}/tomcat/lucee-server/context/lucee-server.xml</file>
-                            <value>${hspw}</value>
-                            <ruleList>
-                                <!-- lucee 6 uses json rather than xml -->
-
-                                <fileExists>
-                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
-                                </fileExists>
-                                <compareValues>
-                                    <logic>does_not_equal</logic>
-                                    <value1>${hspw}</value1>
-                                    <value2></value2>
-                                </compareValues>
-                                <portTest>
-                                    <condition>can_bind</condition>
-                                    <port>${tomcatport}</port>
-                                </portTest>
-                            </ruleList>
-                        </xmlFileSet>
-
-                        <!-- lucee 6 uses json rather than xml, install builder doesn't support json, so lets drop a password.txt -->
-
-                        <writeFile>
-                            <path>${installdir}/tomcat/lucee-server/context/password.txt</path>
-                            <text>${luceepass}</text>
-                            <ruleList>
-                                <fileExists negate="1">
-                                    <!-- other approach, check for .CFConfig.json -->
-
-                                    <path>${installdir}/tomcat/lucee-server/context/lucee-server.xml</path>
-                                </fileExists>
-                            </ruleList>
-                        </writeFile>
-                    </actionList>
                 </actionGroup>
             </postInstallationActionList>
             <startMenuShortcutList>
@@ -1143,11 +1064,11 @@ Please review ${installer_installation_log}.</text>
         </setInstallerVariable>
         <setInstallerVariable>
             <name>minheap</name>
-            <value>256</value>
+            <value></value>
         </setInstallerVariable>
         <setInstallerVariable>
             <name>maxheap</name>
-            <value>512</value>
+            <value></value>
         </setInstallerVariable>
         <setInstallerVariable>
             <name>installjre</name>
@@ -1161,8 +1082,7 @@ Please review ${installer_installation_log}.</text>
             <validVersionList>
                 <validVersion>
                     <bitness>64</bitness>
-                    <maxVersion>14</maxVersion>
-                    <minVersion>1.8</minVersion>
+                    <minVersion>11</minVersion>
                     <requireJDK>0</requireJDK>
                     <vendor></vendor>
                 </validVersion>
@@ -1377,7 +1297,7 @@ Path: ${java_executable}
         <labelParameter>
             <name>NoSystemJavadetected</name>
             <title>No System Java detected</title>
-            <description>Lucee requires a Java runtime (versions 1.8 to 14 are supported)</description>
+            <description>Lucee requires a Java runtime (Version 11 supported, Lucee 6.1+ supports Java 21 )</description>
             <explanation>The bundled JRE will be automatically installed</explanation>
             <image></image>
             <ruleList>
@@ -1446,50 +1366,96 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                     <name>minheap</name>
                     <description>${msg(params.MemorySettingsMinimum)}</description>
                     <explanation></explanation>
-                    <value>${minheap}</value>
-                    <default>${minheap}</default>
-                    <allowEmptyValue>0</allowEmptyValue>
+                    <value></value>
+                    <default></default>
+                    <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
                     <validationActionList>
-                        <throwError>
-                            <text>Minimum value must be numeric and greater than 16</text>
+                        <actionGroup>
+                            <actionList>
+                                <throwError>
+                                    <text>Minimum value must be empty, or numeric and greater than 16</text>
+                                </throwError>
+                            </actionList>
                             <ruleList>
-                                <compareValues>
-                                    <logic>less</logic>
-                                    <value1>16</value1>
-                                    <value2></value2>
-                                </compareValues>
+                                <compareText>
+                                    <text>${minheap}</text>
+                                    <logic>does_not_equal</logic>
+                                    <value></value>
+                                </compareText>
                                 <stringTest>
-                                    <text></text>
+                                    <text>${minheap}</text>
                                     <type>not_digit</type>
                                 </stringTest>
                             </ruleList>
-                        </throwError>
+                        </actionGroup>
+                        <actionGroup>
+                            <actionList>
+                                <throwError>
+                                    <text>Minimum value must be empty, or greater than 16</text>
+                                </throwError>
+                            </actionList>
+                            <ruleList>
+                                <compareText>
+                                    <text>${minheap}</text>
+                                    <logic>does_not_equal</logic>
+                                    <value></value>
+                                </compareText>
+                                <compareValues>
+                                    <logic>less_or_equal</logic>
+                                    <value1>${minheap}</value1>
+                                    <value2>16</value2>
+                                </compareValues>
+                            </ruleList>
+                        </actionGroup>
                     </validationActionList>
                 </stringParameter>
                 <stringParameter>
                     <name>maxheap</name>
                     <description>${msg(params.MemorySettingsMaximum)}</description>
                     <explanation></explanation>
-                    <value>${maxheap}</value>
-                    <default>${maxheap}</default>
-                    <allowEmptyValue>0</allowEmptyValue>
+                    <value></value>
+                    <default></default>
+                    <allowEmptyValue>1</allowEmptyValue>
                     <width>30</width>
                     <validationActionList>
-                        <throwError>
-                            <text>Maximum value must be numeric and greater than 32</text>
+                         <actionGroup>
+                            <actionList>
+                                <throwError>
+                                    <text>Maximum value must be empty, or numeric and greater than 32</text>
+                                </throwError>
+                            </actionList>
                             <ruleList>
-                                <compareValues>
-                                    <logic>less</logic>
-                                    <value1>32</value1>
-                                    <value2></value2>
-                                </compareValues>
+                                <compareText>
+                                    <text>${maxheap}</text>
+                                    <logic>does_not_equal</logic>
+                                    <value></value>
+                                </compareText>
                                 <stringTest>
-                                    <text></text>
+                                    <text>${maxheap}</text>
                                     <type>not_digit</type>
                                 </stringTest>
                             </ruleList>
-                        </throwError>
+                        </actionGroup>
+                        <actionGroup>
+                            <actionList>
+                                <throwError>
+                                    <text>Maximum value must be empty, or numeric and greater than 32</text>
+                                </throwError>
+                            </actionList>
+                            <ruleList>
+                                <compareText>
+                                    <text>${maxheap}</text>
+                                    <logic>does_not_equal</logic>
+                                    <value></value>
+                                </compareText>
+                                <compareValues>
+                                    <logic>less_or_equal</logic>
+                                    <value1>${maxheap}</value1>
+                                    <value2>32</value2>
+                                </compareValues>
+                            </ruleList>
+                        </actionGroup>
                     </validationActionList>
                 </stringParameter>
             </parameterList>
@@ -1695,8 +1661,8 @@ While upgrading previous installations of Lucee by reinstalling might work in so
             <validationActionList>
                 <throwError text="The selected file isn't a .jar file">
                     <ruleList>
-                        <compareText logic="contains" negate="1" text="${customLuceejar}" value=".jar"/>
-                        <compareText logic="equals" negate="1" text="${customLuceejar}" value=""/>
+                        <compareText text="${customLuceejar}" logic="contains" value=".jar" negate="1"/>
+                        <compareText text="${customLuceejar}" logic="equals" value="" negate="1"/>
                     </ruleList>
                 </throwError>
             </validationActionList>

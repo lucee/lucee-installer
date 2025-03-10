@@ -43,10 +43,7 @@ jobs:
         chmod a+x ${{ env.IB_NAME }}
         echo "running installer...."
         ./${{ env.IB_NAME }} --prefix /tmp/ib --mode unattended
-    - name: Update Template with version
-      run : |
-        cat lucee/lucee.xml.template | sed -e "s,<version>LUCEE_VERSION</version>,<version>${{ env.LUCEE_INSTALLER_VERSION }}</version>," > lucee/lucee.xml
-    - name: Write out license
+    - name: Set Install Builder license
       env:
         INSTALLBUILDER_LICENSE: ${{ secrets.INSTALLBUILDER_LICENSE }}
       shell: bash

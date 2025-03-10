@@ -56,11 +56,16 @@
 		logger("$GITHUB_OUTPUT content: " & fileRead(server.system.environment.GITHUB_OUTPUT));
 	} else {
 		java = getJavaVersion( java_version );
-		logger("Using Java #java_version# for Lucee #srcVersion#");
+		logger("Using Java #java._version# for Lucee #srcVersion#");
 		logger("Using Tomcat #tomcat._version# for Lucee #srcVersion#");
 
 		installbuilder_template = getDirectoryFromPath( getCurrentTemplatePath() ) & "lucee/lucee.xml";
 		template = fileRead(installbuilder_template);
+
+		template = replace(template, "<version>LUCEE_VERSION</version>", "<version>#srcVersion#</version>");
+		template = replace(template, "<tomcatVersion>TOMCAT_VERSION</tomcatVersion>", "<tomcatVersion>#tomcat._version#</tomcatVersion>");
+		template = replace(template, "<javaVersion>JAVA_VERSION</javaVersion>", "<javaVersion>#java._version#</javaVersion>");
+
 		template = Replace( template, "<origin>${installdir}/tomcat/bin/TOMCAT_WIN_EXE</origin>", "<origin>${installdir}/tomcat/bin/#tomcat_win_exe#</origin>" );
 		if (tomcat_version eq 9){
 			template = Replace( template, "<origin>${installdir}/mod_cfml/mod_cfml-valve_*</origin>", "<origin>${installdir}/mod_cfml/mod_cfml-valve_v1*</origin>" );
@@ -332,7 +337,10 @@
 		}
 		for ( var os in java ){
 			http method="get" url=java[os].api;
-			java[os]["url"] = getJava( cfhttp.filecontent, "jre", "jdk");
+			var jv = getJava( cfhttp.filecontent, "jre", "jdk");
+			java[os]["url"] = jv.url;
+			java[os]["version"] = jv.version;
+			java._version = jv.version;
 
 			var download_url = java[os].url;
 			var filename = listLast( download_url, "/" );
@@ -352,7 +360,10 @@
 			if ( isStruct(r.binary)
 					&&  r.binary.image_type == arguments.type
 					&& r.binary.project == arguments.project ) {
-				return r.binary.package.link;
+				return {
+					url: r.binary.package.link,
+					version: r.version.openjdk_version
+				};
 			}
 		}
 		throw (message="#arguments.type# and #arguments.project# not found?", detail=arguments.json)
