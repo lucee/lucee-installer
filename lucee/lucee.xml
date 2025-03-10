@@ -2,8 +2,6 @@
     <shortName>lucee</shortName>
     <fullName>Lucee</fullName>
     <version>LUCEE_VERSION</version>
-    <tomcatVersion>TOMCAT_VERSION</tomcatVersion>
-    <javaVersion>JAVA_VERSION</javaVersion>
     <licenseFile>license.txt</licenseFile>
     <leftImage>lucee-side.png</leftImage>
     <logoImage>lucee-logo.png</logoImage>
@@ -1261,6 +1259,8 @@ Please review ${installer_installation_log}.</text>
         </launchBrowser>
     </finalPageActionList>
     <parameterList>
+        <stringParameter name="javaVersion" value="" ask="0"/>
+        <stringParameter name="tomcatVersion" value="" ask="0"/>
         <choiceParameter>
             <name>installjre</name>
             <title>Java Runtime Selection</title>

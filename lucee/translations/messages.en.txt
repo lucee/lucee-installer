@@ -1,5 +1,5 @@
 Installer.Welcome.Title=Setup - Lucee ${project.version}
-Installer.Welcome.Text=Welcome to the Lucee Installer.\n\nTomcat Version: ${project.tomcatVersion} \nBundled Java: ${project.javaVersion}
+Installer.Welcome.Text=Welcome to the Lucee Installer.\n\nTomcat Version: ${tomcatVersion} \nBundled Java: ${javaVersion}
 Installer.Ready.Title=Ready to Install
 Installer.Ready.Text1=Setup is now ready to begin installing Lucee on your computer.
 Installer.Installing.Text=Please wait while Setup installs Lucee on your computer.

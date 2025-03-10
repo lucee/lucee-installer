@@ -63,8 +63,12 @@
 		template = fileRead(installbuilder_template);
 
 		template = replace(template, "<version>LUCEE_VERSION</version>", "<version>#srcVersion#</version>");
-		template = replace(template, "<tomcatVersion>TOMCAT_VERSION</tomcatVersion>", "<tomcatVersion>#tomcat._version#</tomcatVersion>");
-		template = replace(template, "<javaVersion>JAVA_VERSION</javaVersion>", "<javaVersion>#java._version#</javaVersion>");
+		template = replace(template,
+			'<stringParameter name="javaVersion" value="" ask="0"/>',
+			'<stringParameter name="javaVersion" value="#java._version#" ask="0"/>');
+		template = replace(template,
+			'<stringParameter name="tomcatVersion" value="" ask="0"/>',
+			'<stringParameter name="tomcatVersion" value="#tomcat._version#" ask="0"/>');
 
 		template = Replace( template, "<origin>${installdir}/tomcat/bin/TOMCAT_WIN_EXE</origin>", "<origin>${installdir}/tomcat/bin/#tomcat_win_exe#</origin>" );
 		if (tomcat_version eq 9){
