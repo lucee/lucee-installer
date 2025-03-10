@@ -74,10 +74,20 @@
 
 	loop list="tomcat9,tomcat10_1,tomcat11" item="tomcat" {
 		src = "lucee-#tomcat#-template.zip";
-		if  (tomcat contains 9 )
-			trg = "lucee-tomcat-#server.system.environment.tomcat9_version#-template.zip";
-		else
-			trg = "lucee-tomcat-#server.system.environment.tomcat10_version#-template.zip";
+		switch (tomcat){
+			case "tomcat9":
+				trg = "lucee-tomcat-#server.system.environment.tomcat9_version#-template.zip";
+				break;
+			case "tomcat10_1":
+				trg = "lucee-tomcat-#server.system.environment.tomcat10_version#-template.zip";
+				break;
+			case "tomcat11":
+				trg = "lucee-tomcat-#server.system.environment.tomcat11_version#-template.zip";
+				break;
+			default:
+				throw "unknown tomcat version [#tomcat#]";
+		}
+			
 		if ( !fileExists( src )){
 			logger( "Error [" & src & "] express template missing?" );
 		} else {
