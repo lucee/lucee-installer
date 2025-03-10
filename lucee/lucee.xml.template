@@ -154,6 +154,22 @@
                         </isFalse>
                     </ruleList>
                 </deleteFile>
+                <actionGroup>
+                    <customErrorMessage>${msg(warnings.LuceePostError)}: ${installer_error_message_original}</customErrorMessage>
+                    <explanation>Set Lucee admin password</explanation>
+                    <progressText>Securing Lucee Server Admin</progressText>
+                    <actionList>
+                        <!-- write out a password.txt -->
+                        <createDirectory>
+                            <path>${installdir}/tomcat/lucee-server/context/</path>
+                        </createDirectory>
+                    
+                        <writeFile>
+                            <path>${installdir}/tomcat/lucee-server/context/password.txt</path>
+                            <text>${luceepass}</text>
+                        </writeFile>
+                    </actionList>
+                </actionGroup>
                 <dirName path="${java_executable}" variable="java_bin_dir"/>
                 <dirName path="${java_bin_dir}" variable="java_home_dir"/>
                 <substitute>
@@ -696,21 +712,6 @@ Please review ${installer_installation_log}.</text>
                             <value>${installconn}</value>
                         </isTrue>
                     </ruleList>
-                </actionGroup>
-                <actionGroup>
-                    <customErrorMessage>${msg(warnings.LuceePostError)}: ${installer_error_message_original}</customErrorMessage>
-                    <progressText>Securing Lucee Server Admin</progressText>
-                    <actionList>
-                        <!-- write out a password.txt -->
-                        <createDirectory>
-                            <path>${installdir}/tomcat/lucee-server/context/</path>
-                        </createDirectory>
-                    
-                        <writeFile>
-                            <path>${installdir}/tomcat/lucee-server/context/password.txt</path>
-                            <text>${luceepass}</text>
-                        </writeFile>
-                    </actionList>
                 </actionGroup>
             </postInstallationActionList>
             <startMenuShortcutList>

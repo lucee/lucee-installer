@@ -170,7 +170,7 @@ jobs:
             sudo [ -r install.log ] && sudo -s cat install.log
             sudo ls -l /tmp/lucee/tomcat/logs/
             echo "----- catalina.out"
-            sudo [ -r /tmp/lucee/tomcat/logs/catalina.out ] && cat /tmp/lucee/tomcat/logs/catalina.out
+            sudo [ -r /tmp/lucee/tomcat/logs/catalina.out ] && sudo cat /tmp/lucee/tomcat/logs/catalina.out
             
             #cat /tmp/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /tmp/lucee/tomcat/lucee-server/context/logs/err.log
