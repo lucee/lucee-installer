@@ -80,10 +80,15 @@ jobs:
         mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
         ls -lRh
-    - name: Build Lucee Installer - Linux x64
+
+    - name: Build Lucee Installer - Linux x86 x64
       run: |
         cd lucee
         /tmp/ib/bin/builder build lucee.xml linux-x64 --verbose --license license.xml
+    - name: Build Lucee Installer - Linux Arm64
+      run: |
+        cd lucee
+        /tmp/ib/bin/builder build lucee.xml linux-arm64 --verbose --license license.xml
 
     - name: Prepare Tomcat Windows
       run: |
@@ -100,22 +105,18 @@ jobs:
         cd lucee
         /tmp/ib/bin/builder build lucee.xml windows-x64 --verbose --license license.xml
 
-    - name: check linux installer has correct version
-      run: |
-        ls -laht /tmp/ib/output/
-        /tmp/ib/output/lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run --version
-        out=`/tmp/ib/output/lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run --version`
-        tet="Lucee ${{ env.LUCEE_INSTALLER_VERSION }}"
-        if [[ $out != $tet* ]]
-        then
-          echo Incorrect version banner
-          exit 1
-        fi
-    - name: Upload Artifact - Linux Installer
+    - name: Upload Artifact - Linux Installer x86
       uses: actions/upload-artifact@v4
       with:
-          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-run
-          path: /tmp/ib/output/*.run
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
+          path: /tmp/ib/output/*linux-x64-installer.run
+          retention-days: 1
+          compression-level: 0
+    - name: Upload Artifact - Linux Installer Arm
+      uses: actions/upload-artifact@v4
+      with:
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-arm64-run
+          path: /tmp/ib/output/*linux-arm64-installer.run
           retention-days: 1
           compression-level: 0
     - name: Upload Artifact - Windows Installer
@@ -126,7 +127,7 @@ jobs:
           retention-days: 1
           compression-level: 0
 
-  test-linux:
+  test-linux-x64:
     runs-on: ubuntu-latest
     needs: build-installers
     strategy:
@@ -136,7 +137,7 @@ jobs:
       - name: Download Linux Installer artifact
         uses: actions/download-artifact@v4
         with:
-          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-run
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
       - name: list dir
         run: |
           ls -l
@@ -156,8 +157,8 @@ jobs:
       - name: debug failure
         if: ${{ failure() }}
         run: |
-            ls -l /opt
-            cd /opt
+            ls -l /tmp
+            cd /tmp
             echo "----- installbuilder_installer.log"
             sudo -s cat installbuilder_installer.log
             cd /opt/lucee
@@ -172,6 +173,57 @@ jobs:
             #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
             #cat /opt/lucee/tomcat/logs/catalina.out
+
+  test-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    needs: build-installers
+    strategy:
+      matrix:
+        user: [ $USER, root, lucee ]
+    steps:
+      - name: Download Linux Installer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-arm64-run
+      - name: list dir
+        run: |
+          ls -l
+      - name: Run Arm Linux installer as [${{matrix.user}}]
+        run: |
+          ls -l
+          chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-arm64-installer.run
+          sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-arm64-installer.run \
+            --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false \
+            --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
+          sleep 10;
+          echo "Write out simple test script to confirm Lucee / Java / Tomcat versions"
+          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version# #server.java.version#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+          curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o $GITHUB_STEP_SUMMARY
+          #sleep 5
+          #sudo /tmp/lucee/lucee_ctl stop
+      - name: debug failure
+        if: ${{ failure() }}
+        run: |
+            ls -l /tmp
+            cd /tmp
+            echo "----- installbuilder_installer.log"
+            sudo -s cat installbuilder_installer.log
+            cd /opt/lucee
+            echo "------ ls -lR /opt/lucee"
+            sudo ls -lR
+            echo "----- install.log"
+            sudo [ -r install.log ] && sudo -s cat install.log
+            sudo ls -l /opt/lucee/tomcat/logs
+            echo "--------hacky workaround, use LUCEE_ENABLE_WARMUP and catalina.sh run"
+            export LUCEE_ENABLE_WARMUP=true
+            sudo --preserve-env=LUCEE_ENABLE_WARMUP /opt/lucee/tomcat/bin/catalina.sh run
+            echo "----- catalina.out"
+            sudo ls -l /opt/lucee/tomcat/logs/
+            sudo [ -r /opt/lucee/tomcat/logs/catalina.out ] && sudo cat /opt/lucee/tomcat/logs/catalina.out
+            
+            #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
+            #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
+          #cat /opt/lucee/tomcat/logs/catalina.out
 
   test-windows:
     runs-on: windows-latest
@@ -214,7 +266,7 @@ jobs:
 
   publish-to-s3:
     runs-on: ubuntu-latest
-    needs: [ test-windows, test-linux, build-installers ]
+    needs: [ test-windows, test-linux-x64, test-linux-arm64, build-installers ]
     if: ${{ github.event.inputs.DRY_RUN  != true }}
     env:
       S3_ACCESS_ID_DOWNLOAD: ${{ secrets.S3_ACCESS_ID_DOWNLOAD }}

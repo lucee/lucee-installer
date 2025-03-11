@@ -89,9 +89,23 @@
                     </ruleList>
                 </folder>
                 <folder>
-                    <description>Linux 64 Files</description>
+                    <description>Linux bash scripts Arm</description>
                     <destination>${installdir}</destination>
-                    <name>linux64files</name>
+                    <name>linuxBashScriptsArm</name>
+                    <platforms>linux-arm64</platforms>
+                    <distributionFileList>
+                        <distributionDirectory>
+                            <origin>linux/sys</origin>
+                        </distributionDirectory>
+                    </distributionFileList>
+                    <ruleList>
+                        <platformTest type="linux-arm64"/>
+                    </ruleList>
+                </folder>
+                <folder>
+                    <description>Linux bash scripts X86</description>
+                    <destination>${installdir}</destination>
+                    <name>linuxBashScriptsX86</name>
                     <platforms>linux-x64</platforms>
                     <distributionFileList>
                         <distributionDirectory>
@@ -99,24 +113,41 @@
                         </distributionDirectory>
                     </distributionFileList>
                     <ruleList>
-                        <platformTest>
-                            <type>linux-x64</type>
-                        </platformTest>
+                        <platformTest type="linux-x64"/>
                     </ruleList>
                 </folder>
                 <folder>
-                    <description>Linux Java Runtime</description>
+                    <description>Linux Java Runtime x86-64</description>
                     <destination>${installdir}</destination>
-                    <name>linuxjavaruntime</name>
+                    <name>linuxX86JavaRuntime</name>
                     <platforms>linux-x64</platforms>
                     <distributionFileList>
                         <distributionDirectory>
-                            <origin>../jre/jre64-lin/jre</origin>
+                            <origin>../jre/x86-linux/jre</origin>
                         </distributionDirectory>
                     </distributionFileList>
                     <ruleList>
                         <platformTest>
                             <type>linux-x64</type>
+                        </platformTest>
+                        <isTrue>
+                            <value>${installjre}</value>
+                        </isTrue>
+                    </ruleList>
+                </folder>
+                <folder>
+                    <description>Linux Java Runtime Arm64</description>
+                    <destination>${installdir}</destination>
+                    <name>linuxArmJavaRuntime</name>
+                    <platforms>linux-arm64</platforms>
+                    <distributionFileList>
+                        <distributionDirectory>
+                            <origin>../jre/arm64-linux/jre</origin>
+                        </distributionDirectory>
+                    </distributionFileList>
+                    <ruleList>
+                        <platformTest>
+                            <type>linux-arm64</type>
                         </platformTest>
                         <isTrue>
                             <value>${installjre}</value>
@@ -776,6 +807,10 @@ Please review ${installer_installation_log}.</text>
                 </platformTest>
                 <platformTest>
                     <negate>1</negate>
+                    <type>linux-arm64</type>
+                </platformTest>
+                <platformTest>
+                    <negate>1</negate>
                     <type>windows-x64</type>
                 </platformTest>
             </ruleList>
@@ -849,7 +884,7 @@ Please review ${installer_installation_log}.</text>
                     <value>/usr/lib64/httpd/modules/</value>
                     <ruleList>
                         <platformTest>
-                            <type>linux-x64</type>
+                            <type>linux</type>
                         </platformTest>
                     </ruleList>
                 </setInstallerVariable>
@@ -908,7 +943,7 @@ Please review ${installer_installation_log}.</text>
                             <path>/usr/lib64/apache2/modules/</path>
                         </fileExists>
                         <platformTest>
-                            <type>linux-x64</type>
+                            <type>linux</type>
                         </platformTest>
                     </ruleList>
                 </setInstallerVariable>
@@ -1788,6 +1823,9 @@ While upgrading previous installations of Lucee by reinstalling might work in so
                         <platformTest>
                             <type>linux-x64</type>
                         </platformTest>
+                        <platformTest>
+                            <type>linux-arm64</type>
+                        </platformTest>
                     </ruleList>
                 </ruleGroup>
             </ruleList>
@@ -1799,6 +1837,9 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </platformOptions>
         <platformOptions>
             <platform>linux-x64</platform>
+        </platformOptions>
+        <platformOptions>
+            <platform>linux-arm64</platform>
         </platformOptions>
     </platformOptionsList>
 </project>

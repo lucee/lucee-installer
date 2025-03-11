@@ -5,5 +5,7 @@ lucee/license.xml
 lucee/tomcat9/
 jre/jre64-win/jre/
 jre/jre64-lin/jre/
+jre/x64-linux/jre/
+jre/arm64-linux/jre/
 src-tomcat/
 express.bat
