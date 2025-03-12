@@ -278,10 +278,14 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-windows
-    - name: Download Linux Installer artifact
+    - name: Download Linux Installer Arm artifact
       uses: actions/download-artifact@v4
       with:
-        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-run
+        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-arm64-run
+    - name: Download Linux Installer x64 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
     - name: Cache Maven packages
       uses: actions/cache@v4
       with:
