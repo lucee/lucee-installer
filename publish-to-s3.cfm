@@ -63,32 +63,29 @@
 	}
 	logger ("" );
 
-	if ( listLen( version, "-" ) gt 1 ){
-		logger( "Not publishing to S3, only stable releases are published" );
-	} else {
-		trg.linux = "lucee-#version#-linux-x64-installer.run";
-		trg.windows = "lucee-#version#-windows-x64-installer.exe";
+	trg['linux-x64'] =   "lucee-#version#-linux-x64-installer.run";
+	trg['linux-arm64'] = "lucee-#version#-linux-arm64-installer.run";
+	trg.windows =        "lucee-#version#-windows-x64-installer.exe";
 
-		loop list="windows,linux" item="os" {
-			if ( !fileExists( currDir & trg[ os ] )){
-				logger( trg[ os ] & " installer missing?" );
-			} else if ( fileExists( trg.dir & trg[ os ] ) ){
-				logger( trg[ os ] & " already on s3" );
+	loop list="windows,linux-x64,linux-arm64" item="os" {
+		if ( !fileExists( currDir & trg[ os ] )){
+			logger( trg[ os ] & " installer missing?" );
+		} else if ( fileExists( trg.dir & trg[ os ] ) ){
+			logger( trg[ os ] & " already on s3" );
+			logger ("https://cdn.lucee.org/#trg[os]#");
+		} else {
+			logger( trg[ os ] & " to be uploaded on s3" );
+			if ( !dry_run )
+				fileCopy( currDir & trg[os], trg.dir & trg[ os ] );
 				logger ("https://cdn.lucee.org/#trg[os]#");
-			} else {
-				logger( trg[ os ] & " to be uploaded on s3" );
-				if ( !dry_run )
-					fileCopy( currDir & trg[os], trg.dir & trg[ os ] );
-					logger ("https://cdn.lucee.org/#trg[os]#");
-				if ( dry_run )
-					logger( "-- would have been uploaded, DRY_RUN was true" );
-				else
-					logger( "-- was uploaded" );
-			}
-			logger ("" );
+			if ( dry_run )
+				logger( "-- would have been uploaded, DRY_RUN was true" );
+			else
+				logger( "-- was uploaded" );
 		}
-		logger( "Publishing step complete!" );
+		logger ("" );
 	}
+	logger( "Publishing step complete!" );
 
 	writeoutMarkdown( log );
 </cfscript>
