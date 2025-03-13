@@ -1084,11 +1084,11 @@ Please review ${installer_installation_log}.</text>
             </actionList>
         </actionGroup>
         <generateRandomValue>
-            <length>64</length>
+            <length>60</length>
             <variable>secretkey</variable>
         </generateRandomValue>
         <generateRandomValue>
-            <length>64</length>
+            <length>60</length>
             <variable>ajpsecretkey</variable>
         </generateRandomValue>
         <setInstallerVariable>
