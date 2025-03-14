@@ -1,4 +1,4 @@
-name: Build Lucee Installer 
+name: Build Lucee Installer
 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -157,7 +157,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y apache2
-          
+
       - name: Start Apache service
         run: |
           sudo systemctl start apache2
@@ -166,7 +166,7 @@ jobs:
       - name: Verify Apache is running
         run: |
           sudo systemctl status apache2
-  
+
       - name: list dir
         run: |
           ls -l
@@ -185,7 +185,11 @@ jobs:
           sudo usermod -a -G www-data ${{matrix.user}}
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
-          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version# #server.java.version#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+
+          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;echo( '## Lucee Linux ' \
+            & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name \
+            & ", os " & server.os.version & " " & server.os.arch );</cfscript>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+
           sudo cat /tmp/installbuilder_installer.log
           echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
@@ -211,7 +215,7 @@ jobs:
             sudo [ -r /opt/lucee/tomcat/logs/catalina.out ] && sudo cat /opt/lucee/tomcat/logs/catalina.out
 
             sudo -s cat /var/log/apache2/error.log
-            
+
             #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
             #cat /opt/lucee/tomcat/logs/catalina.out
@@ -238,7 +242,7 @@ jobs:
         run: |
           sudo dnf update -y
           sudo dnf install httpd -y
-          
+
       - name: Start Apache service
         run: |
           sudo systemctl start apache2
@@ -247,7 +251,7 @@ jobs:
       - name: Verify Apache is running
         run: |
           sudo systemctl status apache2
-  
+
       - name: list dir
         run: |
           ls -l
@@ -266,7 +270,11 @@ jobs:
           sudo usermod -a -G www-data ${{matrix.user}}
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
-          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version# #server.java.version#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+
+          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;echo( '## Lucee Linux ' \
+            & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name \
+            & ", os " & server.os.version & " " & server.os.arch );</cfscript>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+
           sudo cat /tmp/installbuilder_installer.log
           echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
@@ -292,7 +300,7 @@ jobs:
             sudo [ -r /opt/lucee/tomcat/logs/catalina.out ] && sudo cat /opt/lucee/tomcat/logs/catalina.out
 
             sudo -s cat /var/log/apache2/error.log
-            
+
             #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
             #cat /opt/lucee/tomcat/logs/catalina.out
@@ -318,7 +326,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y apache2
-          
+
       - name: Start Apache service
         run: |
           sudo systemctl start apache2
@@ -346,7 +354,11 @@ jobs:
 
           sudo cat /tmp/installbuilder_installer.log
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" tee -a $GITHUB_STEP_SUMMARY
-          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version# #server.java.version#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+
+          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;echo( '## Lucee Linux ' \
+            & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name \
+            & ", os " & server.os.version & " " & server.os.arch );</cfscript>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+
           echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           echo "Check Apache port 80" | tee -a $GITHUB_STEP_SUMMARY
@@ -376,7 +388,7 @@ jobs:
             sudo [ -r /opt/lucee/tomcat/logs/catalina.out ] && sudo cat /opt/lucee/tomcat/logs/catalina.out
 
             sudo -s cat /var/log/apache2/error.log
-            
+
             #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
           #cat /opt/lucee/tomcat/logs/catalina.out
@@ -410,7 +422,9 @@ jobs:
           powershell -command "Start-Sleep -s 10"
           cd ..\..
           pwd
-          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name);</cfscript>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
+
+          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name & ", os " & server.os.version & " " & server.os.arch  );</cfscript>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
+
           dir c:\lucee\tomcat\webapps\ROOT
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o %GITHUB_STEP_SUMMARY%
       - name: debug failure
