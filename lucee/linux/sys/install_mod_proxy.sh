@@ -398,8 +398,33 @@ function checkModProxy {
 			modProxyFound=1;
 		fi
 
+		# look for proxy_http_module in stdout (centos)
+		if [[ "$modProxyFound" -eq "0" ]]; then
+			echo -n "Checking for 'proxy_http_module' in stdout...(httpd) ";
+			searchFoundProxy=`$myApacheHttpd -t -D DUMP_MODULES 2>&1 | grep -c proxy_http_module`;
+			if [[ "$searchFoundProxy" -eq "0" ]]; then
+				echo "[NOT FOUND]";
+			else
+				echo "[FOUND]";
+				modProxyFound=1;
+			fi
+		fi
+
+		# look for proxy_http_module in stderr (centos)
+		if [[ "$modProxyFound" -eq "0" ]]; then
+			echo -n "Checking for 'proxy_http_module' in stderr...(httpd) ";
+			searchFoundProxy=`$myApacheHttpd -M 2>&1 | grep -c proxy_http_module`;
+			if [[ "$searchFoundProxy" -eq "0" ]]; then
+				echo "[NOT FOUND]";
+			else
+				echo "[FOUND]";
+				modProxyFound=1;
+			fi
+		fi
+
 	else
-		# look for proxy_html_module in stdout (ubuntu)
+		# Debian / ubuntu
+		# Look for proxy_html_module in stdout
 		echo -n "Checking for 'proxy_html_module' in stdout... (using apachectl, ubuntu) ";
 		searchFoundProxy=`$myApacheCTL -t -D DUMP_MODULES | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
@@ -408,43 +433,20 @@ function checkModProxy {
 			echo "[FOUND]";
 			modProxyFound=1;
 		fi
-	fi
 
-	# look for proxy_html_module in stderr (ubuntu)
-	if [[ "$modProxyFound" -eq "0" ]]; then
-		echo -n "Checking for 'proxy_html_module' in stderr...(apachectl, ubuntu) ";
-		searchFoundProxy=`$myApacheCTL -t -D DUMP_MODULES 2>&1 | grep -c proxy_html_module`;
-		if [[ "$searchFoundProxy" -eq "0" ]]; then
-			echo "[NOT FOUND]";
-		else
-			echo "[FOUND]";
-			modProxyFound=1;
+		# look for proxy_html_module in stderr
+		if [[ "$modProxyFound" -eq "0" ]]; then
+			echo -n "Checking for 'proxy_html_module' in stderr...(apachectl, ubuntu) ";
+			searchFoundProxy=`$myApacheCTL -t -D DUMP_MODULES 2>&1 | grep -c proxy_html_module`;
+			if [[ "$searchFoundProxy" -eq "0" ]]; then
+				echo "[NOT FOUND]";
+			else
+				echo "[FOUND]";
+				modProxyFound=1;
+			fi
 		fi
 	fi
-
-	# look for proxy_http_module in stdout (centos)
-	if [[ "$modProxyFound" -eq "0" ]]; then
-		echo -n "Checking for 'proxy_http_module' in stdout...(httpd) ";
-		searchFoundProxy=`$myApacheHttpd -M | grep -c proxy_http_module`;
-		if [[ "$searchFoundProxy" -eq "0" ]]; then
-			echo "[NOT FOUND]";
-		else
-			echo "[FOUND]";
-			modProxyFound=1;
-		fi
-	fi
-
-	# look for proxy_http_module in stderr (centos)
-	if [[ "$modProxyFound" -eq "0" ]]; then
-		echo -n "Checking for 'proxy_http_module' in stderr...(httpd) ";
-		searchFoundProxy=`$myApacheHttpd -M 2>&1 | grep -c proxy_http_module`;
-		if [[ "$searchFoundProxy" -eq "0" ]]; then
-			echo "[NOT FOUND]";
-		else
-			echo "[FOUND]";
-			modProxyFound=1;
-		fi
-	fi
+	
 
 	if [[ "$modProxyFound" -eq "0" ]]; then
 		if [[ $myMode = "install" ]] && [[ -z "$installModProxyHit" ]]; then
