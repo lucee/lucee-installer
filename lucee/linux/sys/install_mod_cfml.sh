@@ -509,7 +509,7 @@ function installModCFML {
 
 	# check for existance of source file
 	if [[ $myLinuxVersion == *RedHat*  ]]; then
-		if [[ $myBitType == "x86_64" ]]; then
+		if [[ $myBitType == "x86_64" || $myBitType == "aarch64" ]]; then
 			# 64-bit
 			if [[ $myApacheVersion == "24" ]]; then			
 				if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd24-$myArch/mod_cfml.so ]]; then
@@ -572,7 +572,7 @@ function installModCFML {
 	        echo "VDirHeader false" >> $myApacheConf;
 	        echo "" >> $myApacheConf;
 	elif [[ $myLinuxVersion == *Debian*  ]]; then
-                if [[ $myBitType == "x86_64" ]]; then
+                if [[ $myBitType == "x86_64" || $myBitType == "aarch64" ]]; then
 			# 64-bit
                         if [[ $myApacheVersion == "24" ]]; then
                                 if [[ ! -f $INSTALL_DIR/mod_cfml/ubuntu-httpd24-$myArch/mod_cfml.so ]]; then

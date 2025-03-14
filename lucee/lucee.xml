@@ -726,7 +726,7 @@ Please review ${installer_installation_log}.</text>
                     <actionList>
                         <runProgram>
                             <program>${installdir}/sys/install_mod_proxy.sh</program>
-                            <programArguments>-m install -t ${tomcatport} -f ${apacheconfigloc} -c ${apachecontrolloc} -e ${apachebinaryloc}</programArguments>
+                            <programArguments>-m install -t ${tomcatport} -f ${apacheconfigloc} -c ${apachecontrolloc} -e ${apachebinaryloc} -a ${ajpsecretkey} -p ${tomcatajpport}</programArguments>
                         </runProgram>
                         <runProgram>
                             <program>${installdir}/sys/install_mod_cfml.sh</program>
