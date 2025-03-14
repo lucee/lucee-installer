@@ -496,32 +496,33 @@ function checkModCFMLAlreadyInstalled {
 function installModCFML {
 	# get bit type
 	myBitType=`uname -m`;
+        myArch=`uname -i`;
 
 	# check for existance of source file
 	if [[ $myLinuxVersion == *RedHat*  ]]; then
 		if [[ $myBitType == "x86_64" ]]; then
 			# 64-bit
 			if [[ $myApacheVersion == "24" ]]; then			
-				if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd24-x64/mod_cfml.so ]]; then
-					echo "* [ERROR] Unable to verify $INSTALL_DIR/mod_cfml/centos-httpd24-x64/mod_cfml.so.";
+				if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd24-$myArch/mod_cfml.so ]]; then
+					echo "* [ERROR] Unable to find $INSTALL_DIR/mod_cfml/centos-httpd24-$myArch/mod_cfml.so.";
 					echo "* Nothing to do.";
 					exit 1;
 				else
 					# copy mod_cfml.so to modules directory
-					cp $INSTALL_DIR/mod_cfml/centos-httpd24-x64/mod_cfml.so $myApacheMods;
+					cp $INSTALL_DIR/mod_cfml/centos-httpd24-$myArch/mod_cfml.so $myApacheMods;
 					if [ ! $? -eq 0 ]; then
 						echo "* [ERROR] Unable to copy mod_cfml.so to modules directory.";
 						exit 1;
 					fi
 				fi
 			elif [[ $myApacheVersion == "22" ]]; then
-                                if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd22-x64/mod_cfml.so ]]; then
-                                        echo "* [ERROR] Unable to verify $INSTALL_DIR/mod_cfml/centos-httpd22-x64/mod_cfml.so.";
+                                if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd22-$myArch/mod_cfml.so ]]; then
+                                        echo "* [ERROR] Unable to find $INSTALL_DIR/mod_cfml/centos-httpd22-$myArch/mod_cfml.so.";
                                         echo "* Nothing to do.";
                                         exit 1;
                                 else
                                         # copy mod_cfml.so to modules directory
-                                        cp $INSTALL_DIR/mod_cfml/centos-httpd22-x64/mod_cfml.so $myApacheMods;
+                                        cp $INSTALL_DIR/mod_cfml/centos-httpd22-$myArch/mod_cfml.so $myApacheMods;
                                         if [ ! $? -eq 0 ]; then
                                                 echo "* [ERROR] Unable to copy mod_cfml.so to modules directory.";
                                                 exit 1;
@@ -535,13 +536,13 @@ function installModCFML {
                                 echo "* Nothing to do.";
                                 exit 1;
                         elif [[ $myApacheVersion == "22" ]]; then
-                                if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd22-x64/mod_cfml.so ]]; then
+                                if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd22-$myArch/mod_cfml.so ]]; then
                                         echo "* [ERROR] Unable to verify $INSTALL_DIR/mod_cfml/centos-httpd22-x86/mod_cfml.so.";
                                         echo "* Nothing to do.";
                                         exit 1;
                                 else
                                         # copy mod_cfml.so to modules directory
-                                        cp $INSTALL_DIR/mod_cfml/centos-httpd22-x86/mod_cfml.so $myApacheMods;
+                                        cp $INSTALL_DIR/mod_cfml/centos-httpd22-$myArch/mod_cfml.so $myApacheMods;
                                         if [ ! $? -eq 0 ]; then
                                                 echo "* [ERROR] Unable to copy mod_cfml.so to modules directory.";
                                                 exit 1;
@@ -565,26 +566,26 @@ function installModCFML {
                 if [[ $myBitType == "x86_64" ]]; then
 			# 64-bit
                         if [[ $myApacheVersion == "24" ]]; then
-                                if [[ ! -f $INSTALL_DIR/mod_cfml/ubuntu-httpd24-x64/mod_cfml.so ]]; then
-                                        echo "* [ERROR] Unable to verify $INSTALL_DIR/mod_cfml/ubuntu-httpd24-x64/mod_cfml.so.";
+                                if [[ ! -f $INSTALL_DIR/mod_cfml/ubuntu-httpd24-$myArch/mod_cfml.so ]]; then
+                                        echo "* [ERROR] Unable to verify $INSTALL_DIR/mod_cfml/ubuntu-httpd24-$myArch/mod_cfml.so.";
                                         echo "* Nothing to do.";
                                         exit 1;
                                 else
                                         # copy mod_cfml.so to modules directory
-                                        cp $INSTALL_DIR/mod_cfml/ubuntu-httpd24-x64/mod_cfml.so $myApacheMods;
+                                        cp $INSTALL_DIR/mod_cfml/ubuntu-httpd24-$myArch/mod_cfml.so $myApacheMods;
                                         if [ ! $? -eq 0 ]; then
                                                 echo "* [ERROR] Unable to copy mod_cfml.so to modules directory.";
                                                 exit 1;
                                         fi
                                 fi
                         elif [[ $myApacheVersion == "22" ]]; then
-                                if [[ ! -f $INSTALL_DIR/mod_cfml/ubuntu-httpd22-x64/mod_cfml.so ]]; then
-                                        echo "* [ERROR] Unable to verify $INSTALL_DIR/mod_cfml/ubuntu-httpd22-x64/mod_cfml.so.";
+                                if [[ ! -f $INSTALL_DIR/mod_cfml/ubuntu-httpd22-$myArch/mod_cfml.so ]]; then
+                                        echo "* [ERROR] Unable to verify $INSTALL_DIR/mod_cfml/ubuntu-httpd22-$myArch/mod_cfml.so.";
                                         echo "* Nothing to do.";
                                         exit 1;
                                 else
                                         # copy mod_cfml.so to modules directory
-                                        cp $INSTALL_DIR/mod_cfml/ubuntu-httpd22-x64/mod_cfml.so $myApacheMods;
+                                        cp $INSTALL_DIR/mod_cfml/ubuntu-httpd22-$myArch/mod_cfml.so $myApacheMods;
                                         if [ ! $? -eq 0 ]; then
                                                 echo "* [ERROR] Unable to copy mod_cfml.so to modules directory.";
                                                 exit 1;
@@ -598,7 +599,7 @@ function installModCFML {
                                 echo "* Nothing to do.";
                                 exit 1;
                         elif [[ $myApacheVersion == "22" ]]; then
-                                if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd22-x64/mod_cfml.so ]]; then
+                                if [[ ! -f $INSTALL_DIR/mod_cfml/centos-httpd22-x86/mod_cfml.so ]]; then
                                         echo "* [ERROR] Unable to verify $INSTALL_DIR/mod_cfml/centos-httpd22-x86/mod_cfml.so.";
                                         echo "* Nothing to do.";
                                         exit 1;

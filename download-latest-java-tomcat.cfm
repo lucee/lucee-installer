@@ -166,7 +166,7 @@
 	if (!expressTemplate){
 		extractArchive( "zip", java.windows.archive , "jre/jre64-win/jre/" );
 		extractArchive( "tgz", java.linuxX86.archive , "jre/x86-linux/jre/" );
-		extractArchive( "tgz", java.linuxArm.archive , "jre/arm64-linux/jre/" );
+		extractArchive( "tgz", java.linuxArm.archive , "jre/aarch64/jre/" );
 		extractArchive( "zip", tomcat.windows.archive , "src-tomcat/windows/" );
 		directoryDelete( "src-tomcat/windows/webapps", true );
 	}

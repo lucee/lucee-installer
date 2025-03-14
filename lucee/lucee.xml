@@ -136,13 +136,13 @@
                     </ruleList>
                 </folder>
                 <folder>
-                    <description>Linux Java Runtime Arm64</description>
+                    <description>Linux Java Runtime aarch64</description>
                     <destination>${installdir}</destination>
                     <name>linuxArmJavaRuntime</name>
                     <platforms>linux-arm64</platforms>
                     <distributionFileList>
                         <distributionDirectory>
-                            <origin>../jre/arm64-linux/jre</origin>
+                            <origin>../jre/aarch64-linux/jre</origin>
                         </distributionDirectory>
                     </distributionFileList>
                     <ruleList>

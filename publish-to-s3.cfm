@@ -64,10 +64,10 @@
 	logger ("" );
 
 	trg['linux-x64'] =   "lucee-#version#-linux-x64-installer.run";
-	trg['linux-arm64'] = "lucee-#version#-linux-arm64-installer.run";
+	trg['linux-aarch64'] = "lucee-#version#-linux-aarch64-installer.run";
 	trg.windows =        "lucee-#version#-windows-x64-installer.exe";
 
-	loop list="windows,linux-x64,linux-arm64" item="os" {
+	loop list="windows,linux-x64,linux-aarch64" item="os" {
 		if ( !fileExists( currDir & trg[ os ] )){
 			logger( trg[ os ] & " installer missing?" );
 		} else if ( fileExists( trg.dir & trg[ os ] ) ){
