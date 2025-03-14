@@ -665,10 +665,14 @@ function installModCFML {
 	echo "* Restarting Apache so changes take effect...";
 	$myApacheCTL restart;
 	if [ ! $? -eq 0 ]; then
-                echo "* [FAIL]";
-		echo "* Apache restart failed. Please try to restart manually.";
-                echo "* Aborting....";
-                exit 1;
+                echo "* Running in Docker? trying httpd directly!";
+                $myApacheHttpd -k restart
+                if [ ! $? -eq 0 ]; then
+                        echo "* [FAIL]";
+                        echo "* Apache restart failed. Please try to restart manually.";
+                        echo "* Aborting....";
+                        exit 1;
+                fi
         fi
 }
 
