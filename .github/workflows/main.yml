@@ -270,7 +270,13 @@ jobs:
           sudo ls -l /var/www/html
           sudo chown -R apache:apache /var/www/html
           sudo chmod o+w /var/www/html
-          sudo usermod -a -G apache ${{matrix.user}}
+          if [ "${{matrix.user}}" == "$USER" ]; then
+              export CURRENT_USER=$USER
+              sudo usermod -a -G apache $CURRENT_USER
+          else
+            sudo usermod -a -G apache ${{matrix.user}}
+          fi
+          
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
 
