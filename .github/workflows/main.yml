@@ -240,6 +240,9 @@ jobs:
           name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
       - name: Update and install Apache
         run: |
+          dnf install sudo -y
+          whoami
+          sudo whoami
           sudo dnf update -y
           sudo dnf install httpd -y
 
