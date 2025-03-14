@@ -250,7 +250,7 @@ jobs:
 
       - name: Verify Apache is running
         run: |
-          sudo apachectl status
+          sudo httpd status
 
       - name: list dir
         run: |
