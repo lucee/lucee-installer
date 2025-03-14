@@ -287,6 +287,7 @@ jobs:
     steps:
       - name: Set defaults for Push workflows
         if: github.event_name == 'push'
+        shell: cmd
         run: |
           echo "DRY_RUN=true" >> %GITHUB_ENV%
           echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> %GITHUB_ENV%
