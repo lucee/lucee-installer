@@ -166,7 +166,7 @@
 	if (!expressTemplate){
 		extractArchive( "zip", java.windows.archive , "jre/jre64-win/jre/" );
 		extractArchive( "tgz", java.linuxX86.archive , "jre/x86-linux/jre/" );
-		extractArchive( "tgz", java.linuxArm.archive , "jre/aarch64/jre/" );
+		extractArchive( "tgz", java.linuxArm64.archive , "jre/aarch64-linux/jre/" );
 		extractArchive( "zip", tomcat.windows.archive , "src-tomcat/windows/" );
 		directoryDelete( "src-tomcat/windows/webapps", true );
 	}
@@ -339,7 +339,7 @@
 			"linuxX86": {
 				"api": "https://api.adoptium.net/v3/assets/latest/#java_version#/hotspot?architecture=x64&os=linux&vendor=eclipse"
 			},
-			"linuxArm": {
+			"linuxArm64": {
 				"api": "https://api.adoptium.net/v3/assets/latest/#java_version#/hotspot?architecture=aarch64&os=linux&vendor=eclipse"
 			}
 		}
