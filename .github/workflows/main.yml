@@ -270,6 +270,7 @@ jobs:
           sudo ls -l /var/www/html
           sudo chown -R apache:apache /var/www/html
           sudo chmod o+w /var/www/html
+          whoami
           if [ "\${{matrix.user}}" == "\$USER" ]; then
               export CURRENT_USER=$USER
               echo "The current user is $CURRENT_USER, matrix user is ${{matrix.user}}"
