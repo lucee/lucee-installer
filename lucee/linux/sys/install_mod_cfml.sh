@@ -447,6 +447,10 @@ function audodetectApacheConf {
 
 function autodetectApacheVersion {
 	echo "* Attempting to detect Apache version...";
+        myBitType=`uname -m`;
+        myArch=`uname -i`;
+
+        echo "Arch: $myArch BitType: $myBitType";
 	
 	# parse the result to save the Apache version
 	if [[ `$myApacheCTL -V | grep 'Apache/2.4'` ]]; then
@@ -459,12 +463,6 @@ function autodetectApacheVersion {
 		echo "* [ERROR] Unable to detect Apache version or version not supported.";
 		echo "* Unable to continue.";
 		echo "* Exiting... ";
-		exit 1;
-	fi
-	
-	# check for 32-bit Apache 2.4 (not supported - does it exist?)
-	if [[ ! `uname -m` == "x86_64" ]] && [[ $myApacheVersion == "24" ]]; then
-		echo "* [ERROR] Apache 2.4 on 32-bit systems is not supported. Aborting...";
 		exit 1;
 	fi
 }
