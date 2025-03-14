@@ -61,8 +61,8 @@ myApacheConf=
 myApacheCTL=
 myApacheHttpd=
 installModPerlHit=
-ajpSecret=
-ajpPort=
+myAjpSecret=
+myAjpPort=
 # parse command-line params
 while getopts “hm:l:p:t:f:c:e:a:p” OPTION
 do
@@ -87,10 +87,10 @@ do
              myApacheHttpd=$OPTARG
              ;;
          a)
-		 	 ajpSecret=$OPTARG
+		 	 myAjpSecret=$OPTARG
 			 ;;
          p)
-		 	 ajpPort=$OPTARG
+		 	 myAjpPort=$OPTARG
 			 ;;
 
          ?)
@@ -110,19 +110,22 @@ else
 	if [[ $myMode = "install" ]]; then
 		# if we're install mode, make sure we have install vars
 	        if [[ -z $myHTTPPort ]]; then
-				# if no AJP or HTTP port, default to AJP 8009
+				# if no HTTP port, default http to 8888
 				myHTTPPort=8888;
-				ajpPort=8009
+            fi
+			if [[ -z $myAjpPort ]]; then
+				# if no AJP, default to AJP 8009
+				myAjpPort=8009
             fi
 	fi # close install mode checks
 fi # close mode check
 
 echo "-- install_mod_proxy.sh --";
 
-if [[ $ajpSecret = "" ]]; then
+if [[ $myAjpSecret = "" ]]; then
 	echo "AJP secret (-a) is mandatory";
 	exit 1;
-fi
+#fi
 
 getLinuxVersion;
 echo "Linux version: $myLinuxVersion";
@@ -549,10 +552,13 @@ function installProxyCFML {
                 echo "" >> $myApacheConf;
 		echo "<IfModule mod_proxy.c>" >> $myApacheConf;
                 echo "	ProxyPreserveHost On" >> $myApacheConf;
-                echo "	ProxyPassMatch ^/(.+\.cf[cm])(/.*)?$ ajp://127.0.0.1:${myHTTPPort}/\$1\$2 secret=$ajpSecret" >> $myApacheConf;
-                echo "	ProxyPassMatch ^/(.+\.cfml)(/.*)?$ ajp://127.0.0.1:${myHTTPPort}/\$1\$2 secret=$ajpSecret" >> $myApacheConf;
+                #echo "	ProxyPassMatch ^/(.+\.cf[cm])(/.*)?$ http://127.0.0.1:${myHTTPPort}/\$1\$2" >> $myApacheConf;
+                #echo "	ProxyPassMatch ^/(.+\.cfml)(/.*)?$ http://127.0.0.1:${myHTTPPort}/\$1\$2" >> $myApacheConf;
+                echo "	ProxyPassMatch ^/(.+\.cf[cm])(/.*)?$ ajp://127.0.0.1:${myAjpPort}/\$1\$2 secret=$myAjpSecret" >> $myApacheConf;
+                echo "	ProxyPassMatch ^/(.+\.cfml)(/.*)?$ ajp://127.0.0.1:${myAjpPort}/\$1\$2 secret=$myAjpSecret" >> $myApacheConf;
                 echo "	# optional mappings" >> $myApacheConf;
-                echo "	#ProxyPassMatch ^/rest/(.*)$ http://127.0.0.1:${myHTTPPort}/rest/\$1 secret=$ajpSecret" >> $myApacheConf;
+                #echo "	#ProxyPassMatch ^/rest/(.*)$ http://127.0.0.1:${myHTTPPort}/rest/\$1" >> $myApacheConf;
+                echo "	#ProxyPassMatch ^/rest/(.*)$ ajp://127.0.0.1:${myAjpPort}/rest/\$1 secret=$myAjpSecret" >> $myApacheConf;
                 echo "	ProxyPassReverse / http://127.0.0.1:${myHTTPPort}/" >> $myApacheConf;
 		echo "</IfModule>" >> $myApacheConf;
                 echo "" >> $myApacheConf;
