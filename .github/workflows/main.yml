@@ -152,6 +152,20 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
+      - name: Update and install Apache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apache2
+          
+      - name: Start Apache service
+        run: |
+          sudo systemctl start apache2
+          sudo systemctl enable apache2
+
+      - name: Verify Apache is running
+        run: |
+          sudo systemctl status apache2
+  
       - name: list dir
         run: |
           ls -l
@@ -209,6 +223,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-run
+      - name: Update and install Apache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apache2
+          
+      - name: Start Apache service
+        run: |
+          sudo systemctl start apache2
+          sudo systemctl enable apache2
+
+      - name: Verify Apache is running
+        run: |
+          sudo systemctl status apache2
       - name: list dir
         run: |
           ls -l
