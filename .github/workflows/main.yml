@@ -186,7 +186,7 @@ jobs:
           echo "Check Apache port 80" | tee -a $GITHUB_STEP_SUMMARY
           sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
           sudo ls -l /var/www/html
-          curl http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
+          curl -L --max-redirs 5 http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           #sleep 5
           #sudo /tmp/lucee/lucee_ctl stop
       - name: debug failure
@@ -260,7 +260,7 @@ jobs:
           echo "Check Apache port 80" | tee -a $GITHUB_STEP_SUMMARY
           sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
           sudo ls -l /var/www/html
-          curl http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
+          curl -L --max-redirs 5 http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           #sleep 5
           #sudo /tmp/lucee/lucee_ctl stop
       - name: debug failure
