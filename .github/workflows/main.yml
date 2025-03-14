@@ -186,7 +186,7 @@ jobs:
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
 
-          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;echo( '## Lucee Linux ' & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name & ', os ' & server.os.version & ' ' & server.os.arch );</cfscript>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version#, using Java #server.java.version#, running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
 
           sudo cat /tmp/installbuilder_installer.log
           echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
@@ -272,9 +272,7 @@ jobs:
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
 
-          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;echo( '## Lucee Linux ' \
-            & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name \
-            & ', os ' & server.os.version & ' ' & server.os.arch );</cfscript>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version#, using Java #server.java.version#, running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
 
           sudo cat /tmp/installbuilder_installer.log
           echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
@@ -356,9 +354,7 @@ jobs:
           sudo cat /tmp/installbuilder_installer.log
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" tee -a $GITHUB_STEP_SUMMARY
 
-          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;echo( '## Lucee Linux ' \
-            & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name \
-            & ', os ' & server.os.version & ' ' & server.os.arch );</cfscript>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version#, using Java #server.java.version#, running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
 
           echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
@@ -424,7 +420,7 @@ jobs:
           cd ..\..
           pwd
 
-          echo "<cfscript>if (server.lucee.version neq url.version) header statuscode='500' statustext='wrong version #server.lucee.version#'; echo('## Lucee Windows ' & server.lucee.version & ', using java ' & server.java.version & ', running on ' & server.servlet.name & ', os ' & server.os.version & ' ' & server.os.arch  );</cfscript>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
+          echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version#, using Java #server.java.version#, running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
 
           dir c:\lucee\tomcat\webapps\ROOT
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o %GITHUB_STEP_SUMMARY%
