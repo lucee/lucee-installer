@@ -268,9 +268,9 @@ jobs:
           sleep 10;
 
           sudo ls -l /var/www/html
-          sudo chown -R www-data:www-data /var/www/html
+          sudo chown -R apache:apache /var/www/html
           sudo chmod o+w /var/www/html
-          sudo usermod -a -G www-data ${{matrix.user}}
+          sudo usermod -a -G apache ${{matrix.user}}
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
 
@@ -300,7 +300,7 @@ jobs:
             echo "----- catalina.out"
             sudo [ -r /opt/lucee/tomcat/logs/catalina.out ] && sudo cat /opt/lucee/tomcat/logs/catalina.out
 
-            sudo -s cat /var/log/apache2/error.log
+            sudo -s cat /var/log/http/error_log
 
             #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
