@@ -105,23 +105,33 @@ else
 	fi # close install mode checks
 fi # close mode check
 
+echo "-- install_mod_proxy.sh --";
+
 getLinuxVersion;
 echo "Linux version: $myLinuxVersion";
 
 # verify myApacheCTL
 if [[ -z $myApacheCTL ]] || [[ ! -x $myApacheCTL ]]; then
-        # apachectl is needed for testing and install, try to autodetect
-        autodetectApacheCTL;
+	echo "* Provided ApacheCTL verification failed.";
+	# apachectl is needed for testing and install, try to autodetect
+	autodetectApacheCTL;
+else
+	echo "Apachectl: $myApacheCTL";
 fi
 
 if [[ -z $myApacheConf ]] || [[ ! -f $myApacheConf ]]; then
-	audodetectApacheConf;
+	echo "* Provided Apache conf verification failed.";
+	autoDetectApacheConf;
+else 
+	echo "Apache Conf: $myApacheConf";
 fi
 
 # verify myApacheHttpd
 if [[ -z $myApacheHttpd ]] || [[ ! -f $myApacheHttpd ]] || [[ ! -x $myApacheHttpd ]]; then
 	echo "* Provided Httpd verification failed.";
 	autodetectApacheHttpd;
+else 
+	echo "Apache Httpd: $myApacheHttpd";
 fi
 }
 
@@ -239,7 +249,7 @@ function autodetectApacheCTL {
 	fi
 }
 
-function audodetectApacheConf {
+function autoDetectApacheConf {
 	# this function will be called if the $myApacheConf variable is blank
 	# and can be expanded upon as different OS's are tried and as OS's evolve.
 
@@ -359,7 +369,7 @@ function checkModProxy {
 	# added to this loop as we find them.
 	if [[ $myLinuxVersion == *RedHat* ]]; then
 		# look for proxy_html_module in stdout (ubuntu)
-		echo -n "Checking for 'proxy_html_module' in stdout (using httpd)...";
+		echo -n "Checking for 'proxy_html_module' in stdout (using httpd, Redhat )...";
 		searchFoundProxy=`$myApacheHttpd -M | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
@@ -370,7 +380,7 @@ function checkModProxy {
 
 	else
 		# look for proxy_html_module in stdout (ubuntu)
-		echo -n "Checking for 'proxy_html_module' in stdout... (using apachectl) ";
+		echo -n "Checking for 'proxy_html_module' in stdout... (using apachectl, ubuntu) ";
 		searchFoundProxy=`$myApacheCTL -t -D DUMP_MODULES | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
@@ -382,7 +392,7 @@ function checkModProxy {
 
 	# look for proxy_html_module in stderr (ubuntu)
 	if [[ "$modProxyFound" -eq "0" ]]; then
-		echo -n "Checking for 'proxy_html_module' in stderr...(apachectl) ";
+		echo -n "Checking for 'proxy_html_module' in stderr...(apachectl, ubuntu) ";
 		searchFoundProxy=`$myApacheCTL -t -D DUMP_MODULES 2>&1 | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";

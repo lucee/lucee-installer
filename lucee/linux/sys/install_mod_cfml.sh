@@ -112,6 +112,9 @@ done
 ###################
 
 function verifyInput {
+
+        echo "-- install_mod_cfml.sh --";
+
 	# verify myMode
 	if [[ -z $myMode ]] && [[ $myMode != "install" ]] && [[ $myMode != "test" ]]; then
 		# mode isn't set to a proper mode
