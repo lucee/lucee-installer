@@ -246,7 +246,7 @@ jobs:
 
       - name: Start Apache service
         run: |
-          sudo apachectl start
+          sudo httpd -k start
 
       - name: Verify Apache is running
         run: |
