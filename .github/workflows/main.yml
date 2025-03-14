@@ -223,7 +223,7 @@ jobs:
     needs: build-installers
     container: almalinux:latest
     strategy:
-      max-parallel: 1
+      max-parallel: 2
       matrix:
         user: [ $USER, root, lucee ]
     steps:
@@ -246,7 +246,7 @@ jobs:
 
       - name: Start Apache service
         run: |
-          sudo apachectl
+          sudo apachectl start
 
       - name: Verify Apache is running
         run: |
