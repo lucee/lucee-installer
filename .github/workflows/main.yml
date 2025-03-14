@@ -288,8 +288,8 @@ jobs:
       - name: Set defaults for Push workflows
         if: github.event_name == 'push'
         run: |
-          echo DRY_RUN=true >> %GITHUB_ENV%
-          echo LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }} >> %GITHUB_ENV%
+          echo "DRY_RUN=true" >> %GITHUB_ENV%
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> %GITHUB_ENV%
       - name: Download Windows Installer artifact
         uses: actions/download-artifact@v4
         with:
