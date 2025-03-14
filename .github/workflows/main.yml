@@ -136,7 +136,7 @@ jobs:
           retention-days: 1
           compression-level: 0
 
-  test-linux-x64:
+  test-ubuntu-linux-x64:
     runs-on: ubuntu-latest
     needs: build-installers
     strategy:
@@ -216,7 +216,88 @@ jobs:
             #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
             #cat /opt/lucee/tomcat/logs/catalina.out
 
-  test-linux-aarch64:
+  test-alma-linux-x64:
+    runs-on: ubuntu-latest
+    needs: build-installers
+    container: almalinux:latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        user: [ $USER, root, lucee ]
+    steps:
+      - name: Set defaults for Push workflows
+        if: github.event_name == 'push'
+        run: |
+          echo "DRY_RUN=true" >> $GITHUB_ENV
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
+      - name: Download Linux Installer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
+      - name: Update and install Apache
+        run: |
+          sudo dnf update -y
+          sudo dnf install httpd -y
+          
+      - name: Start Apache service
+        run: |
+          sudo systemctl start apache2
+          sudo systemctl enable apache2
+
+      - name: Verify Apache is running
+        run: |
+          sudo systemctl status apache2
+  
+      - name: list dir
+        run: |
+          ls -l
+      - name: Run Linux installer as [${{matrix.user}}]
+        run: |
+          ls -l
+          chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
+          sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
+            --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
+            --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
+          sleep 10;
+
+          sudo ls -l /var/www/html
+          sudo chown -R www-data:www-data /var/www/html
+          sudo chmod o+w /var/www/html
+          sudo usermod -a -G www-data ${{matrix.user}}
+
+          echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
+          sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version# #server.java.version#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
+          sudo cat /tmp/installbuilder_installer.log
+          echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
+          curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
+          echo "Check Apache port 80" | tee -a $GITHUB_STEP_SUMMARY
+          sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
+          curl -L --max-redirs 5 http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
+          #sleep 5
+          #sudo /tmp/lucee/lucee_ctl stop
+      - name: debug failure
+        if: ${{ failure() }}
+        run: |
+            ls -l /tmp
+            cd /tmp
+            echo "----- installbuilder_installer.log"
+            sudo -s cat installbuilder_installer.log
+            cd /opt/lucee
+            echo "------ ls -lR /opt/lucee"
+            sudo ls -lR
+            echo "----- install.log"
+            sudo [ -r install.log ] && sudo -s cat install.log
+            sudo ls -l /opt/lucee/tomcat/logs/
+            echo "----- catalina.out"
+            sudo [ -r /opt/lucee/tomcat/logs/catalina.out ] && sudo cat /opt/lucee/tomcat/logs/catalina.out
+
+            sudo -s cat /var/log/apache2/error.log
+            
+            #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
+            #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
+            #cat /opt/lucee/tomcat/logs/catalina.out
+
+  test-ubuntu-linux-aarch64:
     runs-on: ubuntu-24.04-arm
     needs: build-installers
     strategy:
@@ -347,7 +428,7 @@ jobs:
 
   publish-to-s3:
     runs-on: ubuntu-latest
-    needs: [ test-windows, test-linux-x64, test-linux-aarch64, build-installers ]
+    needs: [ test-windows, test-ubuntu-linux-x64, test-alma-linux-x64, test-ubuntu-linux-aarch64, build-installers ]
     if: ${{ github.event.inputs.DRY_RUN  != true }}
     env:
       S3_ACCESS_ID_DOWNLOAD: ${{ secrets.S3_ACCESS_ID_DOWNLOAD }}
