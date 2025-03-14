@@ -182,6 +182,7 @@ jobs:
           echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           echo "Check Apache port 80" | tee -a $GITHUB_STEP_SUMMARY
+          sudo systemctl restart apache2
           sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
           sudo ls -l /var/www/html
           curl http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
@@ -251,6 +252,7 @@ jobs:
           sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version# #server.java.version#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
           echo "Check Tomcat port 8888" | tee -a $GITHUB_STEP_SUMMARY
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
+          sudo systemctl restart apache2
           echo "Check Apache port 80" | tee -a $GITHUB_STEP_SUMMARY
           sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
           sudo ls -l /var/www/html
