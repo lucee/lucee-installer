@@ -178,6 +178,12 @@ jobs:
             --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
             --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
           sleep 10;
+
+          sudo ls -l /var/www/html
+          sudo chown -R www-data:www-data /var/www/html
+          sudo chmod o+w /var/www/html
+          sudo usermod -a -G www-data ${{matrix.user}}
+
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
           sudo -u ${{matrix.user}} bash -c 'echo "<cfscript>if (server.lucee.version neq url.version) header statuscode=500;</cfscript><cfoutput>## Lucee Linux #server.lucee.version# #server.java.version#</cfoutput>" > /opt/lucee/tomcat/webapps/ROOT/check.cfm'
           sudo cat /tmp/installbuilder_installer.log
@@ -185,7 +191,6 @@ jobs:
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           echo "Check Apache port 80" | tee -a $GITHUB_STEP_SUMMARY
           sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
-          sudo ls -l /var/www/html
           curl -L --max-redirs 5 http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           #sleep 5
           #sudo /tmp/lucee/lucee_ctl stop
