@@ -188,7 +188,7 @@ function autodetectApacheCTL {
         # use the getLinuxVersion function to try and see if we know what we're being run on
 	# GetLinuxVersion will return myLinuxVersion
     getLinuxVersion;
-	echo "Detected Linux version: ${$myLinuxVersion}";
+	echo "Detected Linux version: $myLinuxVersion";
 
 	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
 		# RedHat and Debian keep the apachectl file in the same place usually,
@@ -247,7 +247,7 @@ function audodetectApacheConf {
 	# use the getLinuxVersion function to try and see if we know what we're being run on
 	# GetLinuxVersion will return myLinuxVersion
 	getLinuxVersion;
-	echo "Detected Linux version: ${$myLinuxVersion}";
+	echo "Detected Linux version: $myLinuxVersion";
 
 	if [[ $myLinuxVersion == *RedHat*  ]]; then
 		echo "Detected RedHat-based build.";
@@ -302,7 +302,7 @@ function autodetectApacheHttpd {
 
 	echo "* ApacheHttpd undefined, autodetecting...";
 	getLinuxVersion;
-	echo "Detected Linux version: ${$myLinuxVersion}";
+	echo "Detected Linux version: $myLinuxVersion";
 
 	# GetLinuxVersion will return myLinuxVersion
 
