@@ -105,6 +105,9 @@ else
 	fi # close install mode checks
 fi # close mode check
 
+getLinuxVersion;
+echo "Linux version: $myLinuxVersion";
+
 # verify myApacheCTL
 if [[ -z $myApacheCTL ]] || [[ ! -x $myApacheCTL ]]; then
         # apachectl is needed for testing and install, try to autodetect
@@ -188,7 +191,6 @@ function autodetectApacheCTL {
         # use the getLinuxVersion function to try and see if we know what we're being run on
 	# GetLinuxVersion will return myLinuxVersion
     getLinuxVersion;
-	echo "Detected Linux version: $myLinuxVersion";
 
 	if [[ $myLinuxVersion == *RedHat*  ]] || [[ $myLinuxVersion == *Debian*  ]]; then
 		# RedHat and Debian keep the apachectl file in the same place usually,
@@ -247,7 +249,6 @@ function audodetectApacheConf {
 	# use the getLinuxVersion function to try and see if we know what we're being run on
 	# GetLinuxVersion will return myLinuxVersion
 	getLinuxVersion;
-	echo "Detected Linux version: $myLinuxVersion";
 
 	if [[ $myLinuxVersion == *RedHat*  ]]; then
 		echo "Detected RedHat-based build.";
@@ -265,7 +266,7 @@ function audodetectApacheConf {
 				else
 						# looks good, set the variable
 						myApacheConf=$defaultLocation;
-						echo "[SUCCESS]";
+						echo "found $myApacheConf [SUCCESS]";
 		fi
 
 	elif [[ $myLinuxVersion == *Debian*  ]]; then
@@ -283,7 +284,7 @@ function audodetectApacheConf {
 		else
 				# looks good, set the variable
 				myApacheConf=$defaultLocation;
-				echo "[SUCCESS]";
+				echo "found $myApacheConf [SUCCESS]";
 		fi
 	fi
 
@@ -302,7 +303,6 @@ function autodetectApacheHttpd {
 
 	echo "* ApacheHttpd undefined, autodetecting...";
 	getLinuxVersion;
-	echo "Detected Linux version: $myLinuxVersion";
 
 	# GetLinuxVersion will return myLinuxVersion
 
@@ -323,6 +323,17 @@ function autodetectApacheHttpd {
 			myApacheHttpd="/usr/sbin/httpd";
 			local httpdFileFound=1;
 			echo "* Found /usr/sbin/httpd [SUCCESS]";
+		fi
+
+		# test the alt default location
+		local defaultLocation="/usr/sbin/apache2";
+		if [[ ! -f ${defaultLocation} ]] || [[ ! -x ${defaultLocation} ]]; then
+			echo "* NOT found in /usr/sbin/apache2...";
+		else
+			# looks good, set the variable
+			myApacheHttpd="/usr/sbin/apache2";
+			local httpdFileFound=1;
+			echo "* Found /usr/sbin/apache2 [SUCCESS]";
 		fi
 
 		if [[ $httpdFileFound -eq 0 ]]; then
@@ -359,7 +370,7 @@ function checkModProxy {
 
 	else
 		# look for proxy_html_module in stdout (ubuntu)
-		echo -n "Checking for 'proxy_html_module' in stdout... (using apachectl)";
+		echo -n "Checking for 'proxy_html_module' in stdout... (using apachectl) ";
 		searchFoundProxy=`$myApacheCTL -M | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
@@ -371,7 +382,7 @@ function checkModProxy {
 
 	# look for proxy_html_module in stderr (ubuntu)
 	if [[ "$modProxyFound" -eq "0" ]]; then
-		echo -n "Checking for 'proxy_html_module' in stderr...(apachectl)";
+		echo -n "Checking for 'proxy_html_module' in stderr...(apachectl) ";
 		searchFoundProxy=`$myApacheCTL -M 2>&1 | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
@@ -383,7 +394,7 @@ function checkModProxy {
 
 	# look for proxy_http_module in stdout (centos)
 	if [[ "$modProxyFound" -eq "0" ]]; then
-		echo -n "Checking for 'proxy_http_module' in stdout...(httpd)";
+		echo -n "Checking for 'proxy_http_module' in stdout...(httpd) ";
 		searchFoundProxy=`$myApacheHttpd -M | grep -c proxy_http_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
@@ -395,7 +406,7 @@ function checkModProxy {
 
 	# look for proxy_http_module in stderr (centos)
 	if [[ "$modProxyFound" -eq "0" ]]; then
-		echo -n "Checking for 'proxy_http_module' in stderr...(httpd)";
+		echo -n "Checking for 'proxy_http_module' in stderr...(httpd) ";
 		searchFoundProxy=`$myApacheHttpd -M 2>&1 | grep -c proxy_http_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";

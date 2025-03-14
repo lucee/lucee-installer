@@ -269,14 +269,14 @@ function autodetectApacheHttpd {
                         echo "* Found /usr/sbin/httpd [SUCCESS]";
                 fi
 	
-		local defaultLocation="/usr/sbin/httpd";
+		local defaultLocation="/usr/sbin/apache2";
                 if [[ ! -f ${defaultLocation} ]] || [[ ! -x ${defaultLocation} ]]; then
-                        echo "* NOT found in /usr/sbin/htppd...";
+                        echo "* NOT found in /usr/sbin/apache2...";
                 else
                         # looks good, set the variable
-                        myApacheHttpd="/usr/sbin/httpd";
+                        myApacheHttpd="/usr/sbin/apache2";
 			local ctlFileFound=1;
-                        echo "* Found /usr/sbin/httpd [SUCCESS]";
+                        echo "* Found /usr/sbin/apache2 [SUCCESS]";
                 fi
 			
 		if [[ $ctlFileFound -eq 0 ]]; then
