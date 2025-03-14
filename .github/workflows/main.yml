@@ -174,7 +174,7 @@ jobs:
           ls -l
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
-            --mode unattended --installconn false --installmodcfml true --installiis false --startatboot false \
+            --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
             --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
           sleep 10;
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
@@ -246,7 +246,7 @@ jobs:
           ls -l
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run \
-            --mode unattended --installconn false --installmodcfml true --installiis false --startatboot false \
+            --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
             --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
           sleep 10;
           sudo cat /tmp/installbuilder_installer.log
