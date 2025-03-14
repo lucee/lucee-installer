@@ -204,6 +204,8 @@ jobs:
             sudo ls -l /opt/lucee/tomcat/logs/
             echo "----- catalina.out"
             sudo [ -r /opt/lucee/tomcat/logs/catalina.out ] && sudo cat /opt/lucee/tomcat/logs/catalina.out
+
+            sudo -s cat /var/log/apache2/error.log
             
             #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log
@@ -280,6 +282,8 @@ jobs:
             echo "----- catalina.out"
             sudo ls -l /opt/lucee/tomcat/logs/
             sudo [ -r /opt/lucee/tomcat/logs/catalina.out ] && sudo cat /opt/lucee/tomcat/logs/catalina.out
+
+            sudo -s cat /var/log/apache2/error.log
             
             #cat /opt/lucee/tomcat/lucee-server/context/logs/out.log
             #cat /opt/lucee/tomcat/lucee-server/context/logs/err.log

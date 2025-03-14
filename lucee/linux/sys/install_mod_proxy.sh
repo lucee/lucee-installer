@@ -125,7 +125,7 @@ echo "-- install_mod_proxy.sh --";
 if [[ $myAjpSecret = "" ]]; then
 	echo "AJP secret (-a) is mandatory";
 	exit 1;
-#fi
+fi
 
 getLinuxVersion;
 echo "Linux version: $myLinuxVersion";
