@@ -371,7 +371,7 @@ function checkModProxy {
 	else
 		# look for proxy_html_module in stdout (ubuntu)
 		echo -n "Checking for 'proxy_html_module' in stdout... (using apachectl) ";
-		searchFoundProxy=`$myApacheCTL -M | grep -c proxy_html_module`;
+		searchFoundProxy=`$myApacheCTL -t -D DUMP_MODULES | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
 		else
@@ -383,7 +383,7 @@ function checkModProxy {
 	# look for proxy_html_module in stderr (ubuntu)
 	if [[ "$modProxyFound" -eq "0" ]]; then
 		echo -n "Checking for 'proxy_html_module' in stderr...(apachectl) ";
-		searchFoundProxy=`$myApacheCTL -M 2>&1 | grep -c proxy_html_module`;
+		searchFoundProxy=`$myApacheCTL -t -D DUMP_MODULES 2>&1 | grep -c proxy_html_module`;
 		if [[ "$searchFoundProxy" -eq "0" ]]; then
 			echo "[NOT FOUND]";
 		else
