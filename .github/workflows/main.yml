@@ -256,9 +256,9 @@ jobs:
           ls -l
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
-            --mode=unattended \
+            --mode unattended \
             --installconn=true \
-            --installmodcfml=true \ 
+            --installmodcfml=true \
             --installiis=false \
             --startatboot=false \
             --luceepass=ibtest \
