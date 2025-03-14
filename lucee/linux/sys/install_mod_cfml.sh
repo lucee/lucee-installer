@@ -133,12 +133,16 @@ function verifyInput {
         if [[ -z $myApacheCTL ]] || [[ ! -f $myApacheCTL ]] || [[ ! -x $myApacheCTL ]]; then
                 echo "* Provided ApacheCTL verification failed.";
                 autodetectApacheCTL;
+        else
+                echo "Apachectl: $myApacheCTL";
         fi
 
         # verify myApacheHttpd
         if [[ -z $myApacheHttpd ]] || [[ ! -f $myApacheHttpd ]] || [[ ! -x $myApacheHttpd ]]; then
                 echo "* Provided Httpd verification failed.";
                 autodetectApacheHttpd;
+        else 
+	        echo "Apache Httpd: $myApacheHttpd";
         fi
 
         # verify module directory
@@ -151,6 +155,8 @@ function verifyInput {
         if [[ -z $myApacheConf ]] || [[ ! -f $myApacheConf ]] || [[ ! -w $myApacheConf ]]; then
                 echo "* Provided Apache Config file verification failed.";
                 audodetectApacheConf;
+        else
+                echo "Apache Conf: $myApacheConf";
         fi
 } # close verifyInput
 
@@ -500,6 +506,8 @@ function installModCFML {
 	# get bit type
 	myBitType=`uname -m`;
         myArch=`uname -i`;
+
+        echo "Arch: $myArch BitType: $myBitType";
 
 	# check for existance of source file
 	if [[ $myLinuxVersion == *RedHat*  ]]; then
