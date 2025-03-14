@@ -270,13 +270,13 @@ jobs:
           sudo ls -l /var/www/html
           sudo chown -R apache:apache /var/www/html
           sudo chmod o+w /var/www/html
-          if [ "${{matrix.user}}" == "$USER" ]; then
+          if [ "\${{matrix.user}}" == "\$USER" ]; then
               export CURRENT_USER=$USER
+              echo "The current user is $CURRENT_USER, matrix user is ${{matrix.user}}"
               sudo usermod -a -G apache $CURRENT_USER
           else
             sudo usermod -a -G apache ${{matrix.user}}
           fi
-          
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
 
