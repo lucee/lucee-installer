@@ -485,7 +485,7 @@ function installModProxy {
                 detectAPTExists;
 
                 # try to install mod_proxy with APT-GET
-				apt-get -y install libapache2-mod-proxy-html;
+				#apt-get -y install libapache2-mod-proxy-html;
 				a2enmod proxy;
 				a2enmod proxy_html;
 				a2enmod proxy_http
