@@ -509,10 +509,6 @@ function installProxyCFML {
                 echo "	ProxyPassMatch ^/(.+\.cf[cm])(/.*)?$ http://127.0.0.1:${myHTTPPort}/\$1\$2" >> $myApacheConf;
                 echo "	ProxyPassMatch ^/(.+\.cfml)(/.*)?$ http://127.0.0.1:${myHTTPPort}/\$1\$2" >> $myApacheConf;
                 echo "	# optional mappings" >> $myApacheConf;
-                echo "	#ProxyPassMatch ^/flex2gateway/(.*)$ http://127.0.0.1:${myHTTPPort}/flex2gateway/\$1" >> $myApacheConf;
-                echo "	#ProxyPassMatch ^/messagebroker/(.*)$ http://127.0.0.1:${myHTTPPort}/messagebroker/\$1" >> $myApacheConf;
-		echo "	#ProxyPassMatch ^/flashservices/gateway(.*)$ http://127.0.0.1:${myHTTPPort}/flashservices/gateway\$1" >> $myApacheConf;
-		echo "	#ProxyPassMatch ^/openamf/gateway/(.*)$ http://127.0.0.1:${myHTTPPort}/openamf/gateway/\$1" >> $myApacheConf;
                 echo "	#ProxyPassMatch ^/rest/(.*)$ http://127.0.0.1:${myHTTPPort}/rest/\$1" >> $myApacheConf;
                 echo "	ProxyPassReverse / http://127.0.0.1:${myHTTPPort}/" >> $myApacheConf;
 		echo "</IfModule>" >> $myApacheConf;

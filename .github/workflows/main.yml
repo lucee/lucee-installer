@@ -88,7 +88,8 @@ jobs:
     - name: Build Lucee Installer - Linux aarch64
       run: |
         cd lucee
-        /tmp/ib/bin/builder build lucee.xml linux-aarch64 --verbose --license license.xml
+        /tmp/ib/bin/builder build lucee.xml linux-arm64 --verbose --license license.xml
+        mv /tmp/ib/output/lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-arm64.run /tmp/ib/output/lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64.run
 
     - name: Prepare Tomcat Windows
       run: |
