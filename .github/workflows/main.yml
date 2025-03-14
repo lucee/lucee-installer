@@ -225,7 +225,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        user: [ $USER, root, lucee ]
+        user: [ root, lucee ]  # $USER is just root anyway!
     steps:
       - name: Set defaults for Push workflows
         if: github.event_name == 'push'
@@ -239,8 +239,6 @@ jobs:
       - name: Update and install Apache
         run: |
           dnf install sudo -y
-          whoami
-          sudo whoami
           sudo dnf update -y
           sudo dnf install httpd -y
 
@@ -270,14 +268,7 @@ jobs:
           sudo ls -l /var/www/html
           sudo chown -R apache:apache /var/www/html
           sudo chmod o+w /var/www/html
-          whoami
-          if [ "\${{matrix.user}}" == "\$USER" ]; then
-              export CURRENT_USER=$USER
-              echo "The current user is $CURRENT_USER, matrix user is ${{matrix.user}}"
-              sudo usermod -a -G apache $CURRENT_USER
-          else
-            sudo usermod -a -G apache ${{matrix.user}}
-          fi
+          sudo usermod -a -G apache ${{matrix.user}}
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
 
