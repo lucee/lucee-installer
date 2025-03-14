@@ -31,6 +31,7 @@ env:
   IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
   lucee_build_version: 6.2.0.109-SNAPSHOT
   DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
+  PUSH_LUCEE_TEST_VERSION: 6.2.1.66-SNAPSHOT
 
 jobs:
   build-installers:
@@ -41,7 +42,7 @@ jobs:
       if: github.event_name == 'push'
       run: |
         echo "DRY_RUN=true" >> $GITHUB_ENV
-        echo "LUCEE_INSTALLER_VERSION=6.2.1.66-SNAPSHOT" >> $GITHUB_ENV
+        echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
     - name: Download and Install InstallBuilder
       run: |
         curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
@@ -142,6 +143,11 @@ jobs:
       matrix:
         user: [ $USER, root, lucee ]
     steps:
+      - name: Set defaults for Push workflows
+        if: github.event_name == 'push'
+        run: |
+          echo "DRY_RUN=true" >> $GITHUB_ENV
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
       - name: Download Linux Installer artifact
         uses: actions/download-artifact@v4
         with:
@@ -194,6 +200,11 @@ jobs:
       matrix:
         user: [ $USER, root, lucee ]
     steps:
+      - name: Set defaults for Push workflows
+        if: github.event_name == 'push'
+        run: |
+          echo "DRY_RUN=true" >> $GITHUB_ENV
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
       - name: Download Linux Installer artifact
         uses: actions/download-artifact@v4
         with:
@@ -247,6 +258,11 @@ jobs:
     runs-on: windows-latest
     needs: build-installers
     steps:
+      - name: Set defaults for Push workflows
+        if: github.event_name == 'push'
+        run: |
+          echo "DRY_RUN=true" >> $GITHUB_ENV
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
       - name: Download Windows Installer artifact
         uses: actions/download-artifact@v4
         with:
@@ -292,6 +308,11 @@ jobs:
       DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
     steps:
     - uses: actions/checkout@v4.1.1
+    - name: Set defaults for Push workflows
+      if: github.event_name == 'push'
+      run: |
+        echo "DRY_RUN=true" >> $GITHUB_ENV
+        echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
     - name: Download Windows Installer artifact
       uses: actions/download-artifact@v4
       with:
