@@ -2,6 +2,7 @@ name: Build Lucee Installer
 
 on:
   # Allows you to run this workflow manually from the Actions tab
+  push:
   workflow_dispatch:
     inputs:
       LUCEE_VERSION:
@@ -36,6 +37,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Set defaults for Push workflows
+      if: github.event_name == 'push'
+      run: |
+        echo "DRY_RUN=true" >> $GITHUB_ENV
+        echo "LUCEE_INSTALLER_VERSION=6.2.1.66-SNAPSHOT" >> $GITHUB_ENV
     - name: Download and Install InstallBuilder
       run: |
         curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
