@@ -474,9 +474,9 @@ function installModProxy {
         fi
 
         if [[ $myLinuxVersion == *RedHat*  ]]; then
-                echo "Detected RedHat-based build.";
-		echo "mod_proxy is installed by default with httpd in RHEL/CentOS builds;";
-		echo "This script will not attempt to install mod_proxy on this system.";
+            echo "Detected RedHat-based build.";
+			echo "mod_proxy is installed by default with httpd in RHEL/CentOS builds;";
+			echo "This script will not attempt to install mod_proxy on this system.";
 
         elif [[ $myLinuxVersion == *Debian*  ]]; then
                 echo "Detected Debian-based build.";
@@ -485,9 +485,10 @@ function installModProxy {
                 detectAPTExists;
 
                 # try to install mod_proxy with APT-GET
-		apt-get -y install libapache2-mod-proxy-html;
-		a2enmod proxy;
-		a2enmod proxy_http;
+				apt-get -y install libapache2-mod-proxy-html;
+				a2enmod proxy;
+				a2enmod proxy_html;
+				a2enmod proxy_http
 
                 # see if proxy is now enabled
                 if [[ "$?" -ne "0" ]]; then
