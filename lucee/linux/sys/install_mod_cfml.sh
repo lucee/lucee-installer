@@ -505,6 +505,11 @@ function installModCFML {
 	myBitType=`uname -m`;
         myArch=`uname -i`;
 
+        if [[ $myArch == "unknown" ]]; then
+                echo "uname -i returned unknown, trying arch instead";
+                myArch=`arch`;
+        fi
+
         echo "Arch: $myArch BitType: $myBitType";
 
 	# check for existance of source file
