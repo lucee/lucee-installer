@@ -54,6 +54,7 @@ jobs:
         ls -l
         mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
+        cp -a lucee/express-scripts/* lucee/tomcat9/tomcat
         ls -lRh
         cd lucee/tomcat9/tomcat
         zip -r ../../../lucee-tomcat9-template.zip *
@@ -112,6 +113,7 @@ jobs:
         ls -l
         mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
+        cp -a lucee/express-scripts/* lucee/tomcat9/tomcat
         ls -lRh
         cd lucee/tomcat9/tomcat
         zip -r ../../../lucee-tomcat10_1-template.zip *
@@ -163,6 +165,7 @@ jobs:
         ls -l
         mv src-tomcat/linux lucee/tomcat9/tomcat
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
+        cp -a lucee/express-scripts/* lucee/tomcat9/tomcat
         ls -lRh
         cd lucee/tomcat9/tomcat
         zip -r ../../../lucee-tomcat11-template.zip *
