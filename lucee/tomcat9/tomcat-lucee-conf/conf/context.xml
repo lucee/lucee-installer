@@ -18,6 +18,11 @@
 <!-- The contents of this file will be loaded for each web application -->
 <Context useHttpOnly="true">
 
+    <JarScanner>
+        <JarScanFilter
+            defaultTldScan="false"
+            tldSkip="*.jar" />
+    </JarScanner>
     <!-- Default set of monitored resources. If one of these changes, the    -->
     <!-- web application will be reloaded.                                   -->
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
