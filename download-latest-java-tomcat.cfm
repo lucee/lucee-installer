@@ -107,7 +107,8 @@
   xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
                       https://jakarta.ee/xml/ns/jakartaee/web-app_#xsd_version#.xsd"
   version="#xsd_version#">';
-  			FileCopy("lucee/tomcat10/conf/catalina.properties", "lucee/tomcat9/tomcat-lucee-conf/conf/catalina.properties");
+			FileCopy("lucee/tomcat10/conf/catalina.properties", "lucee/tomcat9/tomcat-lucee-conf/conf/catalina.properties");
+			FileCopy("lucee/tomcat10/conf/catalina.properties.original-11", "lucee/tomcat9/tomcat-lucee-conf/conf/catalina.properties.original-11");
 			if (expressTemplate){
 				// express doesn't have the top level lucee/lib, place them under tomcat/lib/ext instead
 				addJavaxJars(lib_ext);
