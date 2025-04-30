@@ -93,14 +93,15 @@
 		if (!directoryExists(lib_ext))
 			directoryCreate(lib_ext);
 	}
-
+	xsd_version = "";
 	switch ( tomcat_version ){
 		case "9.0":
 			break;
 		case "11.0":
 			xsd_version = "6.1";
 		case "10.1":
-			xsd_version = "6.0";
+			if ( len( xsd_version ) eq 0 )
+				xsd_version = "6.0";
 			tomcat_web_xml_header='<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
