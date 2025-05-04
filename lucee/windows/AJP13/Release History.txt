@@ -34,6 +34,14 @@ If you were using a proxy or URL rewrite engine you would also benefit from:
 -----------------------------------------
 VERSION HISTORY:
 
+Version 1.0.44 Updates:
+* Upd: dot-net framework 4.8
+* Add: support for non-standard HTTP verbs in AJP, e.g. PATCH
+
+Version 1.0.42 Updates:
+* Add: add debug logging for stream wait cycle.
+* Add: error catch for HTTP headers that cannot be read from stream
+
 Version 1.0.41 Updates:
 * Fix: to avoid file upload timeout reduce wait time for network data to arrive.
 
@@ -231,7 +239,7 @@ Version 1.0.7 Updates:
 Version 1.0.6 Updates:
 * Add: setting file location in version identification. Also identify whether defaults are used or setting file data.
 * Add: auto-correction for Path-Info (xajp-path-info) to RFC3875 standard
-* Upd: Accesses to administrator when deployed as war is not allowed when “disable remote access” is selected
+* Upd: Accesses to administrator when deployed as war is not allowed when  disable remote access  is selected
 
 Version 1.0.5 Updates:
 * Add: Installer allow unlocking of IIS sub configurations (sub path)
