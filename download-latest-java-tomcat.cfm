@@ -20,7 +20,7 @@
 		}
 	} else {
 		srcVersion = server.system.environment.lucee_installer_version;
-		version = listToArray( srcVersion,"." );
+		version = listToArray( srcVersion, "." );
 		tomcat_version = "9.0";
 		java_version = 11;
 		tomcat_win_exe = "tomcat9w.exe";
@@ -28,6 +28,10 @@
 		if ( version[ 1 ] gt 6  ||
 			(version[ 1 ] gte 6 && version[ 2 ] gte 1 )){
 			java_version = 21; // 6.1 onwards
+		}
+
+		if ( version[ 1 ] gte 7 ){
+			java_version = 24; // 7.0 onwards
 		}
 
 		if ( (version[ 1 ] eq 6 && version[ 2 ] eq 2 and version[ 3 ] eq 0 ) ){
