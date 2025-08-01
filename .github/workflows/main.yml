@@ -29,9 +29,10 @@ env:
   LUCEE_INSTALLER_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
   IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
-  lucee_build_version: 6.2.0.109-SNAPSHOT
+  lucee_build_version: 6.2.2.90-RC
   DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
-  PUSH_LUCEE_TEST_VERSION: 6.2.1.66-SNAPSHOT
+  PUSH_LUCEE_TEST_VERSION: 6.2.2.90-RC
+  LUCEE_ENABLE_BUNDLE_DOWNLOAD: false # installers should work offline without downloading bundles
 
 jobs:
   build-installers:
