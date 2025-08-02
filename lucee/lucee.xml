@@ -204,7 +204,7 @@
                 <dirName path="${java_executable}" variable="java_bin_dir"/>
                 <dirName path="${java_bin_dir}" variable="java_home_dir"/>
                 <substitute>
-                    <files>${installdir}/sys/change_user.sh</files>
+                    <files>${installdir}/sys/engine_ctl_template</files>
                     <type>exact</type>
                     <ruleList>
                         <platformTest>
