@@ -269,7 +269,7 @@ jobs:
             --installiis false \
             --startatboot false \
             --luceepass ibtest \
-            --systemuser lucee \
+            --systemuser ${{matrix.user}} \
             --installjre false
 
           sleep 10;

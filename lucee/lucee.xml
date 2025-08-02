@@ -1129,6 +1129,19 @@ Please review ${installer_installation_log}.</text>
             </ruleList>
         </setInstallerVariable>
     </initializationActionList>
+    <preInstallationActionList>
+        <throwError>
+            <text>No Java Runtime Environment (JRE) was found on your system. Please install a JRE and add it to your system's PATH, or select the option to install the bundled JRE.</text>
+            <ruleList>
+                <isFalse>
+                    <value>${java_autodetected}</value>
+                </isFalse>
+                <isFalse>
+                    <value>${installjre}</value>
+                </isFalse>
+            </ruleList>
+        </throwError>
+    </preInstallationActionList>
     <preUninstallationActionList>
         <runProgram>
             <program>${installdir}/lucee_ctl</program>
