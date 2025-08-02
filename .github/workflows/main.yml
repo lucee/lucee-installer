@@ -251,7 +251,7 @@ jobs:
       - name: Install Java 
         if: ${{ env.INSTALL_OS_JAVA }}
         run: |
-          apt-get install openjdk-21-jre -y
+          apt-get install -y openjdk-21-jdk
       - name: Start Apache service (no sudo/systemctl)
         run: |
           apache2ctl start
@@ -348,7 +348,7 @@ jobs:
       - name: Install Java 
         if: ${{ env.INSTALL_OS_JAVA }}
         run: |
-          sudo dnf install java-21-openjdk
+          sudo dnf install java-21-openjdk -y
 
       - name: Start Apache service (no sudo/systemctl)
         run: |
@@ -531,9 +531,12 @@ jobs:
         shell: cmd
         run: |
           cd
-          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
           echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> %GITHUB_STEP_SUMMARY%
-          cd tomcat\bin
+          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
+          pwd
+          c:
+          cd c:\lucee\tomcat
+          pwd
           call startup.bat
           echo force sleeping for 10s
           powershell -command "Start-Sleep -s 10"
