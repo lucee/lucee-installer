@@ -33,6 +33,8 @@ env:
   DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
   PUSH_LUCEE_TEST_VERSION: 6.2.2.90-RC
   LUCEE_ENABLE_BUNDLE_DOWNLOAD: false # installers should work offline without downloading bundles
+  INSTALL_OS_JAVA: false # not all images have java installed by default
+  INSTALL_JRE: false
 
 jobs:
   build-installers:
@@ -177,7 +179,7 @@ jobs:
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
             --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
-            --luceepass ibtest --systemuser ${{matrix.user}} --installjre false
+            --luceepass ibtest --systemuser ${{matrix.user}} --installjre ${{ env.INSTALL_JRE }}
           sleep 10;
 
           sudo ls -l /var/www/html
@@ -246,7 +248,11 @@ jobs:
           apt-get install -y sudo
           apt-get install -y curl
           apt-get install -y apache2
-
+      - uses: actions/setup-java@v4
+        if: ${{ env.INSTALL_OS_JAVA }}
+        with:
+          java-version: '21'
+          distribution: 'temurin'
       - name: Start Apache service (no sudo/systemctl)
         run: |
           apache2ctl start
@@ -270,7 +276,7 @@ jobs:
             --startatboot false \
             --luceepass ibtest \
             --systemuser ${{matrix.user}} \
-            --installjre false
+            --installjre ${{ env.INSTALL_JRE }}
 
           sleep 10;
 
@@ -340,6 +346,12 @@ jobs:
           sudo dnf update -y
           sudo dnf install httpd -y
 
+      - uses: actions/setup-java@v4
+        if: ${{ env.INSTALL_OS_JAVA }}
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
       - name: Start Apache service (no sudo/systemctl)
         run: |
           sudo httpd -k start
@@ -359,7 +371,7 @@ jobs:
             --startatboot false \
             --luceepass ibtest \
             --systemuser lucee \
-            --installjre false
+            --installjre ${{ env.INSTALL_JRE }}
 
           sleep 10;
 
@@ -444,7 +456,7 @@ jobs:
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run \
             --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
-            --luceepass ibtest --systemuser ${{matrix.user}} --installjre false
+            --luceepass ibtest --systemuser ${{matrix.user}} --installjre ${{ env.INSTALL_JRE }}
           sleep 10;
 
           sudo ls -l /var/www/html
@@ -511,11 +523,17 @@ jobs:
       - name: list dir
         run: |
           dir
+      - uses: actions/setup-java@v4
+        if: ${{ env.INSTALL_OS_JAVA }}
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
       - name: Run Windows Installer
         shell: cmd
         run: |
           cd
-          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre false
+          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
           echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> %GITHUB_STEP_SUMMARY%
           cd tomcat\bin
           call startup.bat
