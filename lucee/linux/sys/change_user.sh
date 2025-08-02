@@ -28,55 +28,55 @@
 # ----------------------------------------------------------------------------------
 
 if [ ! $(id -u) = "0" ]; then
-        echo "Error: This script needs to be run as root.";
-        echo "Exiting...";
-        exit;
+	echo "Error: This script needs to be run as root.";
+	echo "Exiting...";
+	exit;
 fi
 
 # test user input
 
 if [ -z $1 ]; then  # make sure it was specified
-        echo "Error: No User Name Specified.";
+	echo "Error: No User Name Specified.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 elif [[ ! $1 =~ ^[a-z][a-zA-Z0-9_-]+$ ]]; then  # make sure username is a valid format
-        echo "Error: Invalid User Name";
+	echo "Error: Invalid User Name";
 	echo "";
 	echo "Rules for User Names:";
 	echo "1) User Names must start with a lower-case letter"
 	echo "2) User Names must contain only alphanumeric characters, hyphens, or underscores.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 else
-        myUserName=$1;
+	myUserName=$1;
 fi
 
 if [ -z $2 ]; then  # make sure install dir is specified
-        echo "Error: No Installation Directory Specified.";
+	echo "Error: No Installation Directory Specified.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 elif [ ! -d $2 ]; then  # make sure it's a directory
 	echo "Error: Directory provided does not exist or is not a directory.";
 	echo "";
-       	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 elif [ ! -d "$2/tomcat/" ]; then  # make sure it contains tomcat
-        echo "Error: Directory provided doesn't appear to be valid.";
+	echo "Error: Directory provided doesn't appear to be valid.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 else
-       	myInstallDir=$2;
+	myInstallDir=$2;
 fi
 
 if [ -z $3 ]; then # see if an engine was specified
-        echo "Error: Engine name must be either 'lucee' or 'openbd'.";
+	echo "Error: Engine name must be either 'lucee' or 'openbd'.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 elif [[ "$3" = "lucee" ]]; then
 	myCFServerName="Lucee";
 	myControlScriptName="lucee_ctl";
@@ -87,8 +87,8 @@ else
 	# if the engine isn't lucee or openbd, throw an error	
 	echo "Error: Engine name must be either 'lucee' or 'openbd'.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 fi
 
 if [ -z $4 ]; then # check to see if we're making a backup of the control scropt
@@ -135,10 +135,10 @@ function createUserAndGroup {
 	checkUserExists;
 	checkGroupExists;
 	if [ ${myGroupNeedsCreating} -eq 1 ]; then
-                echo -n "Creating Group...";
-                groupadd ${myUserName} -r;
+		echo -n "Creating Group...";
+		groupadd ${myUserName} -r;
 		echo "[DONE]";
-        fi
+	fi
 	if [ ${myUserNeedsCreating} -eq 1 ]; then
 		echo -n "Creating User...";
 		useradd ${myUserName} -g ${myUserName} -d ${myInstallDir} -s /bin/false -r;
@@ -175,13 +175,13 @@ function processControlScriptTemplate {
 function rebuildControlScript {
 	echo "Rebuilding Control Scripts for new User...";
 	# backup current control script
-        if [ ${myControlNeedsBackup} -eq 1 ]; then
-                # If we're backing up, do it
-                mv ${myInstallDir}/${myControlScriptName} ${myInstallDir}/${myControlScriptName}.old;
-        else
-                # otherwise, just remove the old file
-                rm -rf ${myInstallDir}/${myControlScriptName}
-        fi
+	if [ ${myControlNeedsBackup} -eq 1 ]; then
+		# If we're backing up, do it
+		mv ${myInstallDir}/${myControlScriptName} ${myInstallDir}/${myControlScriptName}.old;
+	else
+		# otherwise, just remove the old file
+		rm -rf ${myInstallDir}/${myControlScriptName}
+	fi
 	
 	# create the control script from easier to maintain separate template
 	TomcatControlScript="${myInstallDir}/${myControlScriptName}";
@@ -195,11 +195,11 @@ function rebuildControlScript {
 
 	# see if there's a control script in the init directory
 	if [ -f /etc/init.d/${myControlScriptName} ]; then
-                # if there is, copy the new control script over it
+		# if there is, copy the new control script over it
 		cp -f $TomcatControlScript /etc/init.d/${myControlScriptName};
 	fi
 }
-        
+
 
 #####################
 # Run function list #
