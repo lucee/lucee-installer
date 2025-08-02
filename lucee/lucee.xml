@@ -214,28 +214,28 @@
                     <substitutionList>
                         <substitution>
                             <pattern>@@luceeJREhome@@</pattern>
-                            <value>TEMP=`echo "JRE_HOME=${installDir}/jre; export JRE_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <value>JRE_HOME=${installDir}/jre; export JRE_HOME</value>
                             <ruleList>
                                 <isTrue value="${installjre}"/>
                             </ruleList>
                         </substitution>
                         <substitution>
                             <pattern>@@luceeJAVAhome@@</pattern>
-                            <value>TEMP=`echo "JAVA_HOME=${installDir}/jre; export JAVA_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <value>JAVA_HOME=${installDir}/jre; export JAVA_HOME</value>
                             <ruleList>
                                 <isTrue value="${installjre}"/>
                             </ruleList>
                         </substitution>
                         <substitution>
                             <pattern>@@luceeJREhome@@</pattern>
-                            <value>TEMP=`echo "JRE_HOME=${java_home_dir}; export JRE_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <value>JRE_HOME=${java_home_dir}; export JRE_HOME</value>
                             <ruleList>
                                 <isFalse value="${installjre}"/>
                             </ruleList>
                         </substitution>
                         <substitution>
                             <pattern>@@luceeJAVAhome@@</pattern>
-                            <value>TEMP=`echo "JAVA_HOME=${java_home_dir}; export JAVA_HOME" &gt;&gt; $TomcatControlScript`;</value>
+                            <value>JAVA_HOME=${java_home_dir}; export JAVA_HOME</value>
                             <ruleList>
                                 <isFalse value="${installjre}"/>
                             </ruleList>

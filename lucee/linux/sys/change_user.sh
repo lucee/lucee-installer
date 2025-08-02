@@ -28,55 +28,55 @@
 # ----------------------------------------------------------------------------------
 
 if [ ! $(id -u) = "0" ]; then
-        echo "Error: This script needs to be run as root.";
-        echo "Exiting...";
-        exit;
+	echo "Error: This script needs to be run as root.";
+	echo "Exiting...";
+	exit;
 fi
 
 # test user input
 
 if [ -z $1 ]; then  # make sure it was specified
-        echo "Error: No User Name Specified.";
+	echo "Error: No User Name Specified.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 elif [[ ! $1 =~ ^[a-z][a-zA-Z0-9_-]+$ ]]; then  # make sure username is a valid format
-        echo "Error: Invalid User Name";
+	echo "Error: Invalid User Name";
 	echo "";
 	echo "Rules for User Names:";
 	echo "1) User Names must start with a lower-case letter"
 	echo "2) User Names must contain only alphanumeric characters, hyphens, or underscores.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 else
-        myUserName=$1;
+	myUserName=$1;
 fi
 
 if [ -z $2 ]; then  # make sure install dir is specified
-        echo "Error: No Installation Directory Specified.";
+	echo "Error: No Installation Directory Specified.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 elif [ ! -d $2 ]; then  # make sure it's a directory
 	echo "Error: Directory provided does not exist or is not a directory.";
 	echo "";
-       	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 elif [ ! -d "$2/tomcat/" ]; then  # make sure it contains tomcat
-        echo "Error: Directory provided doesn't appear to be valid.";
+	echo "Error: Directory provided doesn't appear to be valid.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 else
-       	myInstallDir=$2;
+	myInstallDir=$2;
 fi
 
 if [ -z $3 ]; then # see if an engine was specified
-        echo "Error: Engine name must be either 'lucee' or 'openbd'.";
+	echo "Error: Engine name must be either 'lucee' or 'openbd'.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 elif [[ "$3" = "lucee" ]]; then
 	myCFServerName="Lucee";
 	myControlScriptName="lucee_ctl";
@@ -87,8 +87,8 @@ else
 	# if the engine isn't lucee or openbd, throw an error	
 	echo "Error: Engine name must be either 'lucee' or 'openbd'.";
 	echo "";
-        echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-        exit 1;
+	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	exit 1;
 fi
 
 if [ -z $4 ]; then # check to see if we're making a backup of the control scropt
@@ -135,10 +135,10 @@ function createUserAndGroup {
 	checkUserExists;
 	checkGroupExists;
 	if [ ${myGroupNeedsCreating} -eq 1 ]; then
-                echo -n "Creating Group...";
-                groupadd ${myUserName} -r;
+		echo -n "Creating Group...";
+		groupadd ${myUserName} -r;
 		echo "[DONE]";
-        fi
+	fi
 	if [ ${myUserNeedsCreating} -eq 1 ]; then
 		echo -n "Creating User...";
 		useradd ${myUserName} -g ${myUserName} -d ${myInstallDir} -s /bin/false -r;
@@ -152,185 +152,54 @@ function updateInstallDir {
 	echo "[DONE]";
 }
 
+function processControlScriptTemplate {
+	local template_file="$1"
+	local output_file="$2"
+	
+	# (envsubst would have been simpler, but sed is universally available)
+	local -a sed_args=()
+	local -a template_vars=("myInstallDir" "myUserName" "myCFServerName")
+	
+	for var in "${template_vars[@]}"; do
+		local var_value="${!var}"
+		# Escape forward slashes for sed
+		if [[ "$var" == "myInstallDir" ]]; then
+			var_value="${var_value//\//\\/}"
+		fi
+		sed_args+=("-e" "s/\${${var}}/${var_value}/g")
+	done
+	
+	sed "${sed_args[@]}" "$template_file" > "$output_file"
+}
+
 function rebuildControlScript {
 	echo "Rebuilding Control Scripts for new User...";
 	# backup current control script
-        if [ ${myControlNeedsBackup} -eq 1 ]; then
-                # If we're backing up, do it
-                mv ${myInstallDir}/${myControlScriptName} ${myInstallDir}/${myControlScriptName}.old;
-        else
-                # otherwise, just remove the old file
-                rm -rf ${myInstallDir}/${myControlScriptName}
-        fi
-	# write new one...
-	singleQuote=$'\140'
+	if [ ${myControlNeedsBackup} -eq 1 ]; then
+		# If we're backing up, do it
+		mv ${myInstallDir}/${myControlScriptName} ${myInstallDir}/${myControlScriptName}.old;
+	else
+		# otherwise, just remove the old file
+		rm -rf ${myInstallDir}/${myControlScriptName}
+	fi
+	
+	# create the control script from easier to maintain separate template
 	TomcatControlScript="${myInstallDir}/${myControlScriptName}";
-	TEMP=`touch $TomcatControlScript`;
-	TEMP=`echo "#!/bin/bash" >> $TomcatControlScript`;
-        TEMP=`echo "# chkconfig: 345 22 78" >> $TomcatControlScript`;
-        TEMP=`echo "# description: Tomcat/${myCFServerName} Control Script" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "### BEGIN INIT INFO" >> $TomcatControlScript`;
-        TEMP=`echo "# Provides:          lucee_ctl" >> $TomcatControlScript`;
-        TEMP=`echo "# Required-Start:    \\$network " >> $TomcatControlScript`;
-        TEMP=`echo "# Required-Stop:     \\$network " >> $TomcatControlScript`;
-        TEMP=`echo "# Default-Start:     2 3 4 5" >> $TomcatControlScript`;
-        TEMP=`echo "# Default-Stop:      0" >> $TomcatControlScript`;
-        TEMP=`echo "# Short-Description: Tomcat/Lucee Control Script" >> $TomcatControlScript`;
-        TEMP=`echo "# Description:       This is the control script that starts and stops Tomcat which contains a global install of the Lucee servlet." >> $TomcatControlScript`;
-        TEMP=`echo "### END INIT INFO" >> $TomcatControlScript`;
-	TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "# switch the subshell to the tomcat directory so that any relative" >> $TomcatControlScript`;
-        TEMP=`echo "# paths specified in any configs are interpreted from this directory." >> $TomcatControlScript`;
-        TEMP=`echo "cd ${myInstallDir}/tomcat/" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "# set base params for subshell" >> $TomcatControlScript`;
-        TEMP=`echo "CATALINA_BASE=${myInstallDir}/tomcat; export CATALINA_BASE" >> $TomcatControlScript`;
-        TEMP=`echo "CATALINA_HOME=${myInstallDir}/tomcat; export CATALINA_HOME" >> $TomcatControlScript`;
-        TEMP=`echo "CATALINA_PID=${myInstallDir}/tomcat/work/tomcat.pid; export CATALINA_PID" >> $TomcatControlScript`;
-        TEMP=`echo "CATALINA_TMPDIR=${myInstallDir}/tomcat/temp; export CATALINA_TMPDIR" >> $TomcatControlScript`;
-        @@luceeJREhome@@
-        @@luceeJAVAhome@@
-        # TEMP=`echo "JRE_HOME=${myInstallDir}/jre; export JRE_HOME" >> $TomcatControlScript`;
-        # TEMP=`echo "JAVA_HOME=${myInstallDir}/jre; export JAVA_HOME" >> $TomcatControlScript`;
-	TEMP=`echo "TOMCAT_OWNER=${myUserName}; export TOMCAT_OWNER" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "findpid() {" >> $TomcatControlScript`;
-        TEMP=`echo "	PID_FOUND=0" >> $TomcatControlScript`;
-        TEMP=`echo "	if [ -f \\"\\$CATALINA_PID\\" ] ; then" >> $TomcatControlScript`;
-        TEMP=`echo "                PIDNUMBER=${singleQuote}cat \\"\\$CATALINA_PID\\"${singleQuote}" >> $TomcatControlScript`;
-        TEMP=`echo "                TEST_RUNNING=${singleQuote}ps -p \\${PIDNUMBER} | grep \\${PIDNUMBER} | grep java${singleQuote}" >> $TomcatControlScript`;
-        TEMP=`echo "	        if [ ! -z \\"\\${TEST_RUNNING}\\" ]; then " >> $TomcatControlScript`;
-        TEMP=`echo "			# PID is found and running" >> $TomcatControlScript`;
-        TEMP=`echo "			PID_FOUND=1" >> $TomcatControlScript`;
-        TEMP=`echo "		fi" >> $TomcatControlScript`;
-        TEMP=`echo "	fi" >> $TomcatControlScript`;
-        TEMP=`echo "}" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "start() {" >> $TomcatControlScript`;
-        TEMP=`echo "        echo -n \\" * Starting ${myCFServerName}: \\"" >> $TomcatControlScript`;
-        TEMP=`echo "        findpid" >> $TomcatControlScript`;
-        TEMP=`echo "	# only actually run the start command if the PID isn't found" >> $TomcatControlScript`;
-        TEMP=`echo "	if [ \\$PID_FOUND -eq 0 ] ; then" >> $TomcatControlScript`;
-        TEMP=`echo "		su -p -s /bin/sh \\$TOMCAT_OWNER \\$CATALINA_HOME/bin/startup.sh" >> $TomcatControlScript`;
-        TEMP=`echo "		COUNT=0" >> $TomcatControlScript`;
-        TEMP=`echo "		while [ \\$COUNT -lt 3 ] ; do" >> $TomcatControlScript`;
-        TEMP=`echo "			COUNT=\\$((\\$COUNT+1))" >> $TomcatControlScript`;
-        TEMP=`echo "			echo -n \\". \\"" >> $TomcatControlScript`;
-        TEMP=`echo "			sleep 1" >> $TomcatControlScript`;
-        TEMP=`echo "		done" >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\"[DONE]\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	        echo \\"--------------------------------------------------------\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	        echo \\"It may take a few moments for ${myCFServerName} to start processing\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	        echo \\"CFML templates. This is normal.\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	        echo \\"--------------------------------------------------------\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	else" >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\"[ALREADY RUNNING]\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	fi" >> $TomcatControlScript`;
-        TEMP=`echo "}" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "stop() {" >> $TomcatControlScript`;
-        TEMP=`echo "        echo -n \\" * Shutting down ${myCFServerName}: \\"" >> $TomcatControlScript`;
-        TEMP=`echo "	findpid" >> $TomcatControlScript`;
-        TEMP=`echo "	if [ \\$PID_FOUND -eq 1 ] ; then" >> $TomcatControlScript`;
-        TEMP=`echo "        	su -p -s /bin/sh \\$TOMCAT_OWNER \\$CATALINA_HOME/bin/shutdown.sh &> /dev/null &" >> $TomcatControlScript`;
-        TEMP=`echo "		COUNT=0" >> $TomcatControlScript`;
-        TEMP=`echo "        	while [ \\$PID_FOUND -eq 1 ] ; do" >> $TomcatControlScript`;
-        TEMP=`echo "			findpid" >> $TomcatControlScript`;
-        TEMP=`echo "			COUNT=\\$((\\$COUNT+1))" >> $TomcatControlScript`;
-        TEMP=`echo "			if [ \\$COUNT -gt 20 ] ; then" >> $TomcatControlScript`;
-        TEMP=`echo "				break" >> $TomcatControlScript`;
-        TEMP=`echo "			fi" >> $TomcatControlScript`;
-        TEMP=`echo "			echo -n \\". \\"" >> $TomcatControlScript`;
-        TEMP=`echo "			# pause while we wait to try again" >> $TomcatControlScript`;
-        TEMP=`echo "			sleep 1" >> $TomcatControlScript`;
-        TEMP=`echo "		done" >> $TomcatControlScript`;
-        TEMP=`echo "		findpid" >> $TomcatControlScript`;
-        TEMP=`echo "		if [ \\$PID_FOUND -eq 1 ] ; then" >> $TomcatControlScript`;
-        TEMP=`echo "			echo \\"[FAIL]\\"" >> $TomcatControlScript`;
-        TEMP=`echo "			echo \\" * The Tomcat/${myCFServerName} process is not responding. Forcing shutdown...\\"" >> $TomcatControlScript`;
-        TEMP=`echo "			forcequit" >> $TomcatControlScript`;
-        TEMP=`echo "		else" >> $TomcatControlScript`;
-        TEMP=`echo "			echo \\"[DONE]\\"" >> $TomcatControlScript`;
-        TEMP=`echo "		fi" >> $TomcatControlScript`;
-        TEMP=`echo "	elif [ ! -f \\$CATALINA_PID ] ; then" >> $TomcatControlScript`;
-        TEMP=`echo "		# if the pid file doesn't exist, just say \\"okay\\"" >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\"[DONE]\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	else" >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\"[Cannot locate Tomcat PID (${singleQuote}cat \\$CATALINA_PID${singleQuote}) ]\\"" >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\"--------------------------------------------------------\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	        echo \\"If the Tomcat process is still running, either kill the\\"" >> $TomcatControlScript`;
-        TEMP=`echo "       	echo \\"PID directly or use the 'killall' command.\\"" >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\"IE: # killall java\\"" >> $TomcatControlScript`;
-        TEMP=`echo "        	echo \\"--------------------------------------------------------\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	fi" >> $TomcatControlScript`;
-        TEMP=`echo "}" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "forcequit() {" >> $TomcatControlScript`;
-        TEMP=`echo "        echo -n \\" * Forcing ${myCFServerName} Shutdown: \\"" >> $TomcatControlScript`;
-        TEMP=`echo "	findpid" >> $TomcatControlScript`;
-        TEMP=`echo "	if [ \\$PID_FOUND -eq 1 ] ; then" >> $TomcatControlScript`;
-        TEMP=`echo "		# if the PID is still running, force it to die" >> $TomcatControlScript`;
-        TEMP=`echo "	        # su -p -s /bin/sh \\$TOMCAT_OWNER $CATALINA_HOME/bin/shutdown.sh -force" >> $TomcatControlScript`;
-        TEMP=`echo "		kill -9 \\$PIDNUMBER" >> $TomcatControlScript`;
-        TEMP=`echo "		rm -rf \\$CATALINA_PID" >> $TomcatControlScript`;
-        TEMP=`echo "	        echo \\"[DONE]\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	else" >> $TomcatControlScript`;
-        TEMP=`echo "		# there is no PID, tell the user." >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\"[FAIL]\\"" >> $TomcatControlScript`;
-        TEMP=`echo "                echo \\"--------------------------------------------------------\\"" >> $TomcatControlScript`;
-        TEMP=`echo "                echo \\"No Tomcat PID found. If the Tomcat process is still\\"" >> $TomcatControlScript`;
-        TEMP=`echo "                echo \\"active under a different PID, please kill it manually.\\"" >> $TomcatControlScript`;
-        TEMP=`echo "                echo \\"--------------------------------------------------------\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	fi" >> $TomcatControlScript`;
-        TEMP=`echo "}" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "status() {" >> $TomcatControlScript`;
-        TEMP=`echo "	findpid" >> $TomcatControlScript`;
-        TEMP=`echo "	if [ \\$PID_FOUND -eq 1 ] ; then" >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\" * ${myCFServerName}/Tomcat is running (PID: \\$PIDNUMBER)\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	else" >> $TomcatControlScript`;
-        TEMP=`echo "		echo \\" * PID not found.\\"" >> $TomcatControlScript`;
-        TEMP=`echo "	fi" >> $TomcatControlScript`;
-        TEMP=`echo "}" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "case \\"\\$1\\" in" >> $TomcatControlScript`;
-        TEMP=`echo "  start)" >> $TomcatControlScript`;
-        TEMP=`echo "        start" >> $TomcatControlScript`;
-        TEMP=`echo "        ;;" >> $TomcatControlScript`;
-        TEMP=`echo "  stop)" >> $TomcatControlScript`;
-        TEMP=`echo "        stop" >> $TomcatControlScript`;
-        TEMP=`echo "        ;;" >> $TomcatControlScript`;
-        TEMP=`echo "  forcequit)" >> $TomcatControlScript`;
-        TEMP=`echo "	forcequit" >> $TomcatControlScript`;
-        TEMP=`echo "	;;" >> $TomcatControlScript`;
-        TEMP=`echo "  restart)" >> $TomcatControlScript`;
-        TEMP=`echo "        stop" >> $TomcatControlScript`;
-        TEMP=`echo "        sleep 5" >> $TomcatControlScript`;
-        TEMP=`echo "        start" >> $TomcatControlScript`;
-        TEMP=`echo "        ;;" >> $TomcatControlScript`;
-        TEMP=`echo "  status)" >> $TomcatControlScript`;
-        TEMP=`echo "	status" >> $TomcatControlScript`;
-        TEMP=`echo "	;;" >> $TomcatControlScript`;
-        TEMP=`echo "  *)" >> $TomcatControlScript`;
-        TEMP=`echo "        echo \\" * Usage: \\$0 {start|stop|restart|forcequit|status}\\"" >> $TomcatControlScript`;
-        TEMP=`echo "        exit 1" >> $TomcatControlScript`;
-        TEMP=`echo "        ;;" >> $TomcatControlScript`;
-        TEMP=`echo "esac" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
-        TEMP=`echo "exit 0" >> $TomcatControlScript`;
-        TEMP=`echo "" >> $TomcatControlScript`;
+	local scriptDir="$(dirname "${BASH_SOURCE[0]}")"
+	
+	# Process the template to generate the control script
+	processControlScriptTemplate "${scriptDir}/engine_ctl_template" "$TomcatControlScript"
 	
 	# make it executable
 	chmod 744 $TomcatControlScript;	
 
 	# see if there's a control script in the init directory
 	if [ -f /etc/init.d/${myControlScriptName} ]; then
-                # if there is, copy the new control script over it
+		# if there is, copy the new control script over it
 		cp -f $TomcatControlScript /etc/init.d/${myControlScriptName};
 	fi
 }
-        
+
 
 #####################
 # Run function list #
