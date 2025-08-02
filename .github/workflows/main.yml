@@ -33,6 +33,8 @@ env:
   DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
   PUSH_LUCEE_TEST_VERSION: 6.2.2.90-RC
   LUCEE_ENABLE_BUNDLE_DOWNLOAD: false # installers should work offline without downloading bundles
+  INSTALL_OS_JAVA: false # for testing, not all images have java installed by default
+  INSTALL_JRE: true
 
 jobs:
   build-installers:
@@ -177,7 +179,7 @@ jobs:
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
             --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
-            --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
+            --luceepass ibtest --systemuser ${{matrix.user}} --installjre ${{ env.INSTALL_JRE }}
           sleep 10;
 
           sudo ls -l /var/www/html
@@ -246,7 +248,10 @@ jobs:
           apt-get install -y sudo
           apt-get install -y curl
           apt-get install -y apache2
-
+      - name: Install Java 
+        if: ${{ env.INSTALL_OS_JAVA }}
+        run: |
+          apt-get install -y openjdk-17-jre 
       - name: Start Apache service (no sudo/systemctl)
         run: |
           apache2ctl start
@@ -269,8 +274,8 @@ jobs:
             --installiis false \
             --startatboot false \
             --luceepass ibtest \
-            --systemuser lucee \
-            --installjre true
+            --systemuser ${{matrix.user}} \
+            --installjre ${{ env.INSTALL_JRE }}
 
           sleep 10;
 
@@ -340,6 +345,11 @@ jobs:
           sudo dnf update -y
           sudo dnf install httpd -y
 
+      - name: Install Java 
+        if: ${{ env.INSTALL_OS_JAVA }}
+        run: |
+          sudo dnf install java-21-openjdk -y
+
       - name: Start Apache service (no sudo/systemctl)
         run: |
           sudo httpd -k start
@@ -359,7 +369,7 @@ jobs:
             --startatboot false \
             --luceepass ibtest \
             --systemuser lucee \
-            --installjre true
+            --installjre ${{ env.INSTALL_JRE }}
 
           sleep 10;
 
@@ -444,7 +454,7 @@ jobs:
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run \
             --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
-            --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
+            --luceepass ibtest --systemuser ${{matrix.user}} --installjre ${{ env.INSTALL_JRE }}
           sleep 10;
 
           sudo ls -l /var/www/html
@@ -511,20 +521,29 @@ jobs:
       - name: list dir
         run: |
           dir
+      - uses: actions/setup-java@v4
+        if: ${{ env.INSTALL_OS_JAVA }}
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
       - name: Run Windows Installer
         shell: cmd
         run: |
           cd
-          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
           echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> %GITHUB_STEP_SUMMARY%
-          cd tomcat\bin
+          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
+          pwd
+          c:
+          cd c:\lucee\tomcat\bin
+          pwd
           call startup.bat
           echo force sleeping for 10s
           powershell -command "Start-Sleep -s 10"
           cd ..\..
           pwd
 
-          echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>#### Lucee Linux #server.lucee.version#, using Java #server.java.version##chr(10)# #### Running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
+          echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>#chr(10)##### Lucee Linux #server.lucee.version#, using Java #server.java.version##chr(10)# #### Running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
 
           dir c:\lucee\tomcat\webapps\ROOT
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o %GITHUB_STEP_SUMMARY%

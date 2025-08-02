@@ -1107,6 +1107,9 @@ Please review ${installer_installation_log}.</text>
             <name>installjre</name>
             <value>true</value>
         </setInstallerVariable>
+        <logMessage>
+            <text>Starting Java autodetection...</text>
+        </logMessage>
         <autodetectJava>
             <abortOnError>0</abortOnError>
             <promptUser>0</promptUser>
@@ -1121,6 +1124,12 @@ Please review ${installer_installation_log}.</text>
                 </validVersion>
             </validVersionList>
         </autodetectJava>
+        <logMessage>
+            <text>Java autodetection results:
+            java_autodetected = ${java_autodetected}
+            java_executable = ${java_executable}
+            java_version = ${java_version}</text>
+        </logMessage>
         <setInstallerVariable>
             <name>installjre</name>
             <value>false</value>
@@ -1129,6 +1138,19 @@ Please review ${installer_installation_log}.</text>
             </ruleList>
         </setInstallerVariable>
     </initializationActionList>
+    <preInstallationActionList>
+        <throwError>
+            <text>No Java Runtime Environment (JRE) was found on your system. Please install a JRE and add it to your system's PATH, or select the option to install the bundled JRE.</text>
+            <ruleList>
+                <isFalse>
+                    <value>${java_autodetected}</value>
+                </isFalse>
+                <isFalse>
+                    <value>${installjre}</value>
+                </isFalse>
+            </ruleList>
+        </throwError>
+    </preInstallationActionList>
     <preUninstallationActionList>
         <runProgram>
             <program>${installdir}/lucee_ctl</program>
