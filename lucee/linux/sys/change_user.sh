@@ -27,7 +27,7 @@
 #
 # ----------------------------------------------------------------------------------
 
-if [ ! $(id -u) = "0" ]; then
+if [[ ! $(id -u) = "0" ]]; then
 	echo "Error: This script needs to be run as root.";
 	echo "Exiting...";
 	exit;
@@ -35,71 +35,70 @@ fi
 
 # test user input
 
-if [ -z $1 ]; then  # make sure it was specified
+# validate username
+if [[ -z "$1" ]]; then
 	echo "Error: No User Name Specified.";
 	echo "";
-	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	echo "Usage: ./change_user.sh username /path/to/installdir [nobackup]";
 	exit 1;
-elif [[ ! $1 =~ ^[a-z][a-zA-Z0-9_-]+$ ]]; then  # make sure username is a valid format
+elif [[ ! "$1" =~ ^[a-z][a-zA-Z0-9_-]+$ ]]; then  # make sure username is a valid format
 	echo "Error: Invalid User Name";
 	echo "";
 	echo "Rules for User Names:";
 	echo "1) User Names must start with a lower-case letter"
 	echo "2) User Names must contain only alphanumeric characters, hyphens, or underscores.";
 	echo "";
-	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	echo "Usage: ./change_user.sh username /path/to/installdir [nobackup]";
 	exit 1;
 else
 	myUserName=$1;
 fi
 
-if [ -z $2 ]; then  # make sure install dir is specified
+# validate install dir
+if [[ -z "$2" ]]; then
 	echo "Error: No Installation Directory Specified.";
 	echo "";
-	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	echo "Usage: ./change_user.sh username /path/to/installdir [nobackup]";
 	exit 1;
-elif [ ! -d $2 ]; then  # make sure it's a directory
+elif [[ ! -d "$2" ]]; then  # make sure it's a directory
 	echo "Error: Directory provided does not exist or is not a directory.";
 	echo "";
-	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	echo "Usage: ./change_user.sh username /path/to/installdir [nobackup]";
 	exit 1;
-elif [ ! -d "$2/tomcat/" ]; then  # make sure it contains tomcat
+elif [[ ! -d "$2/tomcat/" ]]; then  # make sure it contains tomcat
 	echo "Error: Directory provided doesn't appear to be valid.";
 	echo "";
-	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
+	echo "Usage: ./change_user.sh username /path/to/installdir [nobackup]";
 	exit 1;
 else
 	myInstallDir=$2;
 fi
 
-if [ -z $3 ]; then # see if an engine was specified
-	echo "Error: Engine name must be either 'lucee' or 'openbd'.";
-	echo "";
-	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-	exit 1;
-elif [[ "$3" = "lucee" ]]; then
-	myCFServerName="Lucee";
-	myControlScriptName="lucee_ctl";
-elif [[ "$3" = "openbd" ]]; then
-	myCFServerName="OpenBD";
-	myControlScriptName="openbd_ctl";
-else
-	# if the engine isn't lucee or openbd, throw an error	
-	echo "Error: Engine name must be either 'lucee' or 'openbd'.";
-	echo "";
-	echo "Usage: ./change_user.sh [username] /path/to/installdir [engine]";
-	exit 1;
-fi
-
-if [ -z $4 ]; then # check to see if we're making a backup of the control scropt
-	echo "I will backup control scripts to .old";
+# the default when [nobackup] is not specified is always to backup control scripts
+if [[ -z "$3" ]]; then
+	echo "lucee_ctl will be backed up to lucee_ctl.old";
 	myControlNeedsBackup=1;
-elif [ "$4" = "nobackup" ]; then
-	echo "I will not backup control scripts.";
-	myControlNeedsBackup=0;
 else
-	echo "I will backup control scripts to .old";
-	myControlNeedsBackup=1;
+	if [[ "$3" = "openbd" ]]; then
+		echo "Error: OpenBD is no longer supported by this script.";
+		exit 1;
+	else
+		if [[ -z "$4" ]]; then
+			echo "lucee_ctl will be backed up to lucee_ctl.old";
+			myControlNeedsBackup=1;
+		else
+			# At this point $3 and $4 both exist.
+			# The legacy $3 argument (lucee) is ignored,
+			# but the old usage is supported to avoid breaking change!
+			if [[ "$3" = "nobackup" || "$4" = "nobackup" ]]; then
+				echo "lucee_ctl will NOT be backed up!";
+				myControlNeedsBackup=0;
+			else
+				echo "lucee_ctl will be backed up to lucee_ctl.old";
+				myControlNeedsBackup=1;
+			fi
+		fi
+	fi
 fi
 
 ###################
@@ -110,7 +109,7 @@ fi
 function checkUserExists {
 	echo -n "Checking to see if user exists...";
 	myUserNeedsCreating=0;
-	if [ `cat /etc/passwd | grep -c ${myUserName}:` -gt 0 ]; then
+	if id -u "${myUserName}" >/dev/null 2>&1; then
 		echo "[FOUND]";
 	else
 		echo "[NOT FOUND]";
@@ -121,7 +120,7 @@ function checkUserExists {
 function checkGroupExists {
 	echo -n "Checking to see if group exists...";
 	myGroupNeedsCreating=0;
-	if [ `cat /etc/group | grep -c ${myUserName}:` -gt 0 ]; then
+	if id -g "${myUserName}" >/dev/null 2>&1; then
 		echo "[FOUND]";
 	else
 		echo "[NOT FOUND]";
@@ -134,12 +133,12 @@ function createUserAndGroup {
 	echo "Initializing user and group creation process...";
 	checkUserExists;
 	checkGroupExists;
-	if [ ${myGroupNeedsCreating} -eq 1 ]; then
+	if [[ ${myGroupNeedsCreating} -eq 1 ]]; then
 		echo -n "Creating Group...";
 		groupadd ${myUserName} -r;
 		echo "[DONE]";
 	fi
-	if [ ${myUserNeedsCreating} -eq 1 ]; then
+	if [[ ${myUserNeedsCreating} -eq 1 ]]; then
 		echo -n "Creating User...";
 		useradd ${myUserName} -g ${myUserName} -d ${myInstallDir} -s /bin/false -r;
 		echo "[DONE]";
@@ -158,7 +157,7 @@ function processControlScriptTemplate {
 	
 	# (envsubst would have been simpler, but sed is universally available)
 	local -a sed_args=()
-	local -a template_vars=("myInstallDir" "myUserName" "myCFServerName")
+	local -a template_vars=("myInstallDir" "myUserName")
 	
 	for var in "${template_vars[@]}"; do
 		local var_value="${!var}"
@@ -175,28 +174,28 @@ function processControlScriptTemplate {
 function rebuildControlScript {
 	echo "Rebuilding Control Scripts for new User...";
 	# backup current control script
-	if [ ${myControlNeedsBackup} -eq 1 ]; then
+	if [[ ${myControlNeedsBackup} -eq 1 ]]; then
 		# If we're backing up, do it
-		mv ${myInstallDir}/${myControlScriptName} ${myInstallDir}/${myControlScriptName}.old;
+		mv ${myInstallDir}/lucee_ctl ${myInstallDir}/lucee_ctl.old;
 	else
 		# otherwise, just remove the old file
-		rm -rf ${myInstallDir}/${myControlScriptName}
+		rm -f ${myInstallDir}/lucee_ctl
 	fi
 	
 	# create the control script from easier to maintain separate template
-	TomcatControlScript="${myInstallDir}/${myControlScriptName}";
+	TomcatControlScript="${myInstallDir}/lucee_ctl";
 	local scriptDir="$(dirname "${BASH_SOURCE[0]}")"
 	
 	# Process the template to generate the control script
-	processControlScriptTemplate "${scriptDir}/engine_ctl_template" "$TomcatControlScript"
+	processControlScriptTemplate "${scriptDir}/lucee_ctl_template" "$TomcatControlScript"
 	
 	# make it executable
 	chmod 744 $TomcatControlScript;	
 
 	# see if there's a control script in the init directory
-	if [ -f /etc/init.d/${myControlScriptName} ]; then
+	if [[ -f /etc/init.d/lucee_ctl ]]; then
 		# if there is, copy the new control script over it
-		cp -f $TomcatControlScript /etc/init.d/${myControlScriptName};
+		cp -f $TomcatControlScript /etc/init.d/lucee_ctl;
 	fi
 }
 
