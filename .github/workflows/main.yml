@@ -33,8 +33,8 @@ env:
   DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
   PUSH_LUCEE_TEST_VERSION: 6.2.2.90-RC
   LUCEE_ENABLE_BUNDLE_DOWNLOAD: false # installers should work offline without downloading bundles
-  INSTALL_OS_JAVA: true # not all images have java installed by default
-  INSTALL_JRE: false
+  INSTALL_OS_JAVA: false # for testing, not all images have java installed by default
+  INSTALL_JRE: true
 
 jobs:
   build-installers:
