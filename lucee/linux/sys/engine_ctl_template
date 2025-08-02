@@ -28,9 +28,9 @@ TOMCAT_OWNER=${myUserName}; export TOMCAT_OWNER
 findpid() {
 	PID_FOUND=0
 	if [ -f "$CATALINA_PID" ] ; then
-                PIDNUMBER=`cat "$CATALINA_PID"`
-                TEST_RUNNING=`ps -p ${PIDNUMBER} | grep ${PIDNUMBER} | grep java`
-	        if [ ! -z "${TEST_RUNNING}" ]; then 
+		PIDNUMBER=`cat "$CATALINA_PID"`
+		TEST_RUNNING=`ps -p ${PIDNUMBER} | grep ${PIDNUMBER} | grep java`
+		if [ ! -z "${TEST_RUNNING}" ]; then 
 			# PID is found and running
 			PID_FOUND=1
 		fi
@@ -38,8 +38,8 @@ findpid() {
 }
 
 start() {
-        echo -n " * Starting ${myCFServerName}: "
-        findpid
+	echo -n " * Starting ${myCFServerName}: "
+	findpid
 	# only actually run the start command if the PID isn't found
 	if [ $PID_FOUND -eq 0 ] ; then
 		su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/startup.sh
@@ -50,22 +50,22 @@ start() {
 			sleep 1
 		done
 		echo "[DONE]"
-	        echo "--------------------------------------------------------"
-	        echo "It may take a few moments for ${myCFServerName} to start processing"
-	        echo "CFML templates. This is normal."
-	        echo "--------------------------------------------------------"
+		echo "--------------------------------------------------------"
+		echo "It may take a few moments for ${myCFServerName} to start processing"
+		echo "CFML templates. This is normal."
+		echo "--------------------------------------------------------"
 	else
 		echo "[ALREADY RUNNING]"
 	fi
 }
 
 stop() {
-        echo -n " * Shutting down ${myCFServerName}: "
+	echo -n " * Shutting down ${myCFServerName}: "
 	findpid
 	if [ $PID_FOUND -eq 1 ] ; then
-        	su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/shutdown.sh &> /dev/null &
+		su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/shutdown.sh &> /dev/null &
 		COUNT=0
-        	while [ $PID_FOUND -eq 1 ] ; do
+		while [ $PID_FOUND -eq 1 ] ; do
 			findpid
 			COUNT=$((${COUNT}+1))
 			if [ $COUNT -gt 20 ] ; then
@@ -89,29 +89,29 @@ stop() {
 	else
 		echo "[Cannot locate Tomcat PID (`cat $CATALINA_PID`) ]"
 		echo "--------------------------------------------------------"
-	        echo "If the Tomcat process is still running, either kill the"
-       	echo "PID directly or use the 'killall' command."
+		echo "If the Tomcat process is still running, either kill the"
+		echo "PID directly or use the 'killall' command."
 		echo "IE: # killall java"
-        	echo "--------------------------------------------------------"
+		echo "--------------------------------------------------------"
 	fi
 }
 
 forcequit() {
-        echo -n " * Forcing ${myCFServerName} Shutdown: "
+	echo -n " * Forcing ${myCFServerName} Shutdown: "
 	findpid
 	if [ $PID_FOUND -eq 1 ] ; then
 		# if the PID is still running, force it to die
-	        # su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/shutdown.sh -force
+		# su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/shutdown.sh -force
 		kill -9 $PIDNUMBER
 		rm -rf $CATALINA_PID
-	        echo "[DONE]"
+		echo "[DONE]"
 	else
 		# there is no PID, tell the user.
 		echo "[FAIL]"
-                echo "--------------------------------------------------------"
-                echo "No Tomcat PID found. If the Tomcat process is still"
-                echo "active under a different PID, please kill it manually."
-                echo "--------------------------------------------------------"
+		echo "--------------------------------------------------------"
+		echo "No Tomcat PID found. If the Tomcat process is still"
+		echo "active under a different PID, please kill it manually."
+		echo "--------------------------------------------------------"
 	fi
 }
 
@@ -126,26 +126,26 @@ status() {
 
 case "$1" in
   start)
-        start
-        ;;
+		start
+		;;
   stop)
-        stop
-        ;;
+		stop
+		;;
   forcequit)
-	forcequit
-	;;
+		forcequit
+		;;
   restart)
-        stop
-        sleep 5
-        start
-        ;;
+		stop
+		sleep 5
+		start
+		;;
   status)
-	status
-	;;
+		status
+		;;
   *)
-        echo " * Usage: $0 {start|stop|restart|forcequit|status}"
-        exit 1
-        ;;
+		echo " * Usage: $0 {start|stop|restart|forcequit|status}"
+		exit 1
+		;;
 esac
 
 exit 0
