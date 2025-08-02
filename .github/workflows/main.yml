@@ -196,7 +196,7 @@ jobs:
           sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
           curl -L --max-redirs 5 http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           #sleep 5
-          sudo /tmp/lucee/lucee_ctl stop
+          sudo /opt/lucee/lucee_ctl stop
       - name: debug failure
         if: ${{ failure() }}
         run: |
@@ -220,7 +220,7 @@ jobs:
             #cat /opt/lucee/tomcat/logs/catalina.out
 
             echo "----- lucee_ctl"
-            sudo -s cat /tmp/lucee/lucee_ctl
+            sudo -s cat /opt/lucee/lucee_ctl
 
   test-debian-linux-x64:
     runs-on: ubuntu-latest
@@ -290,7 +290,7 @@ jobs:
           sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
           curl -L --max-redirs 5 http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           #sleep 5
-          sudo /tmp/lucee/lucee_ctl stop
+          sudo /opt/lucee/lucee_ctl stop
       - name: debug failure
         if: ${{ failure() }}
         run: |
@@ -314,7 +314,7 @@ jobs:
             #cat /opt/lucee/tomcat/logs/catalina.out
 
             echo "----- lucee_ctl"
-            sudo -s cat /tmp/lucee/lucee_ctl
+            sudo -s cat /opt/lucee/lucee_ctl
 
   test-alma-linux-x64:
     runs-on: ubuntu-latest
@@ -379,7 +379,7 @@ jobs:
           sudo cp /opt/lucee/tomcat/webapps/ROOT/check.cfm /var/www/html/check.cfm
           curl -L --max-redirs 5 http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           #sleep 5
-          sudo /tmp/lucee/lucee_ctl stop
+          sudo /opt/lucee/lucee_ctl stop
       - name: debug failure
         if: ${{ failure() }}
         run: |
@@ -403,7 +403,7 @@ jobs:
             #cat /opt/lucee/tomcat/logs/catalina.out
 
             echo "----- lucee_ctl"
-            sudo -s cat /tmp/lucee/lucee_ctl
+            sudo -s cat /opt/lucee/lucee_ctl
 
   test-ubuntu-linux-aarch64:
     runs-on: ubuntu-24.04-arm
@@ -464,7 +464,7 @@ jobs:
           sudo ls -l /var/www/html
           curl -L --max-redirs 5 http://lucee.localhost/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> $GITHUB_STEP_SUMMARY
           #sleep 5
-          sudo /tmp/lucee/lucee_ctl stop
+          sudo /opt/lucee/lucee_ctl stop
       - name: debug failure
         if: ${{ failure() }}
         run: |
@@ -492,7 +492,7 @@ jobs:
             #cat /opt/lucee/tomcat/logs/catalina.out
 
             echo "----- lucee_ctl"
-            sudo -s cat /tmp/lucee/lucee_ctl
+            sudo -s cat /opt/lucee/lucee_ctl
 
   test-windows:
     runs-on: windows-latest
