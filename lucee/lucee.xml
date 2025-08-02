@@ -1107,6 +1107,9 @@ Please review ${installer_installation_log}.</text>
             <name>installjre</name>
             <value>true</value>
         </setInstallerVariable>
+        <logMessage>
+            <text>Starting Java autodetection...</text>
+        </logMessage>
         <autodetectJava>
             <abortOnError>0</abortOnError>
             <promptUser>0</promptUser>
@@ -1121,6 +1124,12 @@ Please review ${installer_installation_log}.</text>
                 </validVersion>
             </validVersionList>
         </autodetectJava>
+        <logMessage>
+            <text>Java autodetection results:
+            java_autodetected = ${java_autodetected}
+            java_executable = ${java_executable}
+            java_version = ${java_version}</text>
+        </logMessage>
         <setInstallerVariable>
             <name>installjre</name>
             <value>false</value>
