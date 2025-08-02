@@ -251,7 +251,7 @@ jobs:
       - name: Install Java 
         if: ${{ env.INSTALL_OS_JAVA }}
         run: |
-          apt-get install -y openjdk-21-jdk
+          apt-get install -y openjdk-17-jre 
       - name: Start Apache service (no sudo/systemctl)
         run: |
           apache2ctl start
@@ -535,7 +535,7 @@ jobs:
           lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
           pwd
           c:
-          cd c:\lucee\tomcat
+          cd c:\lucee\tomcat\bin
           pwd
           call startup.bat
           echo force sleeping for 10s
