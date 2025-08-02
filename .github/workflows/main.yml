@@ -543,8 +543,7 @@ jobs:
           cd ..\..
           pwd
 
-          echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>#### Lucee Linux #server.lucee.version#, using Java #server.java.version##chr(10)# #### Running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
-
+          (echo ^<cfscript^>if (server.lucee.version neq url.version) header statusCode=500;^</cfscript^>^<cfoutput^>#### Lucee Linux #server.lucee.version#, using Java #server.java.version##chr(10)# #### Running on #server.servlet.name#, OS #server.os.version# #server.os.arch#^</cfoutput^>) > c:\lucee\tomcat\webapps\ROOT\check.cfm
           dir c:\lucee\tomcat\webapps\ROOT
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o %GITHUB_STEP_SUMMARY%
       - name: debug failure
