@@ -177,7 +177,7 @@ jobs:
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
             --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
-            --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
+            --luceepass ibtest --systemuser ${{matrix.user}} --installjre false
           sleep 10;
 
           sudo ls -l /var/www/html
@@ -270,7 +270,7 @@ jobs:
             --startatboot false \
             --luceepass ibtest \
             --systemuser lucee \
-            --installjre true
+            --installjre false
 
           sleep 10;
 
@@ -359,7 +359,7 @@ jobs:
             --startatboot false \
             --luceepass ibtest \
             --systemuser lucee \
-            --installjre true
+            --installjre false
 
           sleep 10;
 
@@ -444,7 +444,7 @@ jobs:
           chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run
           sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run \
             --mode unattended --installconn true --installmodcfml true --installiis false --startatboot false \
-            --luceepass ibtest --systemuser ${{matrix.user}} --installjre true
+            --luceepass ibtest --systemuser ${{matrix.user}} --installjre false
           sleep 10;
 
           sudo ls -l /var/www/html
@@ -515,7 +515,7 @@ jobs:
         shell: cmd
         run: |
           cd
-          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre true
+          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre false
           echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> %GITHUB_STEP_SUMMARY%
           cd tomcat\bin
           call startup.bat
