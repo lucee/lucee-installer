@@ -203,49 +203,10 @@
                 </actionGroup>
                 <dirName path="${java_executable}" variable="java_bin_dir"/>
                 <dirName path="${java_bin_dir}" variable="java_home_dir"/>
-                <substitute>
-                    <files>${installdir}/sys/engine_ctl_template</files>
-                    <type>exact</type>
-                    <ruleList>
-                        <platformTest>
-                            <type>linux</type>
-                        </platformTest>
-                    </ruleList>
-                    <substitutionList>
-                        <substitution>
-                            <pattern>@@luceeJREhome@@</pattern>
-                            <value>JRE_HOME=${installDir}/jre; export JRE_HOME</value>
-                            <ruleList>
-                                <isTrue value="${installjre}"/>
-                            </ruleList>
-                        </substitution>
-                        <substitution>
-                            <pattern>@@luceeJAVAhome@@</pattern>
-                            <value>JAVA_HOME=${installDir}/jre; export JAVA_HOME</value>
-                            <ruleList>
-                                <isTrue value="${installjre}"/>
-                            </ruleList>
-                        </substitution>
-                        <substitution>
-                            <pattern>@@luceeJREhome@@</pattern>
-                            <value>JRE_HOME=${java_home_dir}; export JRE_HOME</value>
-                            <ruleList>
-                                <isFalse value="${installjre}"/>
-                            </ruleList>
-                        </substitution>
-                        <substitution>
-                            <pattern>@@luceeJAVAhome@@</pattern>
-                            <value>JAVA_HOME=${java_home_dir}; export JAVA_HOME</value>
-                            <ruleList>
-                                <isFalse value="${installjre}"/>
-                            </ruleList>
-                        </substitution>
-                    </substitutionList>
-                </substitute>
                 <runProgram>
                     <explanation>${msg(postInstall.updatingTomcatUser)}</explanation>
                     <program>${installdir}/sys/change_user.sh</program>
-                    <programArguments>${systemuser} ${installdir} lucee nobackup</programArguments>
+                    <programArguments>${systemuser} ${installdir} nobackup</programArguments>
                     <progressText>${msg(postInstall.updatingTomcatUser)}</progressText>
                     <useMSDOSPath>0</useMSDOSPath>
                     <ruleList>
@@ -466,53 +427,6 @@
                     <actionList>
                         <dirName path="${java_executable}" variable="java_bin_dir"/>
                         <dirName path="${java_bin_dir}" variable="java_home_dir"/>
-                        <substitute>
-                            <encoding>utf-8</encoding>
-                            <files>${installdir}\tomcat\bin\service.bat</files>
-                            <type>exact</type>
-                            <substitutionList>
-                                <substitution>
-                                    <pattern>@@luceeJREhome@@</pattern>
-                                    <value>set "JRE_HOME=${installdir}\jre"</value>
-                                    <ruleList>
-                                        <isTrue value="${installjre}"/>
-                                    </ruleList>
-                                </substitution>
-                                <substitution>
-                                    <pattern>@@luceeJREhome@@</pattern>
-                                    <value>set "JRE_HOME=${java_home_dir}"</value>
-                                    <ruleList>
-                                        <isFalse value="${installjre}"/>
-                                    </ruleList>
-                                </substitution>
-                                <substitution>
-                                    <pattern>@@startatboot@@</pattern>
-                                    <value>manual</value>
-                                    <ruleList>
-                                        <isFalse>
-                                            <value>${startatboot}</value>
-                                        </isFalse>
-                                    </ruleList>
-                                </substitution>
-                                <substitution>
-                                    <pattern>@@startatboot@@</pattern>
-                                    <value>auto</value>
-                                    <ruleList>
-                                        <isTrue>
-                                            <value>${startatboot}</value>
-                                        </isTrue>
-                                    </ruleList>
-                                </substitution>
-                                <substitution>
-                                    <pattern>@@minheap@@</pattern>
-                                    <value>${minheap}</value>
-                                </substitution>
-                                <substitution>
-                                    <pattern>@@maxheap@@</pattern>
-                                    <value>${maxheap}</value>
-                                </substitution>
-                            </substitutionList>
-                        </substitute>
                         <actionGroup>
                             <actionList>
                                 <copyFile>
