@@ -39,7 +39,7 @@ ls -laht /tmp/ib/output/
 /tmp/ib/output/lucee-${LUCEE_VERSION}-linux-x64-installer.run --version
 
 out=`/tmp/ib/output/lucee-${LUCEE_VERSION}-linux-x64-installer.run --version`
-tet="Lucee $LUCEE_VERSION
+tet="Lucee $LUCEE_VERSION"
 if [[ $out != $tet* ]]
 then
 	echo Incorrect version banner
