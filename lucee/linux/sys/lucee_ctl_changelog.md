@@ -16,7 +16,7 @@
 
 7. Improved error handling and user feedback throughout with more descriptive messages and exit status checking.
 
-8. Removed support for environments that don't have JRE installed because it is bundled with Lucee installer.
+8. Removed support for environments that don't have JRE installed because it is bundled with Lucee installer. That resulted in removal of substitution patterns `@@luceeJREhome@@` and `@@luceeJAVAhome@@` in lucee.xml which means change_user.sh can be tested independently of building the installer.
 
 9. Removed support for OpenBD while remaining backward compatible with legacy automated workflows as long as the engine argument is set to "lucee".
 
