@@ -21,8 +21,8 @@ CATALINA_BASE=${myInstallDir}/tomcat; export CATALINA_BASE
 CATALINA_HOME=${myInstallDir}/tomcat; export CATALINA_HOME
 CATALINA_PID=${myInstallDir}/tomcat/work/tomcat.pid; export CATALINA_PID
 CATALINA_TMPDIR=${myInstallDir}/tomcat/temp; export CATALINA_TMPDIR
-JRE_HOME=${myInstallDir}/jre; export JRE_HOME
-JAVA_HOME=${myInstallDir}/jre; export JAVA_HOME
+@@luceeJREhome@@
+@@luceeJAVAhome@@
 TOMCAT_OWNER=${myUserName}; export TOMCAT_OWNER
 
 checkisrunning() {

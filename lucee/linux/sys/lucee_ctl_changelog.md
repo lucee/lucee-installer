@@ -16,12 +16,10 @@
 
 7. Improved error handling and user feedback throughout with more descriptive messages and exit status checking.
 
-8. Removed support for environments that don't have JRE installed because it is bundled with Lucee installer. That resulted in removal of substitution patterns `@@luceeJREhome@@` and `@@luceeJAVAhome@@` in lucee.xml which means change_user.sh can be tested independently of building the installer.
+8. Removed support for OpenBD while remaining backward compatible with legacy automated workflows as long as the engine argument is set to "lucee".
 
-9. Removed support for OpenBD while remaining backward compatible with legacy automated workflows as long as the engine argument is set to "lucee".
+9. Refactored if statements to use [[ ... ]] (bash conditional) instead of [ ... ] (POSIX) and double quotes around variables to prevent word splitting and globbing.
 
-10. Refactored if statements to use [[ ... ]] (bash conditional) instead of [ ... ] (POSIX) and double quotes around variables to prevent word splitting and globbing.
+10. Improved Usage statement by removing brackets around username argument because it is not optional.
 
-11. Improved Usage statement by removing brackets around username argument because it is not optional.
-
-12. Changed `rm -rf` to `rm -f` because -r (recursive) applies only to directories.
+11. Changed `rm -rf` to `rm -f` because -r (recursive) applies only to directories.
