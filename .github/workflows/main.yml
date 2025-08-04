@@ -13,6 +13,7 @@ on:
         default: true
         type: boolean
   # Triggers the workflow on push or pull request events but only for the master branch
+  pull_request:
   workflow_call:
     inputs:
       LUCEE_VERSION:
@@ -532,7 +533,7 @@ jobs:
         run: |
           cd
           echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> %GITHUB_STEP_SUMMARY%
-          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot false --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
+          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot true --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
           pwd
           c:
           cd c:\lucee\tomcat\bin
@@ -579,6 +580,11 @@ jobs:
     - uses: actions/checkout@v4.1.1
     - name: Set defaults for Push workflows
       if: github.event_name == 'push'
+      run: |
+        echo "DRY_RUN=true" >> $GITHUB_ENV
+        echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
+    - name: Set defaults for Pull requests
+      if: github.event_name == 'pull_request'
       run: |
         echo "DRY_RUN=true" >> $GITHUB_ENV
         echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV

@@ -34,18 +34,18 @@
 	if ( s3ExtVersion eq "" ){
 		logger( "ERROR! The S3 Extension isn't installed!" );
 		writeOutMarkdown( log );
-		return;
-		//throw "The S3 Extension isn't installed!"; // fatal
+		throw "The S3 Extension isn't installed!"; // fatal
 	} else {
 		logger( "Using S3 Extension: #s3ExtVersion#" );
 	}
 
 	// check for S3 credentials
-	if ( isNull( server.system.environment.S3_ACCESS_ID_DOWNLOAD )
-			|| isNull( server.system.environment.S3_SECRET_KEY_DOWNLOAD ) ) {
+	if ( isEmpty( server.system.environment.S3_ACCESS_ID_DOWNLOAD ?:"" )
+			|| isEmpty( server.system.environment.S3_SECRET_KEY_DOWNLOAD ?: "") ) {
 		logger( "no S3 credentials defined to upload to S3");
 		writeOutMarkdown( log );
-		return;
+		if (dry_run) return;
+		throw "no S3 credentials defined to upload to S3, DRY_RUN was false";
 	}
 
 	trg = {};
