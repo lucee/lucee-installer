@@ -47,6 +47,11 @@ jobs:
       run: |
         echo "DRY_RUN=true" >> $GITHUB_ENV
         echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
+    - name: Set defaults for Pull requests
+      if: github.event_name == 'pull_request'
+      run: |
+        echo "DRY_RUN=true" >> $GITHUB_ENV
+        echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
     - name: Download and Install InstallBuilder
       run: |
         curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
@@ -153,6 +158,11 @@ jobs:
         run: |
           echo "DRY_RUN=true" >> $GITHUB_ENV
           echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
+      - name: Set defaults for Pull requests
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "DRY_RUN=true" >> $GITHUB_ENV
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
       - name: Download Linux Installer artifact
         uses: actions/download-artifact@v4
         with:
@@ -236,6 +246,11 @@ jobs:
     steps:
       - name: Set defaults for Push workflows
         if: github.event_name == 'push'
+        run: |
+          echo "DRY_RUN=true" >> $GITHUB_ENV
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
+      - name: Set defaults for Pull requests
+        if: github.event_name == 'pull_request'
         run: |
           echo "DRY_RUN=true" >> $GITHUB_ENV
           echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
@@ -336,6 +351,11 @@ jobs:
         run: |
           echo "DRY_RUN=true" >> $GITHUB_ENV
           echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
+      - name: Set defaults for Pull requests
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "DRY_RUN=true" >> $GITHUB_ENV
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
       - name: Download Linux Installer artifact
         uses: actions/download-artifact@v4
         with:
@@ -429,6 +449,11 @@ jobs:
         run: |
           echo "DRY_RUN=true" >> $GITHUB_ENV
           echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
+      - name: Set defaults for Pull requests
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "DRY_RUN=true" >> $GITHUB_ENV
+          echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
       - name: Download Linux Installer artifact
         uses: actions/download-artifact@v4
         with:
@@ -511,6 +536,12 @@ jobs:
     steps:
       - name: Set defaults for Push workflows
         if: github.event_name == 'push'
+        shell: cmd
+        run: |
+          echo DRY_RUN=true>> %GITHUB_ENV%
+          echo LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}>> %GITHUB_ENV%
+      - name: Set defaults for Pull requests
+        if: github.event_name == 'pull_request'
         shell: cmd
         run: |
           echo DRY_RUN=true>> %GITHUB_ENV%
