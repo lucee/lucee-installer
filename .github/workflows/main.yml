@@ -542,6 +542,7 @@ jobs:
           echo LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}>> %GITHUB_ENV%
       - name: Set defaults for Pull requests
         if: github.event_name == 'pull_request'
+        shell: cmd
         run: |
           echo DRY_RUN=true>> %GITHUB_ENV%
           echo LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}>> %GITHUB_ENV%
