@@ -9,7 +9,7 @@ on:
             default: true
             type: boolean
 env:
-  lucee_build_version: 6.2.0.321
+  lucee_build_version: 6.2.2.91
   DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
 
 jobs:
