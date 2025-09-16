@@ -245,7 +245,7 @@
                 <runProgram>
                     <explanation>${msg(postInstall.updatingTomcatUser)}</explanation>
                     <program>${installdir}/sys/change_user.sh</program>
-                    <programArguments>${systemuser} ${installdir} lucee nobackup</programArguments>
+                    <programArguments>${systemuser} ${installdir} nobackup</programArguments>
                     <progressText>${msg(postInstall.updatingTomcatUser)}</progressText>
                     <useMSDOSPath>0</useMSDOSPath>
                     <ruleList>
