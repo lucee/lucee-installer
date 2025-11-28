@@ -1,6 +1,6 @@
 #!/bin/bash
 # chkconfig: 345 22 78
-# description: Tomcat/${myCFServerName} Control Script
+# description: Tomcat/Lucee Control Script
 
 ### BEGIN INIT INFO
 # Provides:          lucee_ctl
@@ -25,48 +25,63 @@ CATALINA_TMPDIR=${myInstallDir}/tomcat/temp; export CATALINA_TMPDIR
 @@luceeJAVAhome@@
 TOMCAT_OWNER=${myUserName}; export TOMCAT_OWNER
 
-findpid() {
-	PID_FOUND=0
+checkisrunning() {
+	LUCEE_IS_RUNNING=0
+	# delete stale PID caused by server reboot
+	if [[ -f "$CATALINA_PID" && /proc -nt "$CATALINA_PID" ]]; then
+		rm "$CATALINA_PID"
+	fi
 	if [ -f "$CATALINA_PID" ] ; then
 		PIDNUMBER=`cat "$CATALINA_PID"`
 		TEST_RUNNING=`ps -p ${PIDNUMBER} | grep ${PIDNUMBER} | grep java`
 		if [ ! -z "${TEST_RUNNING}" ]; then 
 			# PID is found and running
-			PID_FOUND=1
+			LUCEE_IS_RUNNING=1
 		fi
 	fi
 }
 
 start() {
-	echo -n " * Starting ${myCFServerName}: "
-	findpid
-	# only actually run the start command if the PID isn't found
-	if [ $PID_FOUND -eq 0 ] ; then
+	echo " * Starting Lucee: "
+	checkisrunning
+	if [ $LUCEE_IS_RUNNING -eq 0 ] ; then
 		su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/startup.sh
+		echo -n " * Waiting for confirmation that Lucee is running: "
 		COUNT=0
-		while [ $COUNT -lt 3 ] ; do
+		while [ $LUCEE_IS_RUNNING -eq 0 ] ; do
 			COUNT=$((${COUNT}+1))
+			if [ $COUNT -gt 10 ] ; then
+				break
+			fi
 			echo -n ". "
 			sleep 1
+			checkisrunning
 		done
-		echo "[DONE]"
-		echo "--------------------------------------------------------"
-		echo "It may take a few moments for ${myCFServerName} to start processing"
-		echo "CFML templates. This is normal."
-		echo "--------------------------------------------------------"
+		if [ $LUCEE_IS_RUNNING -eq 1 ] ; then
+			echo "[DONE]"
+			echo ""
+			echo "--------------------------------------------"
+			echo "It may take a few seconds for Lucee to start"
+			echo "responding to requests. This is normal."
+			echo "--------------------------------------------"
+		else
+			echo "[TIMED OUT WITH STATUS UNKNOWN]"
+			echo "-------------------------------------------------------------"
+			echo "WARNING: Lucee may not be running. Be sure to test your apps!"
+			echo "-------------------------------------------------------------"
+		fi
 	else
 		echo "[ALREADY RUNNING]"
 	fi
 }
 
 stop() {
-	echo -n " * Shutting down ${myCFServerName}: "
-	findpid
-	if [ $PID_FOUND -eq 1 ] ; then
+	echo -n " * Shutting down Lucee: "
+	checkisrunning
+	if [ $LUCEE_IS_RUNNING -eq 1 ] ; then
 		su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/shutdown.sh &> /dev/null &
 		COUNT=0
-		while [ $PID_FOUND -eq 1 ] ; do
-			findpid
+		while [ $LUCEE_IS_RUNNING -eq 1 ] ; do
 			COUNT=$((${COUNT}+1))
 			if [ $COUNT -gt 20 ] ; then
 				break
@@ -74,16 +89,16 @@ stop() {
 			echo -n ". "
 			# pause while we wait to try again
 			sleep 1
+			checkisrunning
 		done
-		findpid
-		if [ $PID_FOUND -eq 1 ] ; then
-			echo "[FAIL]"
-			echo " * The Tomcat/${myCFServerName} process is not responding. Forcing shutdown..."
+		if [ $LUCEE_IS_RUNNING -eq 1 ] ; then
+			echo "[TIMED OUT]"
+			echo " * Tomcat/Lucee graceful stop timed out. Forcing shutdown..."
 			forcequit
 		else
 			echo "[DONE]"
 		fi
-	elif [ ! -f $CATALINA_PID ] ; then
+	elif [ ! -f "$CATALINA_PID" ] ; then
 		# if the pid file doesn't exist, just say "okay"
 		echo "[DONE]"
 	else
@@ -97,13 +112,13 @@ stop() {
 }
 
 forcequit() {
-	echo -n " * Forcing ${myCFServerName} Shutdown: "
-	findpid
-	if [ $PID_FOUND -eq 1 ] ; then
+	echo -n " * Forcing Lucee Shutdown: "
+	checkisrunning
+	if [ $LUCEE_IS_RUNNING -eq 1 ] ; then
 		# if the PID is still running, force it to die
 		# su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/shutdown.sh -force
 		kill -9 $PIDNUMBER
-		rm -rf $CATALINA_PID
+		rm -f "$CATALINA_PID"
 		echo "[DONE]"
 	else
 		# there is no PID, tell the user.
@@ -116,12 +131,39 @@ forcequit() {
 }
 
 status() {
-	findpid
-	if [ $PID_FOUND -eq 1 ] ; then
-		echo " * ${myCFServerName}/Tomcat is running (PID: $PIDNUMBER)"
+	checkisrunning
+	if [ $LUCEE_IS_RUNNING -eq 1 ] ; then
+		PIDTIME=`ls -l "$CATALINA_PID" | awk '{print $6, $7, $8}'`
+		echo " * Lucee/Tomcat (PID: $PIDNUMBER) is running and has been since $PIDTIME."
 	else
 		echo " * PID not found."
 	fi
+}
+
+restart() {
+	stop
+	# wait up to 5 seconds for confirmation that Lucee has stopped
+	checkisrunning
+	if [ $LUCEE_IS_RUNNING -eq 1 ] ; then
+		echo -n " * Waiting up to 5 seconds for confirmation that Lucee has stopped: "
+		COUNT=0
+		while [ $LUCEE_IS_RUNNING -eq 1 ] ; do
+			echo -n ". "
+			COUNT=$(($COUNT+1))
+			if [ $COUNT -ge 5 ] ; then
+				break
+			fi
+			sleep 1
+			checkisrunning
+		done
+		if [ $LUCEE_IS_RUNNING -eq 1 ] ; then
+			echo "[FAIL]"
+			echo "Lucee may not have stopped properly. Check sites after Lucee restart!"
+		else
+			echo "[DONE]"
+		fi
+	fi
+	start
 }
 
 case "$1" in
@@ -135,9 +177,7 @@ case "$1" in
 		forcequit
 		;;
   restart)
-		stop
-		sleep 5
-		start
+		restart
 		;;
   status)
 		status
