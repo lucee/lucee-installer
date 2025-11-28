@@ -49,6 +49,7 @@ OPTIONS:
  -i --install		enables Lucee to start at boot
  -r --remove		removes the lucee_ctl file from init.d and removes it
  -p --path		path to lucee_ctl (will attempt to find if not specified)
+ -n --name		service name for init.d (default: lucee_ctl)
 
 Examples:
 
@@ -87,8 +88,8 @@ EOF
 }
 
 # eval variables passed via command line
-SHORTOPTS="hvVirp:"
-LONGOPTS="help,version,install,remove,path:"
+SHORTOPTS="hvVirp:n:"
+LONGOPTS="help,version,install,remove,path:,name:"
 OPTS=$(getopt -o $SHORTOPTS --long $LONGOPTS -n "$progname" -- "$@")
 
 if [ $? -ne 0 ]; then
@@ -101,6 +102,7 @@ eval set -- "$OPTS"
 # declare initial variables (so we can check them later)
 myMode=
 myPath="../lucee_ctl" # default path to lucee_ctl script
+myServiceName="lucee_ctl" # default service name
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -122,6 +124,10 @@ while [ $# -gt 0 ]; do
             ;;
         -p|--path)
             myPath=$2
+            shift 2
+            ;;
+        -n|--name)
+            myServiceName=$2
             shift 2
             ;;
         --)
@@ -371,62 +377,62 @@ function install_luceeCTL {
 	if [[ $myLinuxVersion == *RedHat* ]]; then
 		echo "* [INFO]: Detected RedHat-based build.";
 		test_chkconfig;
-		
-		# copy lucee_ctl to /etc/init.d/
-                cp $myPath /etc/init.d/lucee_ctl
-                chmod 755 /etc/init.d/lucee_ctl
 
-		# install the lucee_ctl service
-		chkconfig lucee_ctl on
-		
+		# copy lucee_ctl to /etc/init.d/
+		cp $myPath /etc/init.d/$myServiceName
+		chmod 755 /etc/init.d/$myServiceName
+
+		# install the service
+		chkconfig $myServiceName on
+
 	elif [[ $myLinuxVersion == *Debian*  ]]; then
 		echo "* [INFO]: Detected Debian-based build.";
 		test_updateRCD;
-		
-		# copy lucee_ctl to /etc/init.d/
-		cp $myPath /etc/init.d/lucee_ctl
-		chmod 755 /etc/init.d/lucee_ctl
 
-		# install lucee_ctl service
-		update-rc.d lucee_ctl start 10 2 3 4 5 . stop 10 0 .
+		# copy lucee_ctl to /etc/init.d/
+		cp $myPath /etc/init.d/$myServiceName
+		chmod 755 /etc/init.d/$myServiceName
+
+		# install service
+		update-rc.d $myServiceName start 10 2 3 4 5 . stop 10 0 .
 	else
 		echo "* [INFO]: Unable to detect OS, defaulting to RedHat.";
-                test_chkconfig;
+		test_chkconfig;
 
-                # copy lucee_ctl to /etc/init.d/
-                cp $myPath /etc/init.d/lucee_ctl
-                chmod 755 /etc/init.d/lucee_ctl
+		# copy lucee_ctl to /etc/init.d/
+		cp $myPath /etc/init.d/$myServiceName
+		chmod 755 /etc/init.d/$myServiceName
 
-                # install the lucee_ctl service
-                chkconfig lucee_ctl on
+		# install the service
+		chkconfig $myServiceName on
 	fi
 }
 
 function remove_luceeCTL {
-        # start out by seeing what kind of system we're on
-        getLinuxVersion;
-	
-        # now see what commands we need to run based on the system type
-        if [[ $myLinuxVersion == *RedHat*  ]]; then
-                echo "* [INFO]: Detected RedHat-based build.";
-                test_chkconfig;
+	# start out by seeing what kind of system we're on
+	getLinuxVersion;
 
-                # install the lucee_ctl service
-                chkconfig lucee_ctl off
+	# now see what commands we need to run based on the system type
+	if [[ $myLinuxVersion == *RedHat*  ]]; then
+		echo "* [INFO]: Detected RedHat-based build.";
+		test_chkconfig;
 
-        elif [[ $myLinuxVersion == *Debian*  ]]; then
-                echo "* [INFO]: Detected Debian-based build.";
-                test_updateRCD;
+		# remove the service
+		chkconfig $myServiceName off
 
-                # install lucee_ctl service
-                update-rc.d -f lucee_ctl remove
+	elif [[ $myLinuxVersion == *Debian*  ]]; then
+		echo "* [INFO]: Detected Debian-based build.";
+		test_updateRCD;
+
+		# remove service
+		update-rc.d -f $myServiceName remove
 	else
 		echo "* [INFO]: Unable to detect OS, defaulting to RedHat.";
-                test_chkconfig;
+		test_chkconfig;
 
-                # install the lucee_ctl service
-                chkconfig lucee_ctl off
-        fi
+		# remove the service
+		chkconfig $myServiceName off
+	fi
 }
 
 

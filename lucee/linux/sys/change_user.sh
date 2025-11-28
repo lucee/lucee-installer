@@ -6,12 +6,10 @@
 # Author:	Jordan Michaels (jordan@viviotech.net)
 # Copyright:	Jordan Michaels, 2010-2018, All rights reserved.
 #
-# Usage: 	change_user.sh [username] [install dir] [engine] [nobackup]
+# Usage: 	change_user.sh username /path/to/installdir [nobackup] [servicename]
 #
-#		[username] must start with a lower-case letter and must be alpha-
-#		numeric
-#		[engine] must be either "lucee" or "openbd". Engine name is used
-#		in the control script name, such as "lucee_ctl" or "openbd_ctl"
+#		username must start with a lower-case letter and must be alphanumeric
+#		servicename is optional, defaults to lucee_ctl
 # ----------------------------------------------------------------------------------
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -74,31 +72,24 @@ else
 	myInstallDir=$2;
 fi
 
-# the default when [nobackup] is not specified is always to backup control scripts
-if [[ -z "$3" ]]; then
-	echo "lucee_ctl will be backed up to lucee_ctl.old";
-	myControlNeedsBackup=1;
-else
-	if [[ "$3" = "openbd" ]]; then
-		echo "Error: OpenBD is no longer supported by this script.";
-		exit 1;
-	else
-		if [[ -z "$4" ]]; then
-			echo "lucee_ctl will be backed up to lucee_ctl.old";
-			myControlNeedsBackup=1;
-		else
-			# At this point $3 and $4 both exist.
-			# The legacy $3 argument (lucee) is ignored,
-			# but the old usage is supported to avoid breaking change!
-			if [[ "$3" = "nobackup" || "$4" = "nobackup" ]]; then
-				echo "lucee_ctl will NOT be backed up!";
-				myControlNeedsBackup=0;
-			else
-				echo "lucee_ctl will be backed up to lucee_ctl.old";
-				myControlNeedsBackup=1;
-			fi
-		fi
+# default service name
+myServiceName="lucee_ctl"
+
+# parse optional arguments
+myControlNeedsBackup=1
+for arg in "$3" "$4"; do
+	if [[ "$arg" = "nobackup" ]]; then
+		myControlNeedsBackup=0
+	elif [[ -n "$arg" && "$arg" != "lucee" ]]; then
+		# treat non-empty, non-legacy values as service name
+		myServiceName="$arg"
 	fi
+done
+
+if [[ ${myControlNeedsBackup} -eq 1 ]]; then
+	echo "${myServiceName} will be backed up to ${myServiceName}.old";
+else
+	echo "${myServiceName} will NOT be backed up!";
 fi
 
 ###################
@@ -120,7 +111,7 @@ function checkUserExists {
 function checkGroupExists {
 	echo -n "Checking to see if group exists...";
 	myGroupNeedsCreating=0;
-	if id -g "${myUserName}" >/dev/null 2>&1; then
+	if getent group "${myUserName}" >/dev/null 2>&1; then
 		echo "[FOUND]";
 	else
 		echo "[NOT FOUND]";
@@ -174,28 +165,28 @@ function processControlScriptTemplate {
 function rebuildControlScript {
 	echo "Rebuilding Control Scripts for new User...";
 	# backup current control script
-	if [[ ${myControlNeedsBackup} -eq 1 ]]; then
-		# If we're backing up, do it
-		mv ${myInstallDir}/lucee_ctl ${myInstallDir}/lucee_ctl.old;
+	if [[ ${myControlNeedsBackup} -eq 1 && -f "${myInstallDir}/${myServiceName}" ]]; then
+		# If we're backing up and file exists, do it
+		mv ${myInstallDir}/${myServiceName} ${myInstallDir}/${myServiceName}.old;
 	else
 		# otherwise, just remove the old file
-		rm -f ${myInstallDir}/lucee_ctl
+		rm -f ${myInstallDir}/${myServiceName}
 	fi
-	
+
 	# create the control script from easier to maintain separate template
-	TomcatControlScript="${myInstallDir}/lucee_ctl";
+	TomcatControlScript="${myInstallDir}/${myServiceName}";
 	local scriptDir="$(dirname "${BASH_SOURCE[0]}")"
-	
+
 	# Process the template to generate the control script
 	processControlScriptTemplate "${scriptDir}/lucee_ctl_template" "$TomcatControlScript"
-	
+
 	# make it executable
-	chmod 744 $TomcatControlScript;	
+	chmod 744 $TomcatControlScript;
 
 	# see if there's a control script in the init directory
-	if [[ -f /etc/init.d/lucee_ctl ]]; then
+	if [[ -f /etc/init.d/${myServiceName} ]]; then
 		# if there is, copy the new control script over it
-		cp -f $TomcatControlScript /etc/init.d/lucee_ctl;
+		cp -f $TomcatControlScript /etc/init.d/${myServiceName};
 	fi
 }
 

@@ -76,5 +76,5 @@ params.installIISConnectorExplanation=Do you want to install the IIS Connector? 
 params.customLuceeVersionTitle=Bundled or custom Lucee Version
 params.customLuceeVersionDesc=Select a Lucee jar
 params.customLuceeVersionExplanation=You can either install the bundled Lucee version ( ${project.version} ) or select an alternate Lucee jar to install
-params.windowsServiceName="Windows Service Name"
-params.windowsServiceNameExplanation="Select a different name if you would like to install Lucee multiple times"
+params.serviceName="Service Name"
+params.serviceNameExplanation="Select a different name if you would like to install Lucee multiple times"

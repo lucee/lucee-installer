@@ -389,7 +389,7 @@ jobs:
             --installiis false \
             --startatboot false \
             --luceepass ibtest \
-            --systemuser lucee \
+            --systemuser ${{ matrix.user }} \
             --installjre ${{ env.INSTALL_JRE }}
 
           sleep 10;
@@ -397,7 +397,7 @@ jobs:
           sudo ls -l /var/www/html
           sudo chown -R apache:apache /var/www/html
           sudo chmod o+w /var/www/html
-          sudo usermod -a -G apache ${{matrix.user}}
+          sudo usermod -a -G apache ${{ matrix.user }}
 
           echo "Write out simple test script to confirm Lucee / Java / Tomcat versions" | tee -a $GITHUB_STEP_SUMMARY
 
