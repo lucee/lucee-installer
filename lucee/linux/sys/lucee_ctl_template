@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # chkconfig: 345 22 78
 # description: Tomcat/Lucee Control Script
 
@@ -25,17 +26,34 @@ CATALINA_TMPDIR=${myInstallDir}/tomcat/temp; export CATALINA_TMPDIR
 @@luceeJAVAhome@@
 TOMCAT_OWNER=${myUserName}; export TOMCAT_OWNER
 
+# Run a command as TOMCAT_OWNER
+# Tries multiple methods: direct execution, runuser, sudo, su
+run_as_owner() {
+	if [ "$(id -un)" = "$TOMCAT_OWNER" ]; then
+		"$@"
+	elif command -v runuser >/dev/null 2>&1; then
+		runuser -u "$TOMCAT_OWNER" -- "$@"
+	elif command -v sudo >/dev/null 2>&1; then
+		sudo -u "$TOMCAT_OWNER" "$@"
+	elif command -v su >/dev/null 2>&1; then
+		su -p -s /bin/sh "$TOMCAT_OWNER" -- "$@"
+	else
+		echo "ERROR: Cannot switch to user $TOMCAT_OWNER - no runuser, sudo, or su available" >&2
+		return 1
+	fi
+}
+
+# Check if Lucee/Tomcat is running by examining the PID file
 checkisrunning() {
 	LUCEE_IS_RUNNING=0
 	# delete stale PID caused by server reboot
 	if [[ -f "$CATALINA_PID" && /proc -nt "$CATALINA_PID" ]]; then
 		rm "$CATALINA_PID"
 	fi
-	if [ -f "$CATALINA_PID" ] ; then
-		PIDNUMBER=`cat "$CATALINA_PID"`
-		TEST_RUNNING=`ps -p ${PIDNUMBER} | grep ${PIDNUMBER} | grep java`
-		if [ ! -z "${TEST_RUNNING}" ]; then 
-			# PID is found and running
+	if [ -f "$CATALINA_PID" ]; then
+		PIDNUMBER=$(cat "$CATALINA_PID")
+		# check if process is running - use kill -0 which is cleaner than grepping ps output
+		if kill -0 "$PIDNUMBER" 2>/dev/null; then
 			LUCEE_IS_RUNNING=1
 		fi
 	fi
@@ -45,7 +63,7 @@ start() {
 	echo " * Starting Lucee: "
 	checkisrunning
 	if [ $LUCEE_IS_RUNNING -eq 0 ] ; then
-		su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/startup.sh
+		run_as_owner $CATALINA_HOME/bin/startup.sh
 		echo -n " * Waiting for confirmation that Lucee is running: "
 		COUNT=0
 		while [ $LUCEE_IS_RUNNING -eq 0 ] ; do
@@ -79,7 +97,7 @@ stop() {
 	echo -n " * Shutting down Lucee: "
 	checkisrunning
 	if [ $LUCEE_IS_RUNNING -eq 1 ] ; then
-		su -p -s /bin/sh $TOMCAT_OWNER $CATALINA_HOME/bin/shutdown.sh &> /dev/null &
+		run_as_owner $CATALINA_HOME/bin/shutdown.sh &> /dev/null &
 		COUNT=0
 		while [ $LUCEE_IS_RUNNING -eq 1 ] ; do
 			COUNT=$((${COUNT}+1))

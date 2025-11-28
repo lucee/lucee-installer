@@ -204,7 +204,7 @@
                 <dirName path="${java_executable}" variable="java_bin_dir"/>
                 <dirName path="${java_bin_dir}" variable="java_home_dir"/>
                 <substitute>
-                    <files>${installdir}/sys/engine_ctl_template</files>
+                    <files>${installdir}/sys/lucee_ctl_template</files>
                     <type>exact</type>
                     <ruleList>
                         <platformTest>
@@ -245,7 +245,7 @@
                 <runProgram>
                     <explanation>${msg(postInstall.updatingTomcatUser)}</explanation>
                     <program>${installdir}/sys/change_user.sh</program>
-                    <programArguments>${systemuser} ${installdir} nobackup</programArguments>
+                    <programArguments>${systemuser} ${installdir} nobackup ${servicename}_ctl</programArguments>
                     <progressText>${msg(postInstall.updatingTomcatUser)}</progressText>
                     <useMSDOSPath>0</useMSDOSPath>
                     <ruleList>
@@ -257,7 +257,7 @@
                 <substitute>
                     <encoding>utf-8</encoding>
                     <explanation>${msg(postInstall.CreateControlScript)}</explanation>
-                    <files>${installdir}/lucee_ctl</files>
+                    <files>${installdir}/${servicename}_ctl</files>
                     <type>exact</type>
                     <ruleList>
                         <platformTest>
@@ -272,7 +272,7 @@
                     </substitutionList>
                 </substitute>
                 <changePermissions>
-                    <files>${installdir}/lucee_ctl</files>
+                    <files>${installdir}/${servicename}_ctl</files>
                     <permissions>744</permissions>
                     <ruleList>
                         <platformTest>
@@ -282,7 +282,7 @@
                 </changePermissions>
                 <runProgram>
                     <program>${installdir}/sys/service_config.sh</program>
-                    <programArguments>-i --path=${installdir}/lucee_ctl</programArguments>
+                    <programArguments>-i --path=${installdir}/${servicename}_ctl --name=${servicename}_ctl</programArguments>
                     <ruleList>
                         <isTrue>
                             <value>${startatboot}</value>
@@ -643,10 +643,22 @@ Please review ${installer_installation_log}.</text>
                     <progressText>${msg(postInstall.startingLucee)}</progressText>
                     <actionList>
                         <runProgram>
-                            <program>${installdir}/lucee_ctl</program>
+                            <abortOnError>1</abortOnError>
+                            <program>${installdir}/${servicename}_ctl</program>
                             <programArguments>start</programArguments>
                             <show>0</show>
                             <useMSDOSPath>0</useMSDOSPath>
+                            <onErrorActionList>
+                                <showInfo>
+                                    <text>The Lucee control script failed to start.
+
+${program_stdout}
+${program_stderr}
+Exit code: ${program_exit_code}
+
+Please review the ${installer_installation_log} file for details.</text>
+                                </showInfo>
+                            </onErrorActionList>
                         </runProgram>
                     </actionList>
                     <ruleList>
@@ -1018,10 +1030,19 @@ Please review ${installer_installation_log}.</text>
         </setInstallerVariable>
         <setInstallerVariable>
             <name>servicename</name>
-            <value>lucee</value>
+            <value>Lucee</value>
             <ruleList>
                 <platformTest>
                     <type>windows</type>
+                </platformTest>
+            </ruleList>
+        </setInstallerVariable>
+        <setInstallerVariable>
+            <name>servicename</name>
+            <value>lucee</value>
+            <ruleList>
+                <platformTest>
+                    <type>linux</type>
                 </platformTest>
             </ruleList>
         </setInstallerVariable>
@@ -1153,7 +1174,7 @@ Please review ${installer_installation_log}.</text>
     </preInstallationActionList>
     <preUninstallationActionList>
         <runProgram>
-            <program>${installdir}/lucee_ctl</program>
+            <program>${installdir}/${servicename}_ctl</program>
             <programArguments>stop</programArguments>
             <runAs>root</runAs>
             <useMSDOSPath>0</useMSDOSPath>
@@ -1165,7 +1186,7 @@ Please review ${installer_installation_log}.</text>
         </runProgram>
         <runProgram>
             <program>${installdir}/sys/service_config.sh</program>
-            <programArguments>-r</programArguments>
+            <programArguments>-r --name=${servicename}_ctl</programArguments>
             <ruleList>
                 <platformTest>
                     <type>linux</type>
@@ -1519,19 +1540,14 @@ While upgrading previous installations of Lucee by reinstalling might work in so
         </parameterGroup>
         <stringParameter>
             <name>servicename</name>
-            <title>${msg(params.windowsServiceName)}</title>
+            <title>${msg(params.serviceName)}</title>
             <description></description>
-            <explanation>${msg(params.windowsServiceNameExplanation)}</explanation>
+            <explanation>${msg(params.serviceNameExplanation)}</explanation>
             <value></value>
             <default>Lucee</default>
             <allowEmptyValue>0</allowEmptyValue>
             <ruleEvaluationLogic>or</ruleEvaluationLogic>
             <width>30</width>
-            <ruleList>
-                <platformTest>
-                    <type>windows</type>
-                </platformTest>
-            </ruleList>
         </stringParameter>
         <stringParameter>
             <name>systemuser</name>
