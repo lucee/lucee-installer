@@ -1,0 +1,183 @@
+name: Test systemd Service Registration
+
+on:
+  push:
+    branches-ignore:
+      - master
+  workflow_dispatch:
+
+env:
+  LUCEE_INSTALLER_VERSION: 6.2.2.90-RC
+  INSTALL_JRE: true
+
+jobs:
+  test-systemd-ubuntu-x64:
+    runs-on: ubuntu-latest
+    needs: build-installer
+    strategy:
+      matrix:
+        user: [ lucee ]
+    steps:
+      - name: Download Linux Installer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
+
+      - name: Run Linux installer with startatboot=true
+        run: |
+          chmod +x lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run
+          sudo ./lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-installer.run \
+            --mode unattended \
+            --installconn false \
+            --installmodcfml false \
+            --installiis false \
+            --startatboot true \
+            --luceepass ibtest \
+            --systemuser ${{ matrix.user }} \
+            --installjre ${{ env.INSTALL_JRE }}
+
+      - name: Verify systemd service file was created
+        run: |
+          echo "### Systemd Service Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f /etc/systemd/system/lucee_ctl.service ]; then
+            echo "Service file created at /etc/systemd/system/lucee_ctl.service" | tee -a $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat /etc/systemd/system/lucee_ctl.service | tee -a $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ERROR: Service file NOT found at /etc/systemd/system/lucee_ctl.service" | tee -a $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Verify service is enabled
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Service Status" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          systemctl is-enabled lucee_ctl | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Test systemctl start
+        run: |
+          sudo systemctl start lucee_ctl
+          sleep 5
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### After systemctl start" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          sudo systemctl status lucee_ctl --no-pager | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Test Lucee is responding
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          sleep 10
+          echo "#### Lucee Response" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          curl -s http://127.0.0.1:8888/ | head -20 | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Test systemctl stop
+        run: |
+          sudo systemctl stop lucee_ctl
+          sleep 2
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### After systemctl stop" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          sudo systemctl status lucee_ctl --no-pager || true | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Test systemctl restart
+        run: |
+          sudo systemctl start lucee_ctl
+          sleep 5
+          sudo systemctl restart lucee_ctl
+          sleep 5
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### After systemctl restart" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          sudo systemctl status lucee_ctl --no-pager | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Test service removal
+        run: |
+          sudo /opt/lucee/sys/service_config.sh --remove --name lucee_ctl
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### After service removal" >> $GITHUB_STEP_SUMMARY
+          if [ -f /etc/systemd/system/lucee_ctl.service ]; then
+            echo "ERROR: Service file still exists after removal" | tee -a $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "Service file successfully removed" | tee -a $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: debug failure
+        if: ${{ failure() }}
+        run: |
+          echo "----- installbuilder_installer.log"
+          sudo cat /tmp/installbuilder_installer.log || true
+          echo "----- /etc/systemd/system/"
+          ls -la /etc/systemd/system/ | grep lucee || true
+          echo "----- lucee_ctl.service (if exists)"
+          sudo cat /etc/systemd/system/lucee_ctl.service || true
+          echo "----- lucee_ctl script"
+          sudo cat /opt/lucee/lucee_ctl || true
+          echo "----- catalina.out"
+          sudo cat /opt/lucee/tomcat/logs/catalina.out || true
+          echo "----- journalctl"
+          sudo journalctl -u lucee_ctl --no-pager || true
+
+  build-installer:
+    runs-on: ubuntu-latest
+    env:
+      IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
+      IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
+      lucee_build_version: 6.2.2.90-RC
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download and Install InstallBuilder
+      run: |
+        curl ${{ env.IB_URL }} -o ${{ env.IB_NAME }}
+        chmod a+x ${{ env.IB_NAME }}
+        ./${{ env.IB_NAME }} --prefix /tmp/ib --mode unattended
+    - name: Set Install Builder license
+      env:
+        INSTALLBUILDER_LICENSE: ${{ secrets.INSTALLBUILDER_LICENSE }}
+      shell: bash
+      run: |
+        echo "$INSTALLBUILDER_LICENSE" >> lucee/license.xml
+    - name: Download Lucee Jar
+      run: |
+        curl --fail https://cdn.lucee.org/lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar -s
+        mv lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar lucee/lucee/lib/
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: lucee-script-runner-maven-cache
+    - name: Download latest Tomcat and Java
+      uses: lucee/script-runner@main
+      with:
+        webroot: ${{ github.workspace }}/
+        execute: /download-latest-java-tomcat.cfm
+        luceeVersion: ${{ env.lucee_build_version }}
+    - name: Prepare Tomcat Linux
+      run: |
+        cd lucee/tomcat9/
+        rm -rf tomcat
+        cd ../..
+        mv src-tomcat/linux lucee/tomcat9/tomcat
+        cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
+    - name: Build Lucee Installer - Linux x86 x64
+      run: |
+        cd lucee
+        /tmp/ib/bin/builder build lucee.xml linux-x64 --verbose --license license.xml
+    - name: Upload Artifact - Linux Installer x86
+      uses: actions/upload-artifact@v4
+      with:
+        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
+        path: /tmp/ib/output/*linux-x64-installer.run
+        retention-days: 1
+        compression-level: 0
