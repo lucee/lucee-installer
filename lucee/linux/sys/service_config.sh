@@ -121,7 +121,7 @@ while [ $# -gt 0 ]; do
             ;;
         -r|--remove)
             myMode="remove"
-            shift 2
+            shift
             ;;
         -p|--path)
             myPath=$2
