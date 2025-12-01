@@ -60,6 +60,13 @@ jobs:
           systemctl is-enabled lucee_ctl | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
+      - name: Stop Lucee started by installer (so systemd can manage it)
+        run: |
+          sudo /opt/lucee/lucee_ctl stop
+          sleep 2
+          # Remove stale PID file if exists
+          sudo rm -f /opt/lucee/tomcat/work/tomcat.pid
+
       - name: Test systemctl start
         run: |
           sudo systemctl start lucee_ctl
