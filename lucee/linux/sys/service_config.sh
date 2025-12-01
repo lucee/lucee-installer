@@ -392,7 +392,14 @@ function install_systemd_service {
 	local serviceFile="/etc/systemd/system/${myServiceName}.service"
 	local scriptPath=$(realpath "$myPath")
 
+	# Extract the TOMCAT_OWNER from the lucee_ctl script
+	local serviceUser=$(grep -oP 'TOMCAT_OWNER=\K[^;]+' "$scriptPath" | head -1)
+	if [[ -z "$serviceUser" ]]; then
+		serviceUser="root"
+	fi
+
 	echo "* [INFO]: Creating systemd service file at ${serviceFile}";
+	echo "* [INFO]: Service will run as user: ${serviceUser}";
 
 	# Create the systemd unit file
 	cat > "$serviceFile" << EOF
@@ -402,6 +409,7 @@ After=network.target
 
 [Service]
 Type=forking
+User=${serviceUser}
 PIDFile=${installDir}/tomcat/work/tomcat.pid
 ExecStart=${scriptPath} start
 ExecStop=${scriptPath} stop
