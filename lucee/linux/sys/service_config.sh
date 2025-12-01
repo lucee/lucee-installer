@@ -21,9 +21,10 @@
 # History:	1.0 - Initial Release
 #		1.1 - Added Runlevel 2 to default Ubuntu start
 #		1.2 - Added defaulting to redhat system for compatibility
+#		1.3 - Added systemd support and Arch Linux detection
 ###############################################################################
 
-version=1.2
+version=1.3
 progname=$(basename $0)
 basedir=$( cd "$( dirname "$0" )" && pwd );
 
@@ -346,7 +347,7 @@ function test_updateRCD {
 
                 # didn't find update-rc.d, can we install it with apt?
                 if [[ -z $aptInstallAttempt ]] || [[ $aptInstallAttempt -eq 0 ]]; then
-                        
+
                         # set the install attempted variable to "no"
                         aptInstallAttempt=0;
                         detectAPTExists;
@@ -369,13 +370,95 @@ function test_updateRCD {
         fi
 }
 
+function is_systemd {
+	# Check if systemd is the init system
+	# Returns 0 (true) if systemd, 1 (false) otherwise
+	if [[ -d /run/systemd/system ]]; then
+		return 0
+	fi
+	return 1
+}
+
+function get_lucee_install_dir {
+	# Extract the install directory from the lucee_ctl script path
+	# e.g. /opt/lucee/lucee_ctl -> /opt/lucee
+	dirname "$(realpath "$myPath")"
+}
+
+function install_systemd_service {
+	echo "* [INFO]: Detected systemd init system.";
+
+	local installDir=$(get_lucee_install_dir)
+	local serviceFile="/etc/systemd/system/${myServiceName}.service"
+	local scriptPath=$(realpath "$myPath")
+
+	echo "* [INFO]: Creating systemd service file at ${serviceFile}";
+
+	# Create the systemd unit file
+	cat > "$serviceFile" << EOF
+[Unit]
+Description=Lucee/Tomcat CFML Application Server (${myServiceName})
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=${installDir}/tomcat/work/tomcat.pid
+ExecStart=${scriptPath} start
+ExecStop=${scriptPath} stop
+ExecReload=${scriptPath} restart
+Restart=on-failure
+TimeoutStartSec=60
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+	chmod 644 "$serviceFile"
+
+	# Reload systemd and enable the service
+	echo "* [INFO]: Reloading systemd daemon...";
+	systemctl daemon-reload
+
+	echo "* [INFO]: Enabling ${myServiceName} service...";
+	systemctl enable "$myServiceName"
+}
+
+function remove_systemd_service {
+	echo "* [INFO]: Detected systemd init system.";
+
+	local serviceFile="/etc/systemd/system/${myServiceName}.service"
+
+	if [[ -f "$serviceFile" ]]; then
+		echo "* [INFO]: Stopping ${myServiceName} service...";
+		systemctl stop "$myServiceName" 2>/dev/null || true
+
+		echo "* [INFO]: Disabling ${myServiceName} service...";
+		systemctl disable "$myServiceName" 2>/dev/null || true
+
+		echo "* [INFO]: Removing systemd service file...";
+		rm -f "$serviceFile"
+
+		echo "* [INFO]: Reloading systemd daemon...";
+		systemctl daemon-reload
+	else
+		echo "* [INFO]: Service file not found at ${serviceFile}, nothing to remove.";
+	fi
+}
+
 function install_luceeCTL {
-	# start out by seeing what kind of system we're on
+	# Check for systemd first - this is the modern way and works on all current distros
+	if is_systemd; then
+		install_systemd_service
+		return
+	fi
+
+	# Fall back to legacy init.d for older systems
 	getLinuxVersion;
 
 	# now see what commands we need to run based on the system type
 	if [[ $myLinuxVersion == *RedHat* ]]; then
-		echo "* [INFO]: Detected RedHat-based build.";
+		echo "* [INFO]: Detected RedHat-based build (legacy init).";
 		test_chkconfig;
 
 		# copy lucee_ctl to /etc/init.d/
@@ -386,7 +469,7 @@ function install_luceeCTL {
 		chkconfig $myServiceName on
 
 	elif [[ $myLinuxVersion == *Debian*  ]]; then
-		echo "* [INFO]: Detected Debian-based build.";
+		echo "* [INFO]: Detected Debian-based build (legacy init).";
 		test_updateRCD;
 
 		# copy lucee_ctl to /etc/init.d/
@@ -396,7 +479,7 @@ function install_luceeCTL {
 		# install service
 		update-rc.d $myServiceName start 10 2 3 4 5 . stop 10 0 .
 	else
-		echo "* [INFO]: Unable to detect OS, defaulting to RedHat.";
+		echo "* [INFO]: Unable to detect OS, defaulting to RedHat (legacy init).";
 		test_chkconfig;
 
 		# copy lucee_ctl to /etc/init.d/
@@ -409,25 +492,31 @@ function install_luceeCTL {
 }
 
 function remove_luceeCTL {
-	# start out by seeing what kind of system we're on
+	# Check for systemd first
+	if is_systemd; then
+		remove_systemd_service
+		return
+	fi
+
+	# Fall back to legacy init.d for older systems
 	getLinuxVersion;
 
 	# now see what commands we need to run based on the system type
 	if [[ $myLinuxVersion == *RedHat*  ]]; then
-		echo "* [INFO]: Detected RedHat-based build.";
+		echo "* [INFO]: Detected RedHat-based build (legacy init).";
 		test_chkconfig;
 
 		# remove the service
 		chkconfig $myServiceName off
 
 	elif [[ $myLinuxVersion == *Debian*  ]]; then
-		echo "* [INFO]: Detected Debian-based build.";
+		echo "* [INFO]: Detected Debian-based build (legacy init).";
 		test_updateRCD;
 
 		# remove service
 		update-rc.d -f $myServiceName remove
 	else
-		echo "* [INFO]: Unable to detect OS, defaulting to RedHat.";
+		echo "* [INFO]: Unable to detect OS, defaulting to RedHat (legacy init).";
 		test_chkconfig;
 
 		# remove the service
