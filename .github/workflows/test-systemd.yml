@@ -120,6 +120,46 @@ jobs:
             echo "Service file successfully removed" | tee -a $GITHUB_STEP_SUMMARY
           fi
 
+      - name: Test custom service name - install
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Custom Service Name Test" >> $GITHUB_STEP_SUMMARY
+          sudo /opt/lucee/sys/service_config.sh --install --path /opt/lucee/lucee_ctl --name my_custom_lucee
+
+          if [ -f /etc/systemd/system/my_custom_lucee.service ]; then
+            echo "Custom service file created at /etc/systemd/system/my_custom_lucee.service" | tee -a $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat /etc/systemd/system/my_custom_lucee.service | tee -a $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ERROR: Custom service file NOT created" | tee -a $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Test custom service name - start
+        run: |
+          sudo systemctl start my_custom_lucee
+          sleep 5
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Custom service status" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          sudo systemctl status my_custom_lucee --no-pager | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          # Verify Lucee is responding
+          sleep 5
+          curl -s http://127.0.0.1:8888/ | head -5
+
+      - name: Test custom service name - remove
+        run: |
+          sudo /opt/lucee/sys/service_config.sh --remove --name my_custom_lucee
+          if [ -f /etc/systemd/system/my_custom_lucee.service ]; then
+            echo "ERROR: Custom service file still exists after removal" | tee -a $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "Custom service file successfully removed" | tee -a $GITHUB_STEP_SUMMARY
+          fi
+
       - name: debug failure
         if: ${{ failure() }}
         run: |
