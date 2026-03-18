@@ -533,6 +533,10 @@ jobs:
   test-windows:
     runs-on: windows-latest
     needs: build-installers
+    strategy:
+      max-parallel: 1
+      matrix:
+        installiis: [ false, true ]
     steps:
       - name: Set defaults for Push workflows
         if: github.event_name == 'push'
@@ -559,12 +563,20 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Run Windows Installer
+      - name: Install IIS
+        if: ${{ matrix.installiis }}
+        shell: powershell
+        run: |
+          Install-WindowsFeature -Name Web-Server -IncludeAllSubFeature -IncludeManagementTools
+          Start-Service W3SVC
+          Write-Host "IIS installed and running"
+
+      - name: Run Windows Installer [installiis=${{ matrix.installiis }}]
         shell: cmd
         run: |
           cd
-          echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }}" >> %GITHUB_STEP_SUMMARY%
-          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis false --startatboot true --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
+          echo "Lucee Windows installer ${{ env.LUCEE_INSTALLER_VERSION }} (installiis=${{ matrix.installiis }})" >> %GITHUB_STEP_SUMMARY%
+          lucee-${{ env.LUCEE_INSTALLER_VERSION }}-windows-x64-installer.exe --mode unattended --installconn false --installmodcfml false --installiis ${{ matrix.installiis }} --startatboot true --luceepass ibtest --installjre ${{ env.INSTALL_JRE }}
           pwd
           c:
           cd c:\lucee\tomcat\bin
@@ -575,10 +587,30 @@ jobs:
           cd ..\..
           pwd
 
-          echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>#chr(10)##### Lucee Linux #server.lucee.version#, using Java #server.java.version##chr(10)# #### Running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
+          echo "<cfscript>if (server.lucee.version neq url.version) header statusCode=500;</cfscript><cfoutput>#chr(10)##### Lucee Windows #server.lucee.version#, using Java #server.java.version##chr(10)# #### Running on #server.servlet.name#, OS #server.os.version# #server.os.arch#</cfoutput>" > c:\lucee\tomcat\webapps\ROOT\check.cfm
 
           dir c:\lucee\tomcat\webapps\ROOT
           curl http://127.0.0.1:8888/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body -o %GITHUB_STEP_SUMMARY%
+
+      - name: Verify BonCode event source registered (LDEV-6164)
+        if: ${{ matrix.installiis }}
+        shell: powershell
+        run: |
+          $source = "BonCodeConnector"
+          if ([System.Diagnostics.EventLog]::SourceExists($source)) {
+            Write-Host "PASS: Event source '$source' is registered"
+          } else {
+            Write-Error "FAIL: Event source '$source' is NOT registered"
+            exit 1
+          }
+
+      - name: Verify IIS serves Lucee via Boncode
+        if: ${{ matrix.installiis }}
+        shell: cmd
+        run: |
+          echo "Check IIS port 80 via Boncode" >> %GITHUB_STEP_SUMMARY%
+          curl http://127.0.0.1/check.cfm?version=${{ env.LUCEE_INSTALLER_VERSION }} --fail-with-body >> %GITHUB_STEP_SUMMARY%
+
       - name: debug failure
         if: ${{ failure() }}
         shell: cmd
