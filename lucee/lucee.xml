@@ -622,8 +622,8 @@ Please review ${installer_installation_log}.</text>
                              See https://github.com/Bilal-S/iis2tomcat/issues/113 -->
                         <runProgram>
                             <abortOnError>0</abortOnError>
-                            <program>powershell</program>
-                            <programArguments>-Command &quot;New-EventLog -LogName Application -Source 'BonCodeConnector'&quot;</programArguments>
+                            <program>reg</program>
+                            <programArguments>add HKLM\SYSTEM\CurrentControlSet\Services\EventLog\Application\BonCodeConnector /f</programArguments>
                             <ruleList>
                                 <isTrue>
                                     <value>${installiis}</value>
