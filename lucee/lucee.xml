@@ -623,8 +623,7 @@ Please review ${installer_installation_log}.</text>
                         <runProgram>
                             <abortOnError>0</abortOnError>
                             <program>powershell</program>
-                            <programArguments>-Command "New-EventLog -LogName Application -Source 'BonCodeConnector' -ErrorAction SilentlyContinue"</programArguments>
-                            <runAs>Administrator</runAs>
+                            <programArguments>-Command "New-EventLog -LogName Application -Source 'BonCodeConnector'"</programArguments>
                             <ruleList>
                                 <isTrue>
                                     <value>${installiis}</value>
