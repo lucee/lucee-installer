@@ -567,7 +567,7 @@ jobs:
         if: ${{ matrix.installiis }}
         shell: powershell
         run: |
-          Install-WindowsFeature -Name Web-Server -IncludeAllSubFeature -IncludeManagementTools
+          Install-WindowsFeature -Name Web-Server
           Start-Service W3SVC
           Write-Host "IIS installed and running"
 
