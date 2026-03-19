@@ -596,11 +596,11 @@ jobs:
         if: ${{ matrix.installiis }}
         shell: powershell
         run: |
-          $source = "BonCodeConnector"
-          if ([System.Diagnostics.EventLog]::SourceExists($source)) {
-            Write-Host "PASS: Event source '$source' is registered"
+          $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\BonCodeConnector"
+          if (Test-Path $regPath) {
+            Write-Host "PASS: Event source registry key exists at $regPath"
           } else {
-            Write-Error "FAIL: Event source '$source' is NOT registered"
+            Write-Error "FAIL: Event source registry key NOT found at $regPath"
             exit 1
           }
 
