@@ -21,7 +21,10 @@ jobs:
     - uses: actions/checkout@v4
     - name: Download Lucee Jar
       run: |
-        curl --fail https://cdn.lucee.org/lucee-${{ env.lucee_build_version }}.jar -o lucee.jar -s
+        V=${{ env.lucee_build_version }}
+        # the jar is attached to the GitHub release of the Lucee version (LDEV-6529), Maven Central as fallback
+        curl --fail -sL --retry 10 --retry-delay 30 --retry-all-errors -o lucee.jar "https://github.com/lucee/Lucee/releases/download/$V/lucee-$V.jar" \
+          || curl --fail -sL -o lucee.jar "https://repo1.maven.org/maven2/org/lucee/lucee/$V/lucee-$V.jar"
         pwd
         ls -lh *.jar
     - name: Cache Maven packages
