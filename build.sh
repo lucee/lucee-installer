@@ -5,7 +5,9 @@
 # rm -rf lucee*jar apache-tomcat-9.0.89.tar.gz OpenJDK11U-jre_x64_linux_hotspot_11.0.23_9.tar.gz jdk-11.0.23+9-jre lucee/tomcat9/tomcat/apache-tomcat-9.0.89 installbuilder-* /tmp/ib
 
 
-wget https://cdn.lucee.org/lucee-${LUCEE_VERSION}.jar
+# the jar is attached to the GitHub release of the Lucee version, Maven Central as fallback
+curl --fail -sL -o lucee-${LUCEE_VERSION}.jar https://github.com/lucee/Lucee/releases/download/${LUCEE_VERSION}/lucee-${LUCEE_VERSION}.jar \
+  || curl --fail -sL -o lucee-${LUCEE_VERSION}.jar https://repo1.maven.org/maven2/org/lucee/lucee/${LUCEE_VERSION}/lucee-${LUCEE_VERSION}.jar
 mv lucee-${LUCEE_VERSION}.jar lucee/lucee/lib/
 
 wget ${TOMCAT_URL}

@@ -197,7 +197,10 @@ jobs:
         echo "$INSTALLBUILDER_LICENSE" >> lucee/license.xml
     - name: Download Lucee Jar
       run: |
-        curl --fail https://cdn.lucee.org/lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar -s
+        V=${{ env.LUCEE_INSTALLER_VERSION }}
+        # the jar is attached to the GitHub release of the Lucee version (LDEV-6529), Maven Central as fallback
+        curl --fail -sL --retry 10 --retry-delay 30 --retry-all-errors -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar "https://github.com/lucee/Lucee/releases/download/$V/lucee-$V.jar" \
+          || curl --fail -sL -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar "https://repo1.maven.org/maven2/org/lucee/lucee/$V/lucee-$V.jar"
         mv lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar lucee/lucee/lib/
     - name: Cache Maven packages
       uses: actions/cache@v4

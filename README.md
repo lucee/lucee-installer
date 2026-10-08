@@ -18,7 +18,7 @@ We now use an automated GitHub action to build, test and publish the Windows and
 
 None of the main binaries are checked into source control, the following manual steps are required:
 
-The Lucee loader jar goes into the `lucee/lucee/lib` folder, i.e. <https://cdn.lucee.org/lucee-6.0.1.83.jar>
+The Lucee loader jar goes into the `lucee/lucee/lib` folder, i.e. <https://github.com/lucee/Lucee/releases/download/6.2.8.20/lucee-6.2.8.20.jar>
 
 Download and extract the Tomcat 9 distribution into the `lucee/tomcat9/tomcat` folder, make sure you use the `tar.gz` version for Linux or the `.zip` version for Windows
 

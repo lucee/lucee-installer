@@ -67,7 +67,10 @@ jobs:
           echo "$INSTALLBUILDER_LICENSE" >> lucee/license.xml
     - name: Download Lucee Jar
       run: |
-        curl --fail https://cdn.lucee.org/lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar -s
+        V=${{ env.LUCEE_INSTALLER_VERSION }}
+        # the jar is attached to the GitHub release of the Lucee version (LDEV-6529), Maven Central as fallback
+        curl --fail -sL --retry 10 --retry-delay 30 --retry-all-errors -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar "https://github.com/lucee/Lucee/releases/download/$V/lucee-$V.jar" \
+          || curl --fail -sL -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar "https://repo1.maven.org/maven2/org/lucee/lucee/$V/lucee-$V.jar"
         pwd
         ls -l
         mv lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar lucee/lucee/lib/
@@ -623,58 +626,6 @@ jobs:
           ECHO install.log
           IF EXIST "c:\lucee\install.log" type "c:\lucee\install.log"
           dir /S c:\lucee\
-
-  publish-to-s3:
-    runs-on: ubuntu-latest
-    needs: [
-        test-windows,
-        test-ubuntu-linux-x64,
-        test-alma-linux-x64,
-        test-debian-linux-x64,
-        test-ubuntu-linux-aarch64,
-        build-installers
-      ]
-    if: ${{ github.event.inputs.DRY_RUN  != true }}
-    env:
-      S3_ACCESS_ID_DOWNLOAD: ${{ secrets.S3_ACCESS_ID_DOWNLOAD }}
-      S3_SECRET_KEY_DOWNLOAD: ${{ secrets.S3_SECRET_KEY_DOWNLOAD }}
-      DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
-    steps:
-    - uses: actions/checkout@v4.1.1
-    - name: Set defaults for Push workflows
-      if: github.event_name == 'push'
-      run: |
-        echo "DRY_RUN=true" >> $GITHUB_ENV
-        echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
-    - name: Set defaults for Pull requests
-      if: github.event_name == 'pull_request'
-      run: |
-        echo "DRY_RUN=true" >> $GITHUB_ENV
-        echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
-    - name: Download Windows Installer artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-windows
-    - name: Download Linux Installer Arm artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-run
-    - name: Download Linux Installer x64 artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-x64-run
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: lucee-script-runner-maven-cache
-
-    - name: Publish Installers to S3
-      uses: lucee/script-runner@main
-      with:
-        webroot: ${{ github.workspace }}/
-        execute: /publish-to-s3.cfm
-        luceeVersion: ${{ env.lucee_build_version }}
 
   publish-to-github-release:
     runs-on: ubuntu-latest
