@@ -1347,6 +1347,22 @@ Please review the ${installer_installation_log} file for details.</text>
                 </compareValues>
             </ruleList>
         </launchBrowser>
+        <launchBrowser>
+            <progressText>Open the Lucee docs on installing mod_cfml?</progressText>
+            <explanation>mod_cfml automatically configures Tomcat and Lucee for the sites of your web server (Apache, NGINX, IIS).</explanation>
+            <url>https://docs.lucee.org/guides/installing-lucee/windows/installing-the-boncode-connector-and-mod_cfml.html</url>
+            <run>0</run>
+            <ruleList>
+                <compareValues>
+                    <logic>equals</logic>
+                    <value1>${installer_ui}</value1>
+                    <value2>gui</value2>
+                </compareValues>
+                <platformTest>
+                    <type>windows</type>
+                </platformTest>
+            </ruleList>
+        </launchBrowser>
     </finalPageActionList>
     <parameterList>
         <stringParameter name="javaVersion" value="" ask="0"/>
