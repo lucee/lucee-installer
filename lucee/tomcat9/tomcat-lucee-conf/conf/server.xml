@@ -117,6 +117,7 @@
 	    port="@@tomcatajpport@@"
 	    secret="@@ajpsecretkey@@"
 	    secretRequired="true"
+	    connectionTimeout="120000"
                redirectPort="8443" />
     
     <!-- An Engine represents the entry point (within Catalina) that processes
