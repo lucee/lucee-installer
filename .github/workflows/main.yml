@@ -69,8 +69,12 @@ jobs:
       run: |
         V=${{ env.LUCEE_INSTALLER_VERSION }}
         # the jar is attached to the GitHub release of the Lucee version (LDEV-6529), Maven Central as fallback
-        curl --fail -sL --retry 10 --retry-delay 30 --retry-all-errors -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar "https://github.com/lucee/Lucee/releases/download/$V/lucee-$V.jar" \
-          || curl --fail -sL -o lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar "https://repo1.maven.org/maven2/org/lucee/lucee/$V/lucee-$V.jar"
+        # since LDEV-6516 the release tag has no qualifier (8.0.0.294 for 8.0.0.294-RC), older releases use the full version
+        OK=""
+        for TAG in "${V%%-*}" "$V"; do
+          if curl --fail -sL --retry 10 --retry-delay 30 --retry-all-errors -o lucee-$V.jar "https://github.com/lucee/Lucee/releases/download/$TAG/lucee-$V.jar"; then OK=1; break; fi
+        done
+        [ -n "$OK" ] || curl --fail -sL -o lucee-$V.jar "https://repo1.maven.org/maven2/org/lucee/lucee/$V/lucee-$V.jar"
         pwd
         ls -l
         mv lucee-${{ env.LUCEE_INSTALLER_VERSION }}.jar lucee/lucee/lib/
@@ -670,8 +674,15 @@ jobs:
       run: |
         VERSION="${{ env.LUCEE_INSTALLER_VERSION }}"
         ls -l *.exe *.run
-        if ! gh release view "$VERSION" > /dev/null 2>&1; then
-          PRE=""; case "$VERSION" in *-RC*|*-BETA*|*-ALPHA*|*-SNAPSHOT*) PRE="--prerelease";; esac
-          gh release create "$VERSION" --title "Lucee $VERSION" --notes "Lucee $VERSION" $PRE
+        # attach to the existing release: numeric tag first (LDEV-6516), then the full version (older releases)
+        TAG=""
+        for T in "${VERSION%%-*}" "$VERSION"; do
+          if gh release view "$T" > /dev/null 2>&1; then TAG="$T"; break; fi
+        done
+        if [ -z "$TAG" ]; then
+          # never create a release for RC/BETA/ALPHA/SNAPSHOT here, the Lucee build owns those
+          case "$VERSION" in *-*) echo "::error::no GitHub release found for $VERSION (tags ${VERSION%%-*} / $VERSION)"; exit 1;; esac
+          TAG="$VERSION"
+          gh release create "$TAG" --title "Lucee $VERSION" --notes "Lucee $VERSION"
         fi
-        gh release upload "$VERSION" *.exe *.run --clobber
+        gh release upload "$TAG" *.exe *.run --clobber
