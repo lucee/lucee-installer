@@ -354,6 +354,7 @@
 		for ( var os in java ){
 			http method="get" url=java[os].api;
 			var jv = getJava( cfhttp.filecontent, "jre", "jdk");
+			assertJava4ShellSafe( jv.version );
 			java[os]["url"] = jv.url;
 			java[os]["version"] = jv.version;
 			java._version = jv.version;
@@ -383,6 +384,44 @@
 			}
 		}
 		throw (message="#arguments.type# and #arguments.project# not found?", detail=arguments.json)
+	}
+
+	// Reject a JRE still affected by Java4Shell (CVE-2026-114938, LDEV-6957).
+	// The struct below is the single place to update: keys are Java majors, values are
+	// the first patched OpenJDK / Temurin version. Majors not listed (e.g. 8, 11) are
+	// not affected and are left alone.
+	function assertJava4ShellSafe( required string openjdkVersion ){
+		var minSafe = {
+			"17": "17.0.21.1",
+			"21": "21.0.13.1",
+			"25": "25.0.5.1",
+			"27": "27.0.1.1"
+		};
+		var resolved = listFirst( arguments.openjdkVersion, "+-" );
+		var major = listFirst( resolved, "." );
+		if ( !structKeyExists( minSafe, major ) ){
+			return;
+		}
+		if ( compareOpenJdkVersion( resolved, minSafe[ major ] ) < 0 ){
+			throw "Refusing to build with JRE #arguments.openjdkVersion#, which is affected by Java4Shell (CVE-2026-114938). The minimum safe version for Java #major# is #minSafe[major]#. See LDEV-6957.";
+		}
+	}
+
+	// Compare dotted OpenJDK versions, ignoring a trailing +build or -qualifier
+	// (e.g. "21.0.13.1+4", "21.0.13+9-LTS"). Missing components are treated as 0,
+	// so "21.0.13" is less than "21.0.13.1".
+	function compareOpenJdkVersion( required string a, required string b ){
+		var left = listToArray( listFirst( arguments.a, "+-" ), "." );
+		var right = listToArray( listFirst( arguments.b, "+-" ), "." );
+		var len = max( arrayLen( left ), arrayLen( right ) );
+		var i = 0;
+		for ( i=1; i<=len; i++ ){
+			var l = ( i <= arrayLen( left ) && isNumeric( left[ i ] ) ) ? val( left[ i ] ) : 0;
+			var r = ( i <= arrayLen( right ) && isNumeric( right[ i ] ) ) ? val( right[ i ] ) : 0;
+			if ( l < r ) return -1;
+			if ( l > r ) return 1;
+		}
+		return 0;
 	}
 
 	function logger( message ){
