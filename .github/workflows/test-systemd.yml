@@ -9,6 +9,9 @@ on:
 env:
   LUCEE_INSTALLER_VERSION: 6.2.2.90-RC
   INSTALL_JRE: true
+  # only the Linux x64 installer is built here, don't download or check the Windows / aarch64 JREs (LDEV-6957)
+  BUILD_WINDOWS: false
+  BUILD_LINUX_ARM64: false
 
 jobs:
   test-systemd-ubuntu-x64:
@@ -207,6 +210,12 @@ jobs:
       with:
         path: ~/.m2
         key: lucee-script-runner-maven-cache
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '21'
+
     - name: Download latest Tomcat and Java
       uses: lucee/script-runner@main
       with:

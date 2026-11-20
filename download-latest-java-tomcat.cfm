@@ -1,6 +1,11 @@
 <cfscript>
 	tmpDir = getDirectoryFromPath(getCurrentTemplatePath()) & "tmp-installer/";
 	log = [];
+	// which installers get built (BUILD_WINDOWS / BUILD_LINUX_ARM64 from the workflow, default: all).
+	// A platform that is not built is not downloaded and not checked by assertJava4ShellSafe (LDEV-6957),
+	// so e.g. the Linux x64 installer can ship while Windows / aarch64 still wait for a patched Temurin.
+	buildWindows = ( server.system.environment.BUILD_WINDOWS ?: "true" ) != "false";
+	buildLinuxArm64 = ( server.system.environment.BUILD_LINUX_ARM64 ?: "true" ) != "false";
 	expressTemplate=server.system.environment.express ?: false;
 	if ( expressTemplate ){
 		tomcat_version = server.system.environment.expressTomcatVersion;
@@ -172,11 +177,15 @@
 	//dump(java);
 	//dump(tomcat);
 	if (!expressTemplate){
-		extractArchive( "zip", java.windows.archive , "jre/jre64-win/jre/" );
 		extractArchive( "tgz", java.linuxX86.archive , "jre/x86-linux/jre/" );
-		extractArchive( "tgz", java.linuxArm64.archive , "jre/aarch64-linux/jre/" );
-		extractArchive( "zip", tomcat.windows.archive , "src-tomcat/windows/" );
-		directoryDelete( "src-tomcat/windows/webapps", true );
+		if ( buildLinuxArm64 ){
+			extractArchive( "tgz", java.linuxArm64.archive , "jre/aarch64-linux/jre/" );
+		}
+		if ( buildWindows ){
+			extractArchive( "zip", java.windows.archive , "jre/jre64-win/jre/" );
+			extractArchive( "zip", tomcat.windows.archive , "src-tomcat/windows/" );
+			directoryDelete( "src-tomcat/windows/webapps", true );
+		}
 	}
 
 	// express template only uses the linux dist of tomcat
@@ -351,9 +360,13 @@
 				"api": "https://api.adoptium.net/v3/assets/latest/#java_version#/hotspot?architecture=aarch64&os=linux&vendor=eclipse"
 			}
 		}
+		if ( !buildWindows ) structDelete( java, "windows" );
+		if ( !buildLinuxArm64 ) structDelete( java, "linuxArm64" );
+		logger( "Bundling JREs for: #structKeyList( java )#" );
 		for ( var os in java ){
 			http method="get" url=java[os].api;
 			var jv = getJava( cfhttp.filecontent, "jre", "jdk");
+			assertJava4ShellSafe( jv.version );
 			java[os]["url"] = jv.url;
 			java[os]["version"] = jv.version;
 			java._version = jv.version;
@@ -383,6 +396,44 @@
 			}
 		}
 		throw (message="#arguments.type# and #arguments.project# not found?", detail=arguments.json)
+	}
+
+	// Reject a JRE still affected by Java4Shell (CVE-2026-114938, LDEV-6957).
+	// The struct below is the single place to update: keys are Java majors, values are
+	// the first patched OpenJDK / Temurin version. Majors not listed (e.g. 8, 11) are
+	// not affected and are left alone.
+	function assertJava4ShellSafe( required string openjdkVersion ){
+		var minSafe = {
+			"17": "17.0.21.1",
+			"21": "21.0.13.1",
+			"25": "25.0.5.1",
+			"27": "27.0.1.1"
+		};
+		var resolved = listFirst( arguments.openjdkVersion, "+-" );
+		var major = listFirst( resolved, "." );
+		if ( !structKeyExists( minSafe, major ) ){
+			return;
+		}
+		if ( compareOpenJdkVersion( resolved, minSafe[ major ] ) < 0 ){
+			throw "Refusing to build with JRE #arguments.openjdkVersion#, which is affected by Java4Shell (CVE-2026-114938). The minimum safe version for Java #major# is #minSafe[major]#. See LDEV-6957.";
+		}
+	}
+
+	// Compare dotted OpenJDK versions, ignoring a trailing +build or -qualifier
+	// (e.g. "21.0.13.1+4", "21.0.13+9-LTS"). Missing components are treated as 0,
+	// so "21.0.13" is less than "21.0.13.1".
+	function compareOpenJdkVersion( required string a, required string b ){
+		var left = listToArray( listFirst( arguments.a, "+-" ), "." );
+		var right = listToArray( listFirst( arguments.b, "+-" ), "." );
+		var len = max( arrayLen( left ), arrayLen( right ) );
+		var i = 0;
+		for ( i=1; i<=len; i++ ){
+			var l = ( i <= arrayLen( left ) && isNumeric( left[ i ] ) ) ? val( left[ i ] ) : 0;
+			var r = ( i <= arrayLen( right ) && isNumeric( right[ i ] ) ) ? val( right[ i ] ) : 0;
+			if ( l < r ) return -1;
+			if ( l > r ) return 1;
+		}
+		return 0;
 	}
 
 	function logger( message ){
