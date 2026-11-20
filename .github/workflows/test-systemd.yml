@@ -9,6 +9,9 @@ on:
 env:
   LUCEE_INSTALLER_VERSION: 6.2.2.90-RC
   INSTALL_JRE: true
+  # only the Linux x64 installer is built here, don't download or check the Windows / aarch64 JREs (LDEV-6957)
+  BUILD_WINDOWS: false
+  BUILD_LINUX_ARM64: false
 
 jobs:
   test-systemd-ubuntu-x64:

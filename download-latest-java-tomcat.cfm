@@ -1,6 +1,11 @@
 <cfscript>
 	tmpDir = getDirectoryFromPath(getCurrentTemplatePath()) & "tmp-installer/";
 	log = [];
+	// which installers get built (BUILD_WINDOWS / BUILD_LINUX_ARM64 from the workflow, default: all).
+	// A platform that is not built is not downloaded and not checked by assertJava4ShellSafe (LDEV-6957),
+	// so e.g. the Linux x64 installer can ship while Windows / aarch64 still wait for a patched Temurin.
+	buildWindows = ( server.system.environment.BUILD_WINDOWS ?: "true" ) != "false";
+	buildLinuxArm64 = ( server.system.environment.BUILD_LINUX_ARM64 ?: "true" ) != "false";
 	expressTemplate=server.system.environment.express ?: false;
 	if ( expressTemplate ){
 		tomcat_version = server.system.environment.expressTomcatVersion;
@@ -172,11 +177,15 @@
 	//dump(java);
 	//dump(tomcat);
 	if (!expressTemplate){
-		extractArchive( "zip", java.windows.archive , "jre/jre64-win/jre/" );
 		extractArchive( "tgz", java.linuxX86.archive , "jre/x86-linux/jre/" );
-		extractArchive( "tgz", java.linuxArm64.archive , "jre/aarch64-linux/jre/" );
-		extractArchive( "zip", tomcat.windows.archive , "src-tomcat/windows/" );
-		directoryDelete( "src-tomcat/windows/webapps", true );
+		if ( buildLinuxArm64 ){
+			extractArchive( "tgz", java.linuxArm64.archive , "jre/aarch64-linux/jre/" );
+		}
+		if ( buildWindows ){
+			extractArchive( "zip", java.windows.archive , "jre/jre64-win/jre/" );
+			extractArchive( "zip", tomcat.windows.archive , "src-tomcat/windows/" );
+			directoryDelete( "src-tomcat/windows/webapps", true );
+		}
 	}
 
 	// express template only uses the linux dist of tomcat
@@ -351,6 +360,9 @@
 				"api": "https://api.adoptium.net/v3/assets/latest/#java_version#/hotspot?architecture=aarch64&os=linux&vendor=eclipse"
 			}
 		}
+		if ( !buildWindows ) structDelete( java, "windows" );
+		if ( !buildLinuxArm64 ) structDelete( java, "linuxArm64" );
+		logger( "Bundling JREs for: #structKeyList( java )#" );
 		for ( var os in java ){
 			http method="get" url=java[os].api;
 			var jv = getJava( cfhttp.filecontent, "jre", "jdk");

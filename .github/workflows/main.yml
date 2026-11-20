@@ -12,6 +12,16 @@ on:
         required: false
         default: true
         type: boolean
+      BUILD_WINDOWS:
+        description: "Build the Windows x64 installer (needs a Java4Shell patched Temurin JRE for Windows, LDEV-6957)"
+        required: false
+        default: false
+        type: boolean
+      BUILD_LINUX_ARM64:
+        description: "Build the Linux aarch64 installer (needs a Java4Shell patched Temurin JRE for Linux aarch64, LDEV-6957)"
+        required: false
+        default: false
+        type: boolean
   # Triggers the workflow on push or pull request events but only for the master branch
   pull_request:
   workflow_call:
@@ -36,6 +46,11 @@ env:
   LUCEE_ENABLE_BUNDLE_DOWNLOAD: false # installers should work offline without downloading bundles
   INSTALL_OS_JAVA: false # for testing, not all images have java installed by default
   INSTALL_JRE: true
+  # Linux only branch (LDEV-6957): Windows x64 and Linux aarch64 are only built when asked for
+  # (workflow_dispatch inputs), the Linux x64 installer is always built.
+  # The Java4Shell guard in download-latest-java-tomcat.cfm still fails the build for any bundled JRE that is not patched.
+  BUILD_WINDOWS: ${{ github.event.inputs.BUILD_WINDOWS == 'true' }}
+  BUILD_LINUX_ARM64: ${{ github.event.inputs.BUILD_LINUX_ARM64 == 'true' }}
 
 jobs:
   build-installers:
@@ -111,6 +126,7 @@ jobs:
         cd lucee
         /tmp/ib/bin/builder build lucee.xml linux-x64 --verbose --license license.xml
     - name: Build Lucee Installer - Linux aarch64
+      if: env.BUILD_LINUX_ARM64 == 'true'
       run: |
         cd lucee
         /tmp/ib/bin/builder build lucee.xml linux-arm64 --verbose --license license.xml
@@ -118,6 +134,7 @@ jobs:
           /tmp/ib/output/lucee-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-installer.run
 
     - name: Prepare Tomcat Windows
+      if: env.BUILD_WINDOWS == 'true'
       run: |
         cd lucee/tomcat9/
         rm -rfv tomcat
@@ -128,6 +145,7 @@ jobs:
         cp -ar lucee/tomcat9/tomcat-lucee-conf/* lucee/tomcat9/tomcat
         ls -lRh
     - name: Build Lucee Installer - Windows x64
+      if: env.BUILD_WINDOWS == 'true'
       run: |
         cd lucee
         /tmp/ib/bin/builder build lucee.xml windows-x64 --verbose --license license.xml
@@ -140,6 +158,7 @@ jobs:
           retention-days: 1
           compression-level: 0
     - name: Upload Artifact - Linux Installer Arm
+      if: env.BUILD_LINUX_ARM64 == 'true'
       uses: actions/upload-artifact@v4
       with:
           name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-run
@@ -147,6 +166,7 @@ jobs:
           retention-days: 1
           compression-level: 0
     - name: Upload Artifact - Windows Installer
+      if: env.BUILD_WINDOWS == 'true'
       uses: actions/upload-artifact@v4
       with:
           name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-windows
@@ -448,6 +468,7 @@ jobs:
   test-ubuntu-linux-aarch64:
     runs-on: ubuntu-24.04-arm
     needs: build-installers
+    if: github.event.inputs.BUILD_LINUX_ARM64 == 'true'
     strategy:
       max-parallel: 1
       matrix:
@@ -542,6 +563,7 @@ jobs:
   test-windows:
     runs-on: windows-latest
     needs: build-installers
+    if: github.event.inputs.BUILD_WINDOWS == 'true'
     strategy:
       max-parallel: 1
       matrix:
@@ -643,7 +665,8 @@ jobs:
         test-ubuntu-linux-aarch64,
         build-installers
       ]
-    if: ${{ github.event.inputs.DRY_RUN  != true }}
+    # skipped Windows / aarch64 jobs must not block the publish, failed or cancelled ones still do
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && needs.build-installers.result == 'success' && github.event.inputs.DRY_RUN  != true }}
     env:
       # token with "contents: write" on lucee/Lucee (the release of the Lucee version lives there, GITHUB_TOKEN only covers this repo)
       GH_TOKEN: ${{ secrets.LUCEE_RELEASE_TOKEN }}
@@ -660,10 +683,12 @@ jobs:
         echo "DRY_RUN=true" >> $GITHUB_ENV
         echo "LUCEE_INSTALLER_VERSION=${{ env.PUSH_LUCEE_TEST_VERSION }}" >> $GITHUB_ENV
     - name: Download Windows Installer artifact
+      if: env.BUILD_WINDOWS == 'true'
       uses: actions/download-artifact@v4
       with:
         name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-windows
     - name: Download Linux Installer Arm artifact
+      if: env.BUILD_LINUX_ARM64 == 'true'
       uses: actions/download-artifact@v4
       with:
         name: lucee-installer-${{ env.LUCEE_INSTALLER_VERSION }}-linux-aarch64-run
@@ -675,9 +700,11 @@ jobs:
       if: ${{ env.DRY_RUN != 'true' }}
       run: |
         VERSION="${{ env.LUCEE_INSTALLER_VERSION }}"
-        ls -l *.exe *.run
+        shopt -s nullglob
+        FILES=( *.exe *.run )
+        ls -l "${FILES[@]}"
         if ! gh release view "$VERSION" > /dev/null 2>&1; then
           PRE=""; case "$VERSION" in *-RC*|*-BETA*|*-ALPHA*|*-SNAPSHOT*) PRE="--prerelease";; esac
           gh release create "$VERSION" --title "Lucee $VERSION" --notes "Lucee $VERSION" $PRE
         fi
-        gh release upload "$VERSION" *.exe *.run --clobber
+        gh release upload "$VERSION" "${FILES[@]}" --clobber
