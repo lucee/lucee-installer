@@ -30,9 +30,9 @@ env:
   LUCEE_INSTALLER_VERSION: ${{ github.event.inputs.LUCEE_VERSION }}
   IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
   IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
-  lucee_build_version: 6.2.2.90-RC
+  lucee_build_version: 6.2.2.91
   DRY_RUN: ${{ github.event.inputs.DRY_RUN }}
-  PUSH_LUCEE_TEST_VERSION: 6.2.2.90-RC
+  PUSH_LUCEE_TEST_VERSION: 6.2.2.91
   LUCEE_ENABLE_BUNDLE_DOWNLOAD: false # installers should work offline without downloading bundles
   INSTALL_OS_JAVA: false # for testing, not all images have java installed by default
   INSTALL_JRE: true
