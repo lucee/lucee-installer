@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  LUCEE_INSTALLER_VERSION: 6.2.2.90-RC
+  LUCEE_INSTALLER_VERSION: 6.2.2.91
   INSTALL_JRE: true
 
 jobs:
@@ -181,7 +181,7 @@ jobs:
     env:
       IB_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.3.0-linux-x64-installer.run
       IB_NAME: installbuilder-enterprise-24.3.0-linux-x64-installer.run
-      lucee_build_version: 6.2.2.90-RC
+      lucee_build_version: 6.2.2.91
     steps:
     - uses: actions/checkout@v4
     - name: Download and Install InstallBuilder
